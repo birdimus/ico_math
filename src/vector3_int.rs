@@ -218,16 +218,12 @@ impl From<Vector3> for Vector3Int {
 }
 impl From<Vector2Int> for Vector3Int {
     fn from(v : Vector2Int) -> Vector3Int {
-    	unsafe{
-        	return Vector3Int { data : v.data };
-        }
+        return Vector3Int { data : v.data };
     }
 }
 impl From<Vector4Int> for Vector3Int {
     fn from(v : Vector4Int) -> Vector3Int {
-    	unsafe{
-        	return Vector3Int { data : v.data };
-        }
+        return Vector3Int { data : v.data };
     }
 }
 impl std::ops::Add for Vector3Int{

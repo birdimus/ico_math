@@ -334,15 +334,25 @@ impl Vector4{
 	}
 
 	#[inline(always)]
-	pub fn normalize(v1 : Vector4) -> Vector4{	
+	pub fn renormalize(v1 : Vector4) -> Vector4{	
 		let length = Vector4::sqrt(Vector4::dot(v1,v1));
 		return Vector4::component_div(v1, length);
 	}
 
 	#[inline(always)]
+	pub fn normalize(v1 : Vector4) -> Vector4{	
+		let length = Vector4::sqrt(Vector4::dot(v1,v1));
+		let norm = Vector4::component_div(v1, length);
+		let mask = Vector4::component_less(Vector4::abs(norm), Vector4::from( std::f32::INFINITY));
+		return Vector4::and(norm, mask);
+	}
+
+	#[inline(always)]
 	pub fn normalize_length(v1 : Vector4) -> (Vector4, f32){	
 		let length = Vector4::sqrt(Vector4::dot(v1,v1));
-		return (Vector4::component_div(v1, length), length.x());
+		let norm = Vector4::component_div(v1, length);
+		let mask = Vector4::component_less(Vector4::abs(norm),Vector4::from( std::f32::INFINITY));
+		return (Vector4::and(norm, mask), length.x());
 	}
 
 	

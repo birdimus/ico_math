@@ -294,7 +294,7 @@ impl Vector2{
 	#[inline(always)]
 	pub fn dot(v0 : Vector2, v1 : Vector2) -> Vector2{	
 		unsafe{
-			let mut tmp0 = _mm_mul_ps(v0.data, v1.data);
+			let tmp0 = _mm_mul_ps(v0.data, v1.data);
 			let mut tmp1 = _mm_shuffle_ps(tmp0,tmp0, _ico_shuffle(3, 2, 0, 1)); //yxzw
 			
 			tmp1 = _mm_add_ps(tmp0, tmp1);//xy,xy,qq,qq
@@ -311,15 +311,25 @@ impl Vector2{
 	}
 
 	#[inline(always)]
-	pub fn normalize(v1 : Vector2) -> Vector2{	
+	pub fn renormalize(v1 : Vector2) -> Vector2{	
 		let length = Vector2::sqrt(Vector2::dot(v1,v1));
 		return Vector2::component_div(v1, length);
 	}
 
 	#[inline(always)]
+	pub fn normalize(v1 : Vector2) -> Vector2{	
+		let length = Vector2::sqrt(Vector2::dot(v1,v1));
+		let norm = Vector2::component_div(v1, length);
+		let mask = Vector2::component_less(Vector2::abs(norm), Vector2::from( std::f32::INFINITY));
+		return Vector2::and(norm, mask);
+	}
+
+	#[inline(always)]
 	pub fn normalize_length(v1 : Vector2) -> (Vector2, f32){	
 		let length = Vector2::sqrt(Vector2::dot(v1,v1));
-		return (Vector2::component_div(v1, length), length.x());
+		let norm = Vector2::component_div(v1, length);
+		let mask = Vector2::component_less(Vector2::abs(norm),Vector2::from( std::f32::INFINITY));
+		return (Vector2::and(norm, mask), length.x());
 	}
 
 	

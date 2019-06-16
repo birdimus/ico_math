@@ -203,16 +203,12 @@ impl From<Vector2> for Vector2Int {
 }
 impl From<Vector3Int> for Vector2Int {
     fn from(v : Vector3Int) -> Vector2Int {
-    	unsafe{
-        	return Vector2Int { data : v.data };
-        }
+        return Vector2Int { data : v.data };
     }
 }
 impl From<Vector4Int> for Vector2Int {
     fn from(v : Vector4Int) -> Vector2Int {
-    	unsafe{
-        	return Vector2Int { data : v.data };
-        }
+        return Vector2Int { data : v.data };
     }
 }
 

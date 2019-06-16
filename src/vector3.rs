@@ -331,15 +331,25 @@ impl Vector3{
 	}
 
 	#[inline(always)]
-	pub fn normalize(v1 : Vector3) -> Vector3{	
+	pub fn renormalize(v1 : Vector3) -> Vector3{	
 		let length = Vector3::sqrt(Vector3::dot(v1,v1));
 		return Vector3::component_div(v1, length);
 	}
 
 	#[inline(always)]
+	pub fn normalize(v1 : Vector3) -> Vector3{	
+		let length = Vector3::sqrt(Vector3::dot(v1,v1));
+		let norm = Vector3::component_div(v1, length);
+		let mask = Vector3::component_less(Vector3::abs(norm), Vector3::from( std::f32::INFINITY));
+		return Vector3::and(norm, mask);
+	}
+
+	#[inline(always)]
 	pub fn normalize_length(v1 : Vector3) -> (Vector3, f32){	
 		let length = Vector3::sqrt(Vector3::dot(v1,v1));
-		return (Vector3::component_div(v1, length), length.x());
+		let norm = Vector3::component_div(v1, length);
+		let mask = Vector3::component_less(Vector3::abs(norm),Vector3::from( std::f32::INFINITY));
+		return (Vector3::and(norm, mask), length.x());
 	}
 
 	

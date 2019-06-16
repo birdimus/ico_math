@@ -7,7 +7,7 @@ mod vector4_int;
 mod quaternion;
 mod dual_quaternion;
 use std::arch::x86_64::*;
-
+const NORMALIZATION_EPSILON : f32 = 1.0e-10;
 
 
 #[derive(Copy, Clone)]
