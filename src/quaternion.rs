@@ -4,6 +4,7 @@ use crate::Quaternion;
 use crate::RawVec;
 use crate::_ico_shuffle;
 use crate::_ico_quat_mul;
+use crate::_ico_abs_ps;
 use crate::_ico_dp4_ps;
 use crate::_ico_signbit_ps;
 use crate::_ico_select_ps;
