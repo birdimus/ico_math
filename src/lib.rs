@@ -6,9 +6,11 @@ mod vector3_int;
 mod vector4_int;
 mod quaternion;
 mod dual_quaternion;
+mod matrix4x4;
 use std::arch::x86_64::*;
 const NORMALIZATION_EPSILON : f32 = 1.0e-10;
 
+const SIGN_BIT : f32 = -0.0;
 
 #[derive(Copy, Clone)]
 #[repr(C, align(16))]
@@ -17,46 +19,55 @@ pub struct RawVec{
 }
 
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct Vector2{
 	data : __m128,
 }
 
 /// A vector 3
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct Vector3{
 	data : __m128,
 }
 
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct Vector4{
 	data : __m128,
 }
 
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct Vector2Int{
 	data : __m128i,
 }
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct Vector3Int{
 	data : __m128i,
 }
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct Vector4Int{
 	data : __m128i,
 }
 
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct Quaternion{
 	data : __m128,
 }
 
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct DualQuaternion{
 	real : __m128,
 	dual : __m128,
 }
 
 #[derive(Copy, Clone)]
+#[repr(C, align(16))]
 pub struct Matrix4x4{
 	m : [__m128; 4],
 }

@@ -10,7 +10,7 @@ use crate::_ico_signbit_ps;
 use crate::_ico_select_ps;
 use crate::_ico_one_ps;
 use crate::NORMALIZATION_EPSILON;
-
+use crate::SIGN_BIT;
 const SLERP_EPSILON : f32 = 0.9995;
 impl Quaternion{
 
@@ -156,7 +156,7 @@ impl Quaternion{
 	#[inline(always)]
 	pub fn inverse(&self) -> Quaternion {
 		unsafe{
-		return Quaternion{data : _mm_xor_ps(self.data, _mm_set_ps(0f32, -0.0,-0.0,-0.0))};
+		return Quaternion{data : _mm_xor_ps(self.data, _mm_set_ps(0f32, SIGN_BIT,SIGN_BIT,SIGN_BIT))};
 		}
 	}
 
@@ -179,7 +179,7 @@ impl Quaternion{
 
 			let flip_sign = _mm_and_ps(negative, _ico_signbit_ps());
 			let shortest_from = _mm_xor_ps(from.data, flip_sign);
-			return Quaternion{data : _mm_mul_ps(_mm_xor_ps(shortest_from, _mm_set_ps(0f32, -0.0,-0.0,-0.0)),to.data)};
+			return Quaternion{data : _mm_mul_ps(_mm_xor_ps(shortest_from, _mm_set_ps(0f32,SIGN_BIT,SIGN_BIT,SIGN_BIT)),to.data)};
 		}
 	
 	}
