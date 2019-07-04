@@ -160,7 +160,7 @@ impl Vector2{
 	#[inline(always)]
 	pub fn any(v1 : Vector2) -> bool{	
 		unsafe{
-			return (_mm_movemask_ps(v1.data) & 3) != 3;
+			return (_mm_movemask_ps(v1.data) & 3) != 0;
 		}
 	}
 

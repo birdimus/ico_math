@@ -412,8 +412,8 @@ mod tests {
     fn it_works() {
 
 
-    	let q = crate::Mesh::new();
-        let v = q.clone();
+    	//let q = crate::Mesh::new();
+       // let v = q.clone();
        
        
     	use crate::Vector3;

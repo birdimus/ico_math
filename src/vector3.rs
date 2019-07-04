@@ -98,6 +98,7 @@ impl Vector3{
 		}
 	}
 
+	/// Multiply v1 and v2, and add v3.
 	#[inline(always)]
 	pub fn fmadd(v1 : Vector3, v2 : Vector3, v3 : Vector3) -> Vector3{	
 		unsafe{
@@ -172,16 +173,14 @@ impl Vector3{
 	#[inline(always)]
 	pub fn any(v1 : Vector3) -> bool{	
 		unsafe{
-			return (_mm_movemask_ps(v1.data) & 7) != 7;
+			return (_mm_movemask_ps(v1.data) & 7) != 0;
 		}
 	}
 
 	#[inline(always)]
 	pub fn equals(v1 : Vector3, v2 : Vector3) -> bool{	
-		unsafe{
-			let d = _mm_cmpeq_ps(v1.data, v2.data);
-			return (_mm_movemask_ps(d) & 7) == 7;
-		}
+		let d = Vector3::component_equal(v1,v2);
+		return Vector3::all(d);
 	}
 
 	#[inline(always)]
@@ -435,4 +434,339 @@ impl PartialEq for Vector3 {
     fn eq(&self, other: &Vector3) -> bool {
     	return Vector3::equals(*self, *other);
     }
+}
+
+#[cfg(test)]
+mod tests {
+	use crate::Vector3;
+	#[test]
+    fn new() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+
+	    assert_eq!(a.x(), 1.0);
+        assert_eq!(a.y(), 2.0);
+        assert_eq!(a.z(), 3.0);
+        
+    }
+    #[test]
+    fn zero() {
+
+    	let a = Vector3::zero();
+
+	    assert_eq!(a.x(), 0.0);
+        assert_eq!(a.y(), 0.0);
+        assert_eq!(a.z(), 0.0);
+        
+    }
+    #[test]
+    fn set_x() {
+
+    	let mut a = Vector3::new(1.0,2.0,3.0);
+    	a.set_x(-11.0);
+	    assert_eq!(a.x(), -11.0);
+        assert_eq!(a.y(), 2.0);
+        assert_eq!(a.z(), 3.0);
+        
+    }
+    #[test]
+    fn set_y() {
+
+    	let mut a = Vector3::new(1.0,2.0,3.0);
+    	a.set_y(-11.0);
+	    assert_eq!(a.x(), 1.0);
+        assert_eq!(a.y(), -11.0);
+        assert_eq!(a.z(), 3.0);
+        
+    }
+    #[test]
+    fn set_z() {
+
+    	let mut a = Vector3::new(1.0,2.0,3.0);
+    	a.set_z(-11.0);
+	    assert_eq!(a.x(), 1.0);
+        assert_eq!(a.y(), 2.0);
+        assert_eq!(a.z(), -11.0);
+        
+    }
+    #[test]
+    fn add() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(4.0,4.0,6.0);
+
+		let c = a + b;
+        assert_eq!(c.x(), 5.0);
+        assert_eq!(c.y(), 6.0);
+        assert_eq!(c.z(), 9.0);
+        
+    }
+    #[test]
+    fn sub() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(4.0,4.0,6.0);
+
+		let c = a - b;
+        assert_eq!(c.x(), -3.0);
+        assert_eq!(c.y(), -2.0);
+        assert_eq!(c.z(), -3.0);
+        
+    }
+    #[test]
+    fn component_mul() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(4.0,4.0,6.0);
+
+		let c = Vector3::component_mul(a,b);
+        assert_eq!(c.x(), 4.0);
+        assert_eq!(c.y(), 8.0);
+        assert_eq!(c.z(), 18.0);
+        
+    }
+    #[test]
+    fn component_div() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(4.0,4.0,6.0);
+
+		let c = Vector3::component_div(a,b);
+        assert_eq!(c.x(), 0.25);
+        assert_eq!(c.y(), 0.5);
+        assert_eq!(c.z(), 0.5);
+        
+    }
+    #[test]
+    fn fmadd() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(4.0,4.0,6.0);
+		let c = Vector3::new(2.0,-5.0,10.0);
+		let d = Vector3::fmadd(a,b,c);
+
+        assert_eq!(d.x(), 6.0);
+        assert_eq!(d.y(), 3.0);
+        assert_eq!(d.z(), 28.0);
+        
+    }
+    #[test]
+    fn fmsub() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(4.0,4.0,6.0);
+		let c = Vector3::new(2.0,-5.0,10.0);
+		let d = Vector3::fmsub(a,b,c);
+
+        assert_eq!(d.x(), 2.0);
+        assert_eq!(d.y(), 13.0);
+        assert_eq!(d.z(), 8.0);
+        
+    }
+    #[test]
+    fn fnmadd() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(4.0,4.0,6.0);
+		let c = Vector3::new(2.0,-5.0,10.0);
+		let d = Vector3::fnmadd(a,b,c);
+
+        assert_eq!(d.x(), -2.0);
+        assert_eq!(d.y(), -13.0);
+        assert_eq!(d.z(), -8.0);
+        
+    }
+    #[test]
+    fn fnmsub() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(4.0,4.0,6.0);
+		let c = Vector3::new(2.0,-5.0,10.0);
+		let d = Vector3::fnmsub(a,b,c);
+
+        assert_eq!(d.x(), -6.0);
+        assert_eq!(d.y(), -3.0);
+        assert_eq!(d.z(), -28.0);
+        
+    }
+    #[test]
+    fn scale() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = -3.0;
+
+		let c = Vector3::scale(a,b);
+        assert_eq!(c.x(), -3.0);
+        assert_eq!(c.y(), -6.0);
+        assert_eq!(c.z(), -9.0);
+        
+    }
+    #[test]
+    fn div() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = 4.0;
+
+		let c = Vector3::div(a,b);
+        assert_eq!(c.x(), 0.25);
+        assert_eq!(c.y(), 0.5);
+        assert_eq!(c.z(), 0.75);
+        
+    }
+    #[test]
+    fn and() {
+
+    	let a = Vector3::new(-1.0,-2.0,3.0);
+		let b = Vector3::new(1.0,-2.0,-3.0);
+
+		let c = Vector3::and(a,b);
+        assert_eq!(c.x(), 1.0);
+        assert_eq!(c.y(), -2.0);
+        assert_eq!(c.z(), 3.0);
+        
+    }
+    #[test]
+    fn andnot() {
+
+    	let a = Vector3::new(0.0,0.0,-0.0);
+		let b = Vector3::new(1.0,-2.0,-3.0);
+
+		let c = Vector3::andnot(a,b);
+        assert_eq!(c.x(), 1.0);
+        assert_eq!(c.y(), -2.0);
+        assert_eq!(c.z(), 3.0);
+        
+    }
+    #[test]
+    fn or() {
+
+    	let a = Vector3::new(-1.0,-2.0,3.0);
+		let b = Vector3::new(1.0,-2.0,-3.0);
+
+		let c = Vector3::or(a,b);
+        assert_eq!(c.x(), -1.0);
+        assert_eq!(c.y(), -2.0);
+        assert_eq!(c.z(), -3.0);
+        
+    }
+    #[test]
+    fn xor() {
+
+    	let a = Vector3::new(-1.0,-2.0,3.0);
+		let b = Vector3::new(-0.0,0.0,-0.0);
+
+		let c = Vector3::xor(a,b);
+        assert_eq!(c.x(), 1.0);
+        assert_eq!(c.y(), -2.0);
+        assert_eq!(c.z(), -3.0);
+        
+    }
+    #[test]
+    fn all() {
+    	{
+	    	let a = Vector3::new(1.0,2.0,3.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::all(c), true);
+		}	
+		{
+	    	let a = Vector3::new(0.0,2.0,3.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::all(c), false);
+		}	
+		{
+	    	let a = Vector3::new(1.0,0.0,3.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::all(c), false);
+		}
+		{
+	    	let a = Vector3::new(1.0,2.0,0.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::all(c), false);
+		}	
+		{
+	    	let a = Vector3::new(0.0,0.0,0.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::all(c), false);
+		}	
+		unsafe{
+			use std::arch::x86_64::*;
+			let a = Vector3 { data : _mm_set_ps(0.0, 1.0,2.0,3.0)};
+			let b = Vector3 { data : _mm_set_ps(99.0, 1.0,2.0,3.0)};
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::all(c), true);
+		}
+
+    }
+    #[test]
+    fn any() {
+    	{
+	    	let a = Vector3::new(1.0,2.0,3.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::any(c), true);
+		}	
+		{
+	    	let a = Vector3::new(0.0,0.0,3.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::any(c), true);
+		}	
+		{
+	    	let a = Vector3::new(1.0,0.0,0.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::any(c), true);
+		}
+		{
+	    	let a = Vector3::new(0.0,2.0,0.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::any(c), true);
+		}	
+		{
+	    	let a = Vector3::new(0.0,0.0,0.0);
+			let b = Vector3::new(1.0,2.0,3.0);
+
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::any(c), false);
+		}	
+		unsafe{
+			use std::arch::x86_64::*;
+			let a = Vector3 { data : _mm_set_ps(0.0, 1.0,2.0,3.0)};
+			let b = Vector3 { data : _mm_set_ps(0.0, 99.0,99.0,99.0)};
+			let c = Vector3::component_equal(a,b);
+			assert_eq!(Vector3::any(c), false);
+		}
+
+    }
+    #[test]
+    fn component_equal() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(1.0,1.0,4.0);
+
+		let mask = Vector3::component_equal(a,b);
+		let c = Vector3::new(-1000.0,-1000.0,-1000.0);
+		let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), -1000.0);
+        assert_eq!(d.y(), 0.0);
+        assert_eq!(d.z(), 0.0);
+        
+    }
+
 }

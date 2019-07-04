@@ -54,15 +54,13 @@ impl Matrix4x4{
 
 	#[inline(always)]
 	pub fn from_columns(c0 : Vector4, c1 : Vector4, c2 : Vector4, c3 : Vector4) -> Matrix4x4 {
-		unsafe{
-			return Matrix4x4{ m:[
-				c0.data,
-				c1.data,
-				c2.data,
-				c3.data
-				]
-			};
-		}
+		return Matrix4x4{ m:[
+			c0.data,
+			c1.data,
+			c2.data,
+			c3.data
+			]
+		};
 	}
 
 	#[inline(always)]
@@ -260,7 +258,6 @@ impl Matrix4x4{
 		}
 		return mat;
 	}
-
 
 
 
