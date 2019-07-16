@@ -298,22 +298,7 @@ unsafe fn _ico_copysign_ps(a : __m128, b : __m128) ->__m128{
     
 	return _mm_xor_ps(tmp, b);
 }
-#[inline(always)]
-unsafe fn _ico_floorps_epi32(a : __m128)->__m128i{
-    ///convert to int using truncate
-    let integer = _mm_cvttps_epi32(a);
-    // if the truncated value is greater than the old value (negative) subtract 1.
-    return _mm_sub_epi32(integer, 
-		_mm_and_si128(_mm_castps_si128(_mm_cmpgt_ps(_mm_cvtepi32_ps(integer), a)), _ico_one_epi32()));
-}
-#[inline(always)]
-unsafe fn _ico_ceilps_epi32(a : __m128)->__m128i{
-    ///convert to int using truncate
-    let integer = _mm_cvttps_epi32(a);
-    // if the truncated value is greater than the old value (negative) subtract 1.
-    return _mm_add_epi32(integer, _mm_and_si128(
-		_mm_castps_si128(_mm_cmplt_ps(_mm_cvtepi32_ps(integer), a)), _ico_one_epi32()));
-}
+
 
 #[inline(always)]
 unsafe fn _ico_select_ps( a : __m128,   b : __m128,  mask : __m128)->__m128{
@@ -359,10 +344,34 @@ unsafe fn _ico_truncate_ps(a : __m128) -> __m128{
     return _ico_select_ps(a,trunc, mask);
 }
 
+
+
+
+#[inline(always)]
+/// Returns unsigned 0.
+unsafe fn _ico_floor_ps(a : __m128) -> __m128{
+    
+    ///convert to int using truncate
+    let t = _ico_truncate_ps(a);//_mm_cvtepi32_ps(_mm_cvttps_epi32(a));
+    // if the truncated value is greater than the old value (negative, non integral) subtract 1.
+    return _mm_sub_ps(t, _mm_and_ps(_mm_cmpgt_ps(t, a), _ico_one_ps()));
+}
+
+#[inline(always)]
+/// Returns unsigned 0.
+unsafe fn _ico_ceil_ps(a : __m128) -> __m128{
+    ///convert to int using truncate
+    let t = _ico_truncate_ps(a);//_mm_cvtepi32_ps(_mm_cvttps_epi32(a));
+    // if the truncated value is less than the old value (positive) add 1.
+    return _mm_add_ps(t, _mm_and_ps(_mm_cmplt_ps(t, a), _ico_one_ps()));
+}
+
 ///Round away from zero, not toward zero to match cmath.
+/// Returns unsigned 0.
 //http://dss.stephanierct.com/DevBlog/?p=8
 #[inline(always)]
-unsafe fn _ico_round_ps(a : __m128) ->__m128{
+/// Returns unsigned 0.
+unsafe fn _ico_round_ps(a : __m128) -> __m128{
 
     ///convert to int using truncate
     let trunc = _ico_truncate_ps(a);//_mm_cvtepi32_ps(_mm_cvttps_epi32(a));
@@ -373,6 +382,7 @@ unsafe fn _ico_round_ps(a : __m128) ->__m128{
     
     return _mm_add_ps(trunc, _mm_cvtepi32_ps(rmd2i));
 }
+
 #[inline(always)]
 unsafe fn _ico_cross_ps(lhs : __m128, rhs : __m128) ->__m128{
     // x  <-  a.y*b.z - a.z*b.y
@@ -413,7 +423,7 @@ mod tests {
 
 
     	//let q = crate::Mesh::new();
-       // let v = q.clone();
+        //let v = q.clone();
        
        
     	use crate::Vector3;

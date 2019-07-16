@@ -59,7 +59,7 @@ impl Quaternion{
 
 
 	#[inline(always)]
-	pub fn store(&self,  dst : &mut RawVec){	
+	pub fn store(self,  dst : &mut RawVec){	
 		let x : *mut f32 = &mut (dst.data[0]) as *mut f32;
 		unsafe{
 			_mm_store_ps(x, self.data);
@@ -67,33 +67,33 @@ impl Quaternion{
 	}
 
 	//#[inline(always)]
-	//pub fn to_angle_axis(&self) -> (Vector3, f32){	
+	//pub fn to_angle_axis(self) -> (Vector3, f32){	
 
 	//}
 
 	#[inline(always)]
-	pub fn x(&self) -> f32 {
+	pub fn x(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(self.data);
 		}	
 	}
 
 	#[inline(always)]
-	pub fn y(&self) -> f32 {
+	pub fn y(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(1, 1, 1, 1)));
 		}	
 	}
 
 	#[inline(always)]
-	pub fn z(&self) -> f32 {
+	pub fn z(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(2, 2, 2, 2)));
 		}	
 	}
 
 	#[inline(always)]
-	pub fn w(&self) -> f32 {
+	pub fn w(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(3, 3, 3, 3)));
 		}	
@@ -143,25 +143,25 @@ impl Quaternion{
 		}
 	}
 	#[inline(always)]
-	pub fn sqr_magnitude(&self) -> f32 {
+	pub fn sqr_magnitude(self) -> f32 {
 		return Quaternion::dot(*self, *self).x();	
 	}
 	#[inline(always)]
-	pub fn magnitude(&self) -> f32 {
+	pub fn magnitude(self) -> f32 {
 		unsafe{
 		return _mm_cvtss_f32(_mm_sqrt_ps(_ico_dp4_ps(self.data, self.data)));	
 		}	
 	}
 
 	#[inline(always)]
-	pub fn inverse(&self) -> Quaternion {
+	pub fn inverse(self) -> Quaternion {
 		unsafe{
 		return Quaternion{data : _mm_xor_ps(self.data, _mm_set_ps(0f32, SIGN_BIT,SIGN_BIT,SIGN_BIT))};
 		}
 	}
 
 	#[inline(always)]
-	pub fn reverse(&self) ->Quaternion{
+	pub fn reverse(self) ->Quaternion{
 		unsafe{
 			return Quaternion{data : _mm_xor_ps(self.data,_ico_signbit_ps())};
 		}

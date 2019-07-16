@@ -5,11 +5,7 @@ use crate::Vector4Int;
 
 use std::arch::x86_64::*;
 use crate::_ico_shuffle;
-use crate::_ico_floorps_epi32;
-use crate::_ico_ceilps_epi32;
-use crate::_ico_round_ps;
 use crate::_ico_abs_ps;
-use crate::_ico_truncate_ps;
 use crate::_ico_copysign_ps;
 use crate::_ico_dp4_ps;
 impl Vector4{
@@ -28,28 +24,28 @@ impl Vector4{
 	}
 
 	#[inline(always)]
-	pub fn x(&self) -> f32 {
+	pub fn x(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(self.data);
 		}	
 	}
 
 	#[inline(always)]
-	pub fn y(&self) -> f32 {
+	pub fn y(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(1, 1, 1, 1)));
 		}	
 	}
 
 	#[inline(always)]
-	pub fn z(&self) -> f32 {
+	pub fn z(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(2, 2, 2, 2)));
 		}	
 	}
 
 	#[inline(always)]
-	pub fn w(&self) -> f32 {
+	pub fn w(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(3,3,3,3)));
 		}	
@@ -251,45 +247,57 @@ impl Vector4{
 			Vector4{data :  _ico_copysign_ps(v1.data, v2.data)}
 		}
 	}
+
 	#[inline(always)]
+	/// Floor function.  Returns signed 0 when applicable.
 	pub fn floor(v1 : Vector4) -> Vector4{	
 		unsafe{
-			Vector4{data :  _mm_floor_ps(v1.data)}
+			Vector4{data :  
+				_mm_floor_ps(v1.data)}
+				//_ico_floor_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
+	/// Ceil function.  Returns signed 0 when applicable.
 	pub fn ceil(v1 : Vector4) -> Vector4{	
 		unsafe{
-			Vector4{data :  _mm_ceil_ps(v1.data)}
+			Vector4{data :  
+				_mm_ceil_ps(v1.data)}
+				//_ico_ceil_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
+	/// Round to nearest even function. Returns signed 0 when applicable.
 	pub fn round(v1 : Vector4) -> Vector4{	
 		unsafe{
-			Vector4{data :  _ico_round_ps(v1.data)}
+			Vector4{data : 
+			_mm_round_ps(v1.data, _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC)}
+			// _ico_round_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
 	pub fn floor_to_int(v1 : Vector4) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data :  _ico_floorps_epi32(v1.data)}
+			Vector4Int{data :  _mm_cvttps_epi32(_mm_floor_ps(v1.data))}
 		}
 	}
 
 	#[inline(always)]
 	pub fn ceil_to_int(v1 : Vector4) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data :  _ico_ceilps_epi32(v1.data)}
+			Vector4Int{data :  _mm_cvttps_epi32(_mm_ceil_ps(v1.data))}
 		}
 	}
 
 	#[inline(always)]
-	pub fn truncate(v1 : Vector4) -> Vector4{	
+	pub fn truncate(v1 : Vector2) -> Vector2{	
 		unsafe{
-			Vector4{data :  _ico_truncate_ps(v1.data)}
+			Vector2{data :  
+				_mm_round_ps(v1.data, _MM_FROUND_TO_ZERO |_MM_FROUND_NO_EXC)}
+				//_ico_truncate_ps(v1.data)}
 		}
 	}
 
@@ -358,12 +366,12 @@ impl Vector4{
 	
 
 	#[inline(always)]
-	pub fn sqr_magnitude(&self) -> f32 {
-		return Vector4::dot(*self, *self).x();	
+	pub fn sqr_magnitude(self) -> f32 {
+		return Vector4::dot(self, self).x();	
 	}
 	#[inline(always)]
-	pub fn magnitude(&self) -> f32 {
-		return Vector4::sqrt(Vector4::dot(*self, *self)).x();	
+	pub fn magnitude(self) -> f32 {
+		return Vector4::sqrt(Vector4::dot(self, self)).x();	
 	}
 
 	

@@ -5,13 +5,10 @@ use crate::Vector3Int;
 
 use std::arch::x86_64::*;
 use crate::_ico_shuffle;
-use crate::_ico_floorps_epi32;
-use crate::_ico_ceilps_epi32;
-use crate::_ico_round_ps;
 use crate::_ico_abs_ps;
 use crate::_ico_cross_ps;
-use crate::_ico_truncate_ps;
 use crate::_ico_copysign_ps;
+
 impl Vector3{
 	/// Returns a new Vector3
 	#[inline(always)]
@@ -28,21 +25,21 @@ impl Vector3{
 	}
 
 	#[inline(always)]
-	pub fn x(&self) -> f32 {
+	pub fn x(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(self.data);
 		}	
 	}
 
 	#[inline(always)]
-	pub fn y(&self) -> f32 {
+	pub fn y(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(1, 1, 1, 1)));
 		}	
 	}
 
 	#[inline(always)]
-	pub fn z(&self) -> f32 {
+	pub fn z(self) -> f32 {
 		unsafe{
 			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(2, 2, 2, 2)));
 		}	
@@ -224,6 +221,7 @@ impl Vector3{
 
 
 	#[inline(always)]
+	/// Right handed cross product
 	pub fn cross(lhs : Vector3, rhs : Vector3) -> Vector3{	
 		unsafe{
 			return Vector3{data :  _ico_cross_ps(lhs.data, rhs.data)};
@@ -237,50 +235,61 @@ impl Vector3{
 		}
 	}
 	#[inline(always)]
-	pub fn copysign(v1 : Vector3, v2 : Vector3) -> Vector3{	
+	pub fn copysign(magnitude : Vector3, sign : Vector3) -> Vector3{	
 		unsafe{
-			Vector3{data :  _ico_copysign_ps(v1.data, v2.data)}
+			Vector3{data :  _ico_copysign_ps(magnitude.data, sign.data)}
 		}
 	}
 	#[inline(always)]
+	/// Floor function.  Returns signed 0 when applicable.
 	pub fn floor(v1 : Vector3) -> Vector3{	
 		unsafe{
-			Vector3{data :  _mm_floor_ps(v1.data)}
+			Vector3{data :  
+				_mm_floor_ps(v1.data)}
+				//_ico_floor_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
+	/// Ceil function.  Returns signed 0 when applicable.
 	pub fn ceil(v1 : Vector3) -> Vector3{	
 		unsafe{
-			Vector3{data :  _mm_ceil_ps(v1.data)}
+			Vector3{data :  
+				_mm_ceil_ps(v1.data)}
+				//_ico_ceil_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
+	/// Round to nearest even function. Returns signed 0 when applicable.
 	pub fn round(v1 : Vector3) -> Vector3{	
 		unsafe{
-			Vector3{data :  _ico_round_ps(v1.data)}
+			Vector3{data : 
+			_mm_round_ps(v1.data, _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC)}
+			// _ico_round_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
 	pub fn floor_to_int(v1 : Vector3) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data :  _ico_floorps_epi32(v1.data)}
+			Vector3Int{data :  _mm_cvttps_epi32(_mm_floor_ps(v1.data))}
 		}
 	}
 
 	#[inline(always)]
 	pub fn ceil_to_int(v1 : Vector3) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data :  _ico_ceilps_epi32(v1.data)}
+			Vector3Int{data :  _mm_cvttps_epi32(_mm_ceil_ps(v1.data))}
 		}
 	}
 
 	#[inline(always)]
 	pub fn truncate(v1 : Vector3) -> Vector3{	
 		unsafe{
-			Vector3{data :  _ico_truncate_ps(v1.data)}
+			Vector3{data :  
+				_mm_round_ps(v1.data, _MM_FROUND_TO_ZERO |_MM_FROUND_NO_EXC)}
+				//_ico_truncate_ps(v1.data)}
 		}
 	}
 
@@ -354,12 +363,12 @@ impl Vector3{
 	
 
 	#[inline(always)]
-	pub fn sqr_magnitude(&self) -> f32 {
-		return Vector3::dot(*self, *self).x();	
+	pub fn sqr_magnitude(self) -> f32 {
+		return Vector3::dot(self, self).x();	
 	}
 	#[inline(always)]
-	pub fn magnitude(&self) -> f32 {
-		return Vector3::sqrt(Vector3::dot(*self, *self)).x();	
+	pub fn magnitude(self) -> f32 {
+		return Vector3::sqrt(Vector3::dot(self, self)).x();	
 	}
 
 	
@@ -768,5 +777,335 @@ mod tests {
         assert_eq!(d.z(), 0.0);
         
     }
+    #[test]
+    fn component_not_equal() {
 
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(1.0,1.0,4.0);
+
+		let mask = Vector3::component_not_equal(a,b);
+		let c = Vector3::new(-1000.0,-1000.0,-1000.0);
+		let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), 0.0);
+        assert_eq!(d.y(), -1000.0);
+        assert_eq!(d.z(), -1000.0);
+        
+    }
+    #[test]
+	fn component_greater_equal() {
+		let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(1.0,1.0,4.0);
+
+		let mask = Vector3::component_greater_equal(a,b);
+		let c = Vector3::new(-1000.0,-1000.0,-1000.0);
+		let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), -1000.0);
+        assert_eq!(d.y(), -1000.0);
+        assert_eq!(d.z(), 0.0);
+	}
+	#[test]
+	fn component_greater() {
+		let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(1.0,1.0,4.0);
+
+		let mask = Vector3::component_greater(a,b);
+		let c = Vector3::new(-1000.0,-1000.0,-1000.0);
+		let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), 0.0);
+        assert_eq!(d.y(), -1000.0);
+        assert_eq!(d.z(), 0.0);
+	}
+	#[test]
+	fn component_less_equal() {
+		let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(1.0,1.0,4.0);
+
+		let mask = Vector3::component_less_equal(a,b);
+		let c = Vector3::new(-1000.0,-1000.0,-1000.0);
+		let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), -1000.0);
+        assert_eq!(d.y(), 0.0);
+        assert_eq!(d.z(), -1000.0);
+	}
+	#[test]
+	fn component_less() {
+		let a = Vector3::new(1.0,2.0,3.0);
+		let b = Vector3::new(1.0,1.0,4.0);
+
+		let mask = Vector3::component_less(a,b);
+		let c = Vector3::new(-1000.0,-1000.0,-1000.0);
+		let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), 0.0);
+        assert_eq!(d.y(), 0.0);
+        assert_eq!(d.z(), -1000.0);
+	}
+	#[test]
+	fn cross(){	
+
+		{
+		let a = Vector3::new(0.0,0.0,-1.0);
+		let b = Vector3::new(-1.0,0.0,0.0);
+		let c = Vector3::cross(a,b);
+
+		assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), 1.0);
+        assert_eq!(c.z(), 0.0);
+    	}
+    	{
+		let a = Vector3::new(0.0,0.0,-1.0);
+		let b = Vector3::new(-1.0,0.0,0.0);
+		let c = Vector3::cross(b,a);
+
+		assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), -1.0);
+        assert_eq!(c.z(), 0.0);
+    	}
+	}
+
+	#[test]
+	fn abs(){	
+		let a = Vector3::new(-1.0,0.0,-0.0);
+
+		let b = Vector3::abs(a);
+
+        assert_eq!(b.x(), 1.0);
+        assert_eq!(b.y(), 0.0);
+        assert_eq!(b.z(), 0.0);
+        assert_eq!(a.x(), -1.0);
+        assert_eq!(a.y(), 0.0);
+        assert_eq!(a.z(), -0.0);
+	}
+	#[test]
+	fn copysign(){	
+		let a = Vector3::new(-1.0,0.0,-0.0);
+		let b = Vector3::new(10.0,-20.0, 5.0);
+		let c = Vector3::copysign(b,a);
+
+        assert_eq!(c.x(), -10.0);
+        assert_eq!(c.y(), 20.0);
+        assert_eq!(c.z(), -5.0);
+
+	}
+	
+	#[test]
+	fn floor(){	
+		{
+		let a = Vector3::new(-1.1,0.1,0.7);
+		let c = Vector3::floor(a);
+
+        assert_eq!(c.x(), -2.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.0);
+        
+    	}	
+    	{
+		let a = Vector3::floor(Vector3::new(2.0 * 2147483647.0,-2.0 * 2147483648.0, -0.0));
+		let b = Vector3::new(0.0,0.0,1.0);
+		let c = Vector3::copysign(b,a);
+        assert_eq!(a.x(), 2.0 * 2147483647.0);
+        assert_eq!(a.y(), -2.0 * 2147483648.0);
+
+        assert_eq!(c.z(), -1.0);
+    	}
+	}
+
+
+	#[test]
+	fn ceil(){	
+		{
+		let a = Vector3::new(-1.1,-0.7,0.7);
+		let c = Vector3::ceil(a);
+
+        assert_eq!(c.x(), -1.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 1.0);
+    	}
+        {
+		let a = Vector3::ceil(Vector3::new(2.0 * 2147483647.0,-2.0 * 2147483648.0, -0.0));
+		let b = Vector3::new(0.0,0.0,1.0);
+		let c = Vector3::copysign(b,a);
+        assert_eq!(a.x(), 2.0 * 2147483647.0);
+        assert_eq!(a.y(), -2.0 * 2147483648.0);
+
+        assert_eq!(c.z(), -1.0);
+    	}
+	}
+
+	#[test]
+	fn round(){	
+		{
+		let a = Vector3::new(1.5,-0.5,0.5);
+		let c = Vector3::round(a);
+
+        assert_eq!(c.x(), 2.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.0);
+
+    	}
+    	{
+		let a = Vector3::round(Vector3::new(2.0 * 2147483647.0,-2.0 * 2147483648.0, -0.0));
+		let b = Vector3::new(0.0,0.0,1.0);
+		let c = Vector3::copysign(b,a);
+        assert_eq!(a.x(), 2.0 * 2147483647.0);
+        assert_eq!(a.y(), -2.0 * 2147483648.0);
+
+        assert_eq!(c.z(), -1.0);
+    	}
+	}
+
+	
+	#[test]
+	fn floor_to_int(){	
+		{
+		let a = Vector3::new(-1.1,0.1,0.7);
+		let c = Vector3::floor_to_int(a);
+
+        assert_eq!(c.x(), -2);
+        assert_eq!(c.y(), 0);
+        assert_eq!(c.z(), 0);
+        
+    	}	
+    	{
+		let a = Vector3::floor_to_int(Vector3::new(2.0 * 2147483647.0,-2.0 * 2147483648.0, -0.0));
+		
+        assert_eq!(a.x(), -2147483648);
+        assert_eq!(a.y(), -2147483648);
+
+        assert_eq!(a.z(), 0);
+    	}
+	}
+
+	#[test]
+	fn ceil_to_int(){	
+		{
+		let a = Vector3::new(-1.1,0.1,0.7);
+		let c = Vector3::ceil_to_int(a);
+
+        assert_eq!(c.x(), -1);
+        assert_eq!(c.y(), 1);
+        assert_eq!(c.z(), 1);
+        
+    	}	
+    	{
+		let a = Vector3::ceil_to_int(Vector3::new(2.0 * 2147483647.0,-2.0 * 2147483648.0, -0.0));
+		
+        //assert_eq!(a.x(), 2.0 * 2147483647.0);
+        //assert_eq!(a.y(), -2.0 * 2147483648.0);
+
+        //assert_eq!(c.z(), -1.0);
+    	}
+	}
+
+	#[test]
+	fn truncate(){	
+		{
+		let a = Vector3::new(-1.6,0.1,0.7);
+		let c = Vector3::truncate(a);
+
+        assert_eq!(c.x(), -1.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.0);
+        
+    	}	
+    	{
+		let a = Vector3::truncate(Vector3::new(2.0 * 2147483647.0,-2.0 * 2147483648.0, -0.1));
+		let b = Vector3::new(0.0,0.0,1.0);
+		let c = Vector3::copysign(b,a);
+        assert_eq!(a.x(), 2.0 * 2147483647.0);
+        assert_eq!(a.y(), -2.0 * 2147483648.0);
+
+        assert_eq!(c.z(), -1.0);
+    	}
+	}
+	
+	#[test]
+	fn frac(){	
+		{
+		let a = Vector3::frac(Vector3::new(-1.75,0.1,0.0));
+
+        assert_eq!(a.x(), 0.25);
+        assert_eq!(a.y(), 0.1);
+        assert_eq!(a.z(), 0.0);
+        
+    	}	
+	}
+	/*
+	#[test]
+	fn sqrt(v1 : Vector3) -> Vector3{	
+		unsafe{
+			Vector3{data :  _mm_sqrt_ps(v1.data)}
+		}
+	}
+
+	#[test]
+	fn max(v1 : Vector3, v2 : Vector3) -> Vector3{	
+		unsafe{
+			Vector3{data : _mm_max_ps(v1.data, v2.data)}
+		}
+	}
+
+	#[test]
+	fn min(v1 : Vector3, v2 : Vector3) -> Vector3{	
+		unsafe{
+			Vector3{data : _mm_min_ps(v1.data, v2.data)}
+		}
+	}
+	#[test]
+	fn dot(v1 : Vector3, v2 : Vector3) -> Vector3{	
+		unsafe{
+
+			let tmp0 = _mm_mul_ps(v1.data, v2.data); //xyzw
+		    let tmp1 = _mm_castsi128_ps(_mm_slli_si128 (_mm_castps_si128(tmp0), 4)); //0xyz
+		    let tmp2 = _mm_add_ps(tmp0 , tmp1);//x xy, yz, wz
+		    let tmp3 = _mm_moveldup_ps(tmp2); // x x yz yz
+			Vector3{data : _mm_add_ps(tmp3, _mm_shuffle_ps(tmp3,tmp3, _ico_shuffle(0, 1, 2, 3)))}
+		}
+	}
+	#[test]
+	fn lerp(v1 : Vector3, v2 : Vector3, t : f32) -> Vector3{	
+		unsafe{
+			let t_val = _mm_set1_ps(t);
+			let tmp = _mm_fnmadd_ps(v1.data, t_val, v1.data); //a - (a*t)
+			Vector3{data : _mm_fmadd_ps(v2.data, t_val, tmp)} //b * t + a
+		}
+	}
+
+	#[test]
+	fn renormalize(v1 : Vector3) -> Vector3{	
+		let length = Vector3::sqrt(Vector3::dot(v1,v1));
+		return Vector3::component_div(v1, length);
+	}
+
+	#[test]
+	fn normalize(v1 : Vector3) -> Vector3{	
+		let length = Vector3::sqrt(Vector3::dot(v1,v1));
+		let norm = Vector3::component_div(v1, length);
+		let mask = Vector3::component_less(Vector3::abs(norm), Vector3::from( std::f32::INFINITY));
+		return Vector3::and(norm, mask);
+	}
+
+	#[test]
+	fn normalize_length(v1 : Vector3) -> (Vector3, f32){	
+		let length = Vector3::sqrt(Vector3::dot(v1,v1));
+		let norm = Vector3::component_div(v1, length);
+		let mask = Vector3::component_less(Vector3::abs(norm),Vector3::from( std::f32::INFINITY));
+		return (Vector3::and(norm, mask), length.x());
+	}
+
+	
+
+	#[test]
+	fn sqr_magnitude(self) -> f32 {
+		return Vector3::dot(self, self).x();	
+	}
+	#[test]
+	fn magnitude(self) -> f32 {
+		return Vector3::sqrt(Vector3::dot(self, self)).x();	
+	}
+	*/
 }
