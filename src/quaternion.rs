@@ -144,7 +144,7 @@ impl Quaternion{
 	}
 	#[inline(always)]
 	pub fn sqr_magnitude(self) -> f32 {
-		return Quaternion::dot(*self, *self).x();	
+		return Quaternion::dot(self, self).x();	
 	}
 	#[inline(always)]
 	pub fn magnitude(self) -> f32 {

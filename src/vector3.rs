@@ -8,6 +8,9 @@ use crate::_ico_shuffle;
 use crate::_ico_abs_ps;
 use crate::_ico_cross_ps;
 use crate::_ico_copysign_ps;
+use crate::_ico_half_ps;
+use crate::_ico_two_ps;
+use crate::_ico_signbit_ps;
 
 impl Vector3{
 	/// Returns a new Vector3
@@ -15,6 +18,12 @@ impl Vector3{
 	pub fn new(x : f32, y : f32, z : f32) -> Vector3{
 		unsafe{
 			Vector3{data : _mm_set_ps(0.0f32, z, y, x)}
+		}
+	}
+	#[inline(always)]
+	pub fn broadcast(value : f32) -> Vector3{
+		unsafe{
+			Vector3{data : _mm_set1_ps(value)}
 		}
 	}
 	#[inline(always)]
@@ -179,6 +188,11 @@ impl Vector3{
 		let d = Vector3::component_equal(v1,v2);
 		return Vector3::all(d);
 	}
+	#[inline(always)]
+	pub fn is_zero(v1 : Vector3) -> bool{	
+		let d = Vector3::component_equal(v1,Vector3::zero());
+		return Vector3::all(d);
+	}
 
 	#[inline(always)]
 	pub fn component_equal(v1 : Vector3, v2 : Vector3) -> Vector3{	
@@ -338,26 +352,33 @@ impl Vector3{
 		}
 	}
 
-	#[inline(always)]
-	pub fn renormalize(v1 : Vector3) -> Vector3{	
-		let length = Vector3::sqrt(Vector3::dot(v1,v1));
-		return Vector3::component_div(v1, length);
-	}
+
 
 	#[inline(always)]
 	pub fn normalize(v1 : Vector3) -> Vector3{	
 		let length = Vector3::sqrt(Vector3::dot(v1,v1));
 		let norm = Vector3::component_div(v1, length);
-		let mask = Vector3::component_less(Vector3::abs(norm), Vector3::from( std::f32::INFINITY));
-		return Vector3::and(norm, mask);
+		
+		unsafe{
+			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
+			let result_length_sqr = Vector3::dot(norm,norm);
+			let mask_less = Vector3::component_less( result_length_sqr, Vector3{data :_ico_two_ps()});
+			return Vector3::and(norm, mask_less);
+		}
 	}
 
 	#[inline(always)]
 	pub fn normalize_length(v1 : Vector3) -> (Vector3, f32){	
 		let length = Vector3::sqrt(Vector3::dot(v1,v1));
 		let norm = Vector3::component_div(v1, length);
-		let mask = Vector3::component_less(Vector3::abs(norm),Vector3::from( std::f32::INFINITY));
-		return (Vector3::and(norm, mask), length.x());
+		
+		unsafe{
+
+			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
+			let result_length_sqr = Vector3::dot(norm,norm);
+			let mask_less = Vector3::component_less( result_length_sqr, Vector3{data :_ico_two_ps()});
+			return (Vector3::and(norm, mask_less), length.x());
+		}
 	}
 
 	
@@ -366,6 +387,7 @@ impl Vector3{
 	pub fn sqr_magnitude(self) -> f32 {
 		return Vector3::dot(self, self).x();	
 	}
+
 	#[inline(always)]
 	pub fn magnitude(self) -> f32 {
 		return Vector3::sqrt(Vector3::dot(self, self)).x();	
@@ -401,31 +423,56 @@ impl From<Vector3Int> for Vector3 {
 
 impl std::ops::Add for Vector3{
 	type Output = Vector3;
-	#[inline]
+	#[inline(always)]
 	fn add(self, _rhs: Vector3) -> Vector3{
 		Vector3::add(self, _rhs)
 	}
 }
+impl std::ops::AddAssign for Vector3 {
+	#[inline(always)]
+    fn add_assign(&mut self, other: Vector3) {
+        *self = Vector3::add(*self, other)
+    }
+}
 
 impl std::ops::Sub for Vector3{
 	type Output = Vector3;
-	#[inline]
+	#[inline(always)]
 	fn sub(self, _rhs: Vector3) -> Vector3{
 		Vector3::sub(self, _rhs)
 	}
 }
-
+impl std::ops::SubAssign for Vector3 {
+	#[inline(always)]
+    fn sub_assign(&mut self, other: Vector3) {
+        *self = Vector3::sub(*self, other)
+    }
+}
+impl std::ops::Neg for Vector3 {
+	type Output = Vector3;
+	#[inline(always)]
+	fn neg(self) -> Self::Output {
+		unsafe{
+			return Vector3{data:_mm_xor_ps(_ico_signbit_ps(),self.data)};
+		}
+	}
+}
 impl std::ops::Mul<f32> for Vector3{
 	type Output = Vector3;
-	#[inline]
+	#[inline(always)]
 	fn mul(self, _rhs: f32) -> Vector3{
 		Vector3::scale(self, _rhs)
 	}
 }
-
+impl std::ops::MulAssign<f32> for Vector3{
+	#[inline(always)]
+	fn mul_assign(&mut self, _rhs: f32){
+		*self = Vector3::scale(*self, _rhs)
+	}
+}
 impl std::ops::Mul<Vector3> for f32{
 	type Output = Vector3;
-	#[inline]
+	#[inline(always)]
 	fn mul(self, _rhs: Vector3) -> Vector3{
 		Vector3::scale(_rhs, self)
 	}
@@ -433,13 +480,26 @@ impl std::ops::Mul<Vector3> for f32{
 
 impl std::ops::Div<f32> for Vector3{
 	type Output = Vector3;
-	#[inline]
+	#[inline(always)]
 	fn div(self, _rhs: f32) -> Vector3{
 		Vector3::div(self, _rhs)
 	}
 }
-	
+impl std::ops::Div<Vector3> for f32{
+	type Output = Vector3;
+	#[inline(always)]
+	fn div(self : f32, _rhs: Vector3) -> Vector3{
+		return Vector3::component_div(Vector3::broadcast(self), _rhs);
+	}
+}
+impl std::ops::DivAssign<f32> for Vector3{
+	#[inline(always)]
+	fn div_assign(&mut self, _rhs: f32){
+		*self = Vector3::div(*self, _rhs)
+	}
+}	
 impl PartialEq for Vector3 {
+	#[inline(always)]
     fn eq(&self, other: &Vector3) -> bool {
     	return Vector3::equals(*self, *other);
     }
@@ -511,6 +571,17 @@ mod tests {
         
     }
     #[test]
+    fn add_assign() {
+
+    	let mut a = Vector3::new(1.0,2.0,3.0);
+    	a *= 3.0;
+
+        assert_eq!(a.x(), 3.0);
+        assert_eq!(a.y(), 6.0);
+        assert_eq!(a.z(), 9.0);
+        
+    }
+    #[test]
     fn sub() {
 
     	let a = Vector3::new(1.0,2.0,3.0);
@@ -519,6 +590,29 @@ mod tests {
 		let c = a - b;
         assert_eq!(c.x(), -3.0);
         assert_eq!(c.y(), -2.0);
+        assert_eq!(c.z(), -3.0);
+        
+    }
+    #[test]
+    fn sub_assign() {
+
+    	let mut a = Vector3::new(1.0,2.0,3.0);
+		a -= Vector3::new(4.0,4.0,6.0);
+
+		
+        assert_eq!(a.x(), -3.0);
+        assert_eq!(a.y(), -2.0);
+        assert_eq!(a.z(), -3.0);
+        
+    }
+    #[test]
+    fn neg() {
+
+    	let a = Vector3::new(1.0,-2.0,3.0);
+		let c = -a;
+
+        assert_eq!(c.x(), -1.0);
+        assert_eq!(c.y(), 2.0);
         assert_eq!(c.z(), -3.0);
         
     }
@@ -599,16 +693,33 @@ mod tests {
         
     }
     #[test]
-    fn scale() {
+    fn mul() {
 
     	let a = Vector3::new(1.0,2.0,3.0);
 		let b = -3.0;
-
-		let c = Vector3::scale(a,b);
+		{
+		let c = a * b;
         assert_eq!(c.x(), -3.0);
         assert_eq!(c.y(), -6.0);
         assert_eq!(c.z(), -9.0);
-        
+    	}
+        {
+		let c = b * a;
+        assert_eq!(c.x(), -3.0);
+        assert_eq!(c.y(), -6.0);
+        assert_eq!(c.z(), -9.0);
+    	}
+    }
+    #[test]
+    fn mul_assign() {
+
+    	let mut a = Vector3::new(1.0,2.0,3.0);
+		a *= -3.0;
+
+        assert_eq!(a.x(), -3.0);
+        assert_eq!(a.y(), -6.0);
+        assert_eq!(a.z(), -9.0);
+    	
     }
     #[test]
     fn div() {
@@ -620,6 +731,29 @@ mod tests {
         assert_eq!(c.x(), 0.25);
         assert_eq!(c.y(), 0.5);
         assert_eq!(c.z(), 0.75);
+        
+    }
+    #[test]
+    fn div_inv() {
+
+    	let a = Vector3::new(1.0,2.0,3.0);
+		let b = 1.0;
+
+		let c = b / a;
+        assert_eq!(c.x(), 1.0);
+        assert_eq!(c.y(), 0.5);
+        assert_eq!(c.z(), 1.0 / 3.0);
+        
+    }
+    #[test]
+    fn div_assign() {
+
+    	let mut a = Vector3::new(1.0,2.0,3.0);
+		a /= 4.0;
+
+        assert_eq!(a.x(), 0.25);
+        assert_eq!(a.y(), 0.5);
+        assert_eq!(a.z(), 0.75);
         
     }
     #[test]
@@ -846,10 +980,11 @@ mod tests {
 	}
 	#[test]
 	fn cross(){	
-
-		{
-		let a = Vector3::new(0.0,0.0,-1.0);
-		let b = Vector3::new(-1.0,0.0,0.0);
+		use std::arch::x86_64::*;
+		unsafe{
+			// make sure this works with garbage in w.
+		let a = Vector3{data : _mm_set_ps(100.0, -1.0, 0.0, 0.0)};
+		let b = Vector3{data : _mm_set_ps(200.0, 0.0, 0.0, -1.0)};
 		let c = Vector3::cross(a,b);
 
 		assert_eq!(c.x(), 0.0);
@@ -1034,78 +1169,181 @@ mod tests {
         
     	}	
 	}
-	/*
+	
 	#[test]
-	fn sqrt(v1 : Vector3) -> Vector3{	
+	fn sqrt(){	
+		{
+		let a = Vector3::sqrt(Vector3::new(4.0,9.0,16.0));
+
+        assert_eq!(a.x(), 2.0);
+        assert_eq!(a.y(), 3.0);
+        assert_eq!(a.z(), 4.0);
+        
+    	}	
+	}
+
+	#[test]
+	fn max(){	
+		{
+		let a = Vector3::new(-1.75,0.1,0.0);
+		let b = Vector3::new(-2.0,0.2,-0.1);
+		let c = Vector3::max(a,b);
+        assert_eq!(c.x(), -1.75);
+        assert_eq!(c.y(), 0.2);
+        assert_eq!(c.z(), 0.0);
+        
+    	}	
+	}
+
+	#[test]
+	fn min(){	
+		{
+		let a = Vector3::new(-1.75,0.1,0.0);
+		let b = Vector3::new(-2.0,0.2,-0.1);
+		let c = Vector3::min(a,b);
+        assert_eq!(c.x(), -2.0);
+        assert_eq!(c.y(), 0.1);
+        assert_eq!(c.z(), -0.1);
+        
+    	}	
+	}
+	
+	#[test]
+	fn dot(){	
+		use std::arch::x86_64::*;
 		unsafe{
-			Vector3{data :  _mm_sqrt_ps(v1.data)}
-		}
+			// make sure this works with garbage in w.
+		let a = Vector3{data : _mm_set_ps(100.0, -1.0, 0.0, 0.0)};
+		let b = Vector3{data : _mm_set_ps(200.0, 0.0, 0.0, -1.0)};
+		let c = Vector3::dot(a,b);
+
+		assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.0);
+    	}
+    	unsafe{
+			// make sure this works with garbage in w.
+		let a = Vector3{data : _mm_set_ps(100.0, -1.0, 0.0, 5.0)};
+		let b = Vector3{data : _mm_set_ps(200.0, 1.0, 0.0, 7.0)};
+		let c = Vector3::dot(a,b);
+
+		assert_eq!(c.x(), 34.0);
+        assert_eq!(c.y(), 34.0);
+        assert_eq!(c.z(), 34.0);
+    	}
 	}
 
+	
 	#[test]
-	fn max(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_max_ps(v1.data, v2.data)}
-		}
+	fn lerp(){	
+		{
+		let a = Vector3::new(-1.75,0.1,0.0);
+		let b = Vector3::new(-2.0,0.2,-0.1);
+		let c = Vector3::lerp(a,b, 0.0);
+		assert_eq!(c.x(), -1.75);
+        assert_eq!(c.y(), 0.1);
+        assert_eq!(c.z(), 0.0);
+    	}
+    	{
+		let a = Vector3::new(-1.75,0.1,0.0);
+		let b = Vector3::new(-2.0,0.2,-0.1);
+		let c = Vector3::lerp(a,b, 1.0);
+		assert_eq!(c.x(), -2.0);
+        assert_eq!(c.y(), 0.2);
+        assert_eq!(c.z(), -0.1);
+    	}
+    	{
+		let a = Vector3::new(-1.75,0.1,0.0);
+		let b = Vector3::new(-2.0,0.2,-0.1);
+		let c = Vector3::lerp(a,b, 0.5);
+		assert_eq!(c.x(), -1.875);
+        assert_eq!(c.y(), 0.15);
+        assert_eq!(c.z(), -0.05);
+    	}
+    	{
+		let a = Vector3::new(-1.75,0.1,0.0);
+		let b = Vector3::new(-2.0,0.2,-0.1);
+		let c = Vector3::lerp(a,b, 2.0);
+		assert_eq!(c.x(), -2.25);
+        assert_eq!(c.y(), 0.3);
+        assert_eq!(c.z(), -0.2);
+    	}
+    	{
+		let a = Vector3::new(-1.75,0.1,0.0);
+		let b = Vector3::new(-2.0,0.2,-0.1);
+		let c = Vector3::lerp(a,b, -1.0);
+		assert_eq!(c.x(), -1.5);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.1);
+    	}
 	}
+	
 
 	#[test]
-	fn min(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_min_ps(v1.data, v2.data)}
-		}
-	}
-	#[test]
-	fn dot(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-
-			let tmp0 = _mm_mul_ps(v1.data, v2.data); //xyzw
-		    let tmp1 = _mm_castsi128_ps(_mm_slli_si128 (_mm_castps_si128(tmp0), 4)); //0xyz
-		    let tmp2 = _mm_add_ps(tmp0 , tmp1);//x xy, yz, wz
-		    let tmp3 = _mm_moveldup_ps(tmp2); // x x yz yz
-			Vector3{data : _mm_add_ps(tmp3, _mm_shuffle_ps(tmp3,tmp3, _ico_shuffle(0, 1, 2, 3)))}
-		}
-	}
-	#[test]
-	fn lerp(v1 : Vector3, v2 : Vector3, t : f32) -> Vector3{	
-		unsafe{
-			let t_val = _mm_set1_ps(t);
-			let tmp = _mm_fnmadd_ps(v1.data, t_val, v1.data); //a - (a*t)
-			Vector3{data : _mm_fmadd_ps(v2.data, t_val, tmp)} //b * t + a
-		}
-	}
-
-	#[test]
-	fn renormalize(v1 : Vector3) -> Vector3{	
-		let length = Vector3::sqrt(Vector3::dot(v1,v1));
-		return Vector3::component_div(v1, length);
-	}
-
-	#[test]
-	fn normalize(v1 : Vector3) -> Vector3{	
-		let length = Vector3::sqrt(Vector3::dot(v1,v1));
-		let norm = Vector3::component_div(v1, length);
-		let mask = Vector3::component_less(Vector3::abs(norm), Vector3::from( std::f32::INFINITY));
-		return Vector3::and(norm, mask);
-	}
-
-	#[test]
-	fn normalize_length(v1 : Vector3) -> (Vector3, f32){	
-		let length = Vector3::sqrt(Vector3::dot(v1,v1));
-		let norm = Vector3::component_div(v1, length);
-		let mask = Vector3::component_less(Vector3::abs(norm),Vector3::from( std::f32::INFINITY));
-		return (Vector3::and(norm, mask), length.x());
+	fn normalize(){	
+		{
+		let a = Vector3::new(-2.0,0.0,0.0);
+		let c = Vector3::normalize(a);
+		assert_eq!(c.x(), -1.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.0);
+    	}
+    	{
+    	//SHOULD NOT BE NAN
+		let a = Vector3::new( std::f32::MAX,1.0,0.0);
+		let c = Vector3::normalize(a);
+		assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.0);
+    	}
+    	{
+    	//SHOULD NOT BE NAN
+		let a = Vector3::new(0.0,0.0,0.0);
+		let c = Vector3::normalize(a);
+		assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.0);
+    	}
+    	{
+    	//SHOULD NOT BE NAN
+		let a = Vector3::new(std::f32::NAN,0.0,0.0);
+		let c = Vector3::normalize(a);
+		assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), 0.0);
+        assert_eq!(c.z(), 0.0);
+    	}
+    	
 	}
 
 	
 
+	
+
 	#[test]
-	fn sqr_magnitude(self) -> f32 {
-		return Vector3::dot(self, self).x();	
+	fn sqr_magnitude()  {
+		
+		use std::arch::x86_64::*;
+		unsafe{
+			// make sure this works with garbage in w.
+		let a = Vector3{data : _mm_set_ps(100.0, -3.0, 0.0, 0.0)};
+
+		let c = Vector3::sqr_magnitude(a);
+
+		assert_eq!(c, 9.0);
+    	}	
 	}
 	#[test]
-	fn magnitude(self) -> f32 {
-		return Vector3::sqrt(Vector3::dot(self, self)).x();	
+	fn magnitude() {
+		use std::arch::x86_64::*;
+		unsafe{
+			// make sure this works with garbage in w.
+		let a = Vector3{data : _mm_set_ps(100.0, -3.0, 0.0, 0.0)};
+
+		let c = Vector3::magnitude(a);
+
+		assert_eq!(c, 3.0);
+    	}	
+	
 	}
-	*/
+	
 }
