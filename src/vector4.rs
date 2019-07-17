@@ -78,7 +78,8 @@ impl Vector4{
 	#[inline(always)]
 	pub fn set_z(&mut self, value : f32) {
 		unsafe{
-			self.data = _mm_shuffle_ps(self.data, _mm_set1_ps(value), _ico_shuffle(3, 2, 1, 0));
+			let v1 = _mm_move_ss(self.data, _mm_set_ss(value));
+			self.data = _mm_shuffle_ps(self.data, v1,  _ico_shuffle(3, 0, 1, 0));
 		}	
 	}
 
@@ -302,9 +303,9 @@ impl Vector4{
 	}
 
 	#[inline(always)]
-	pub fn truncate(v1 : Vector2) -> Vector2{	
+	pub fn truncate(v1 : Vector4) -> Vector4{	
 		unsafe{
-			Vector2{data :  
+			Vector4{data :  
 				_mm_round_ps(v1.data, _MM_FROUND_TO_ZERO |_MM_FROUND_NO_EXC)}
 				//_ico_truncate_ps(v1.data)}
 		}
@@ -681,7 +682,12 @@ impl std::ops::Add for Vector4{
 		Vector4::add(self, _rhs)
 	}
 }
-
+impl std::ops::AddAssign for Vector4 {
+	#[inline(always)]
+    fn add_assign(&mut self, other: Vector4) {
+        *self = Vector4::add(*self, other)
+    }
+}
 impl std::ops::Sub for Vector4{
 	type Output = Vector4;
 	#[inline]
@@ -689,7 +695,21 @@ impl std::ops::Sub for Vector4{
 		Vector4::sub(self, _rhs)
 	}
 }
-
+impl std::ops::SubAssign for Vector4 {
+	#[inline(always)]
+    fn sub_assign(&mut self, other: Vector4) {
+        *self = Vector4::sub(*self, other)
+    }
+}
+impl std::ops::Neg for Vector4 {
+	type Output = Vector4;
+	#[inline(always)]
+	fn neg(self) -> Self::Output {
+		unsafe{
+			return Vector4{data:_mm_xor_ps(_ico_signbit_ps(),self.data)};
+		}
+	}
+}
 impl std::ops::Mul<f32> for Vector4{
 	type Output = Vector4;
 	#[inline]
@@ -705,12 +725,30 @@ impl std::ops::Mul<Vector4> for f32{
 		Vector4::scale(_rhs, self)
 	}
 }
-
+impl std::ops::MulAssign<f32> for Vector4{
+	#[inline(always)]
+	fn mul_assign(&mut self, _rhs: f32){
+		*self = Vector4::scale(*self, _rhs)
+	}
+}
 impl std::ops::Div<f32> for Vector4{
 	type Output = Vector4;
 	#[inline]
 	fn div(self, _rhs: f32) -> Vector4{
 		Vector4::div(self, _rhs)
+	}
+}
+impl std::ops::Div<Vector4> for f32{
+	type Output = Vector4;
+	#[inline(always)]
+	fn div(self : f32, _rhs: Vector4) -> Vector4{
+		return Vector4::component_div(Vector4::set(self), _rhs);
+	}
+}
+impl std::ops::DivAssign<f32> for Vector4{
+	#[inline(always)]
+	fn div_assign(&mut self, _rhs: f32){
+		*self = Vector4::div(*self, _rhs)
 	}
 }
 	
@@ -719,3 +757,5 @@ impl PartialEq for Vector4 {
     	return Vector4::equals(*self, *other);
     }
 }
+#[cfg(test)]
+mod tests;

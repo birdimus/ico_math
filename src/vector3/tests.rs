@@ -70,11 +70,11 @@ mod tests {
     fn add_assign() {
 
     	let mut a = Vector3::new(1.0,2.0,3.0);
-    	a *= 3.0;
+    	a += Vector3::set(3.0);
 
-        assert_eq!(a.x(), 3.0);
-        assert_eq!(a.y(), 6.0);
-        assert_eq!(a.z(), 9.0);
+        assert_eq!(a.x(), 4.0);
+        assert_eq!(a.y(), 5.0);
+        assert_eq!(a.z(), 6.0);
         
     }
     #[test]
@@ -849,6 +849,27 @@ mod tests {
 		unsafe{
 			// make sure this works with garbage in w.
 		let a = Vector3{data : _mm_set_ps(100.0, 3.0, 2.0, 1.0)};
+		{
+			let c = a.xxxx();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 1.0);
+            assert_eq!(c.w(), 1.0);
+		}	
+		{
+			let c = a.yyyy();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 2.0);
+            assert_eq!(c.w(), 2.0);
+		}	
+		{
+			let c = a.zzzz();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 3.0);
+            assert_eq!(c.w(), 3.0);
+		}	
 		{
 			let c = a.xxx();
 			assert_eq!(c.x(), 1.0);

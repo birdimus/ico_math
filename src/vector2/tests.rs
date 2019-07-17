@@ -56,10 +56,10 @@ mod tests {
     fn add_assign() {
 
     	let mut a = Vector2::new(1.0,2.0);
-    	a *= 3.0;
+    	a += Vector2::set(3.0);
 
-        assert_eq!(a.x(), 3.0);
-        assert_eq!(a.y(), 6.0);
+        assert_eq!(a.x(), 4.0);
+        assert_eq!(a.y(), 5.0);
         
     }
     #[test]
@@ -744,6 +744,20 @@ mod tests {
 		unsafe{
 			// make sure this works with garbage in zw.
 		let a = Vector2{data : _mm_set_ps(100.0, 3.0, 2.0, 1.0)};
+        {
+            let c = a.xxxx();
+            assert_eq!(c.x(), 1.0);
+            assert_eq!(c.y(), 1.0);
+            assert_eq!(c.z(), 1.0);
+            assert_eq!(c.w(), 1.0);
+        }   
+        {
+            let c = a.yyyy();
+            assert_eq!(c.x(), 2.0);
+            assert_eq!(c.y(), 2.0);
+            assert_eq!(c.z(), 2.0);
+            assert_eq!(c.w(), 2.0);
+        }   
 		{
 			let c = a.xx();
 			assert_eq!(c.x(), 1.0);
