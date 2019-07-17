@@ -5,15 +5,8 @@ use crate::Vector4;
 use crate::Quaternion;
 use crate::_ico_shuffle;
 use crate::SIGN_BIT;
-use crate::_xxxx;
-use crate::_yyyy;
-use crate::_zzzz;
-use crate::_wwww;
-use crate::_wzyx;
-use crate::_zwxy;
-use crate::_yxwz;
-use crate::_yzwx;
-use crate::_wxyz;
+use crate::*;
+
 impl Matrix4x4{
 
 

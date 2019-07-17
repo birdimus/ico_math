@@ -8,12 +8,21 @@ use crate::_ico_shuffle;
 use crate::_ico_abs_ps;
 use crate::_ico_truncate_ps;
 use crate::_ico_copysign_ps;
+use crate::_ico_two_ps;
+use crate::_ico_signbit_ps;
+use crate::*;
 impl Vector2{
 	/// Returns a new Vector2
 	#[inline(always)]
 	pub fn new(x : f32, y : f32) -> Vector2{
 		unsafe{
 			Vector2{data : _mm_set_ps(0.0f32, 0.0f32, y, x)}
+		}
+	}
+	#[inline(always)]
+	pub fn set(value : f32) -> Vector2{
+		unsafe{
+			Vector2{data : _mm_set1_ps(value)}
 		}
 	}
 	#[inline(always)]
@@ -320,25 +329,30 @@ impl Vector2{
 	}
 
 	#[inline(always)]
-	pub fn renormalize(v1 : Vector2) -> Vector2{	
-		let length = Vector2::sqrt(Vector2::dot(v1,v1));
-		return Vector2::component_div(v1, length);
-	}
-
-	#[inline(always)]
 	pub fn normalize(v1 : Vector2) -> Vector2{	
 		let length = Vector2::sqrt(Vector2::dot(v1,v1));
 		let norm = Vector2::component_div(v1, length);
-		let mask = Vector2::component_less(Vector2::abs(norm), Vector2::from( std::f32::INFINITY));
-		return Vector2::and(norm, mask);
+		
+		unsafe{
+			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
+			let result_length_sqr = Vector2::dot(norm,norm);
+			let mask_less = Vector2::component_less( result_length_sqr, Vector2{data :_ico_two_ps()});
+			return Vector2::and(norm, mask_less);
+		}
 	}
 
 	#[inline(always)]
 	pub fn normalize_length(v1 : Vector2) -> (Vector2, f32){	
 		let length = Vector2::sqrt(Vector2::dot(v1,v1));
 		let norm = Vector2::component_div(v1, length);
-		let mask = Vector2::component_less(Vector2::abs(norm),Vector2::from( std::f32::INFINITY));
-		return (Vector2::and(norm, mask), length.x());
+		
+		unsafe{
+
+			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
+			let result_length_sqr = Vector2::dot(norm,norm);
+			let mask_less = Vector2::component_less( result_length_sqr, Vector2{data :_ico_two_ps()});
+			return (Vector2::and(norm, mask_less), length.x());
+		}
 	}
 
 	
@@ -352,16 +366,13 @@ impl Vector2{
 		return Vector2::sqrt(Vector2::dot(self, self)).x();	
 	}
 
-	
+	#[inline(always)] pub fn xx(self) -> Vector2 { unsafe{return Vector2{data:_xxxx(self.data)};}}
+	#[inline(always)] pub fn xy(self) -> Vector2 { unsafe{return Vector2{data:_xxxy(self.data)};}}
+	#[inline(always)] pub fn yx(self) -> Vector2 { unsafe{return Vector2{data:_xxyx(self.data)};}}
+	#[inline(always)] pub fn yy(self) -> Vector2 { unsafe{return Vector2{data:_xxyy(self.data)};}}
 }
 
-impl From<f32> for Vector2 {
-    fn from(val : f32) -> Vector2 {
-       unsafe{
-			Vector2{data : _mm_set1_ps(val)}
-		}
-    }
-}
+
 impl From<Vector3> for Vector2 {
     fn from(v : Vector3) -> Vector2 {
         Vector2 { data : v.data }

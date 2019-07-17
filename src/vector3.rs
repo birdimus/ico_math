@@ -8,10 +8,9 @@ use crate::_ico_shuffle;
 use crate::_ico_abs_ps;
 use crate::_ico_cross_ps;
 use crate::_ico_copysign_ps;
-use crate::_ico_half_ps;
 use crate::_ico_two_ps;
 use crate::_ico_signbit_ps;
-
+use crate::*;
 impl Vector3{
 	/// Returns a new Vector3
 	#[inline(always)]
@@ -21,7 +20,7 @@ impl Vector3{
 		}
 	}
 	#[inline(always)]
-	pub fn broadcast(value : f32) -> Vector3{
+	pub fn set(value : f32) -> Vector3{
 		unsafe{
 			Vector3{data : _mm_set1_ps(value)}
 		}
@@ -393,19 +392,43 @@ impl Vector3{
 		return Vector3::sqrt(Vector3::dot(self, self)).x();	
 	}
 
-	
+	#[inline(always)] pub fn xxx(self) -> Vector3 { unsafe{return Vector3{data:_xxxw(self.data)};}}
+	#[inline(always)] pub fn xxy(self) -> Vector3 { unsafe{return Vector3{data:_xxyw(self.data)};}}
+	#[inline(always)] pub fn xxz(self) -> Vector3 { unsafe{return Vector3{data:_xxzw(self.data)};}}
+	#[inline(always)] pub fn xyx(self) -> Vector3 { unsafe{return Vector3{data:_xyxw(self.data)};}}
+	#[inline(always)] pub fn xyy(self) -> Vector3 { unsafe{return Vector3{data:_xyyw(self.data)};}}
+	#[inline(always)] pub fn xyz(self) -> Vector3 { unsafe{return Vector3{data:_xyzw(self.data)};}}
+	#[inline(always)] pub fn xzx(self) -> Vector3 { unsafe{return Vector3{data:_xzxw(self.data)};}}
+	#[inline(always)] pub fn xzy(self) -> Vector3 { unsafe{return Vector3{data:_xzyw(self.data)};}}
+	#[inline(always)] pub fn xzz(self) -> Vector3 { unsafe{return Vector3{data:_xzzw(self.data)};}}
+
+	#[inline(always)] pub fn yxx(self) -> Vector3 { unsafe{return Vector3{data:_yxxw(self.data)};}}
+	#[inline(always)] pub fn yxy(self) -> Vector3 { unsafe{return Vector3{data:_yxyw(self.data)};}}
+	#[inline(always)] pub fn yxz(self) -> Vector3 { unsafe{return Vector3{data:_yxzw(self.data)};}}
+	#[inline(always)] pub fn yyx(self) -> Vector3 { unsafe{return Vector3{data:_yyxw(self.data)};}}
+	#[inline(always)] pub fn yyy(self) -> Vector3 { unsafe{return Vector3{data:_yyyw(self.data)};}}
+	#[inline(always)] pub fn yyz(self) -> Vector3 { unsafe{return Vector3{data:_yyzw(self.data)};}}
+	#[inline(always)] pub fn yzx(self) -> Vector3 { unsafe{return Vector3{data:_yzxw(self.data)};}}
+	#[inline(always)] pub fn yzy(self) -> Vector3 { unsafe{return Vector3{data:_yzyw(self.data)};}}
+	#[inline(always)] pub fn yzz(self) -> Vector3 { unsafe{return Vector3{data:_yzzw(self.data)};}}
+
+	#[inline(always)] pub fn zxx(self) -> Vector3 { unsafe{return Vector3{data:_zxxw(self.data)};}}
+	#[inline(always)] pub fn zxy(self) -> Vector3 { unsafe{return Vector3{data:_zxyw(self.data)};}}
+	#[inline(always)] pub fn zxz(self) -> Vector3 { unsafe{return Vector3{data:_zxzw(self.data)};}}
+	#[inline(always)] pub fn zyx(self) -> Vector3 { unsafe{return Vector3{data:_zyxw(self.data)};}}
+	#[inline(always)] pub fn zyy(self) -> Vector3 { unsafe{return Vector3{data:_zyyw(self.data)};}}
+	#[inline(always)] pub fn zyz(self) -> Vector3 { unsafe{return Vector3{data:_zyzw(self.data)};}}
+	#[inline(always)] pub fn zzx(self) -> Vector3 { unsafe{return Vector3{data:_zzxw(self.data)};}}
+	#[inline(always)] pub fn zzy(self) -> Vector3 { unsafe{return Vector3{data:_zzyw(self.data)};}}
+	#[inline(always)] pub fn zzz(self) -> Vector3 { unsafe{return Vector3{data:_zzzw(self.data)};}}
 }
 
-impl From<f32> for Vector3 {
-    fn from(val : f32) -> Vector3 {
-       unsafe{
-			Vector3{data : _mm_set1_ps(val)}
-		}
-    }
-}
+
 impl From<Vector2> for Vector3 {
     fn from(v : Vector2) -> Vector3 {
-        Vector3 { data : v.data }
+    	unsafe{
+        return Vector3 { data : _mm_movelh_ps(v.data, _mm_setzero_ps() ) };
+    	}
     }
 }
 impl From<Vector4> for Vector3 {
@@ -489,7 +512,7 @@ impl std::ops::Div<Vector3> for f32{
 	type Output = Vector3;
 	#[inline(always)]
 	fn div(self : f32, _rhs: Vector3) -> Vector3{
-		return Vector3::component_div(Vector3::broadcast(self), _rhs);
+		return Vector3::component_div(Vector3::set(self), _rhs);
 	}
 }
 impl std::ops::DivAssign<f32> for Vector3{
@@ -1346,4 +1369,181 @@ mod tests {
 	
 	}
 	
+
+	#[test]
+	fn swizzle() {
+		use std::arch::x86_64::*;
+		unsafe{
+			// make sure this works with garbage in w.
+		let a = Vector3{data : _mm_set_ps(100.0, 3.0, 2.0, 1.0)};
+		{
+			let c = a.xxx();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.xxy();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.xxz();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 3.0);
+		}
+		{
+			let c = a.xyx();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.xyy();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.xyz();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 3.0);
+		}
+		{
+			let c = a.xzx();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.xzy();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.xzz();
+			assert_eq!(c.x(), 1.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 3.0);
+		}
+
+
+		{
+			let c = a.yxx();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.yxy();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.yxz();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 3.0);
+		}
+		{
+			let c = a.yyx();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.yyy();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.yyz();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 3.0);
+		}
+		{
+			let c = a.yzx();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.yzy();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.yzz();
+			assert_eq!(c.x(), 2.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 3.0);
+		}
+
+
+		{
+			let c = a.zxx();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.zxy();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.zxz();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 1.0);
+			assert_eq!(c.z(), 3.0);
+		}
+		{
+			let c = a.zyx();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.zyy();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.zyz();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 2.0);
+			assert_eq!(c.z(), 3.0);
+		}
+		{
+			let c = a.zzx();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 1.0);
+		}
+		{
+			let c = a.zzy();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 2.0);
+		}
+		{
+			let c = a.zzz();
+			assert_eq!(c.x(), 3.0);
+			assert_eq!(c.y(), 3.0);
+			assert_eq!(c.z(), 3.0);
+		}
+
+    	}	
+	
+	}
 }
