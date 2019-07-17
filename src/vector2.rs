@@ -42,7 +42,7 @@ impl Vector2{
 	#[inline(always)]
 	pub fn y(self) -> f32 {
 		unsafe{
-			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(1, 1, 1, 1)));
+			return _mm_cvtss_f32(self.yy().data);
 		}	
 	}
 
@@ -313,7 +313,7 @@ impl Vector2{
 	pub fn dot(v0 : Vector2, v1 : Vector2) -> Vector2{	
 		unsafe{
 			let tmp0 = _mm_mul_ps(v0.data, v1.data);
-			let mut tmp1 = _mm_shuffle_ps(tmp0,tmp0, _ico_shuffle(3, 2, 0, 1)); //yxzw
+			let mut tmp1 = _yxzw(tmp0);// _mm_shuffle_ps(tmp0,tmp0, _ico_shuffle(3, 2, 0, 1)); //yxzw
 			
 			tmp1 = _mm_add_ps(tmp0, tmp1);//xy,xy,qq,qq
 			return Vector2{data : _mm_unpacklo_ps(tmp1,tmp1)};//xy,xy.xy,xy
@@ -366,10 +366,13 @@ impl Vector2{
 		return Vector2::sqrt(Vector2::dot(self, self)).x();	
 	}
 
-	#[inline(always)] pub fn xx(self) -> Vector2 { unsafe{return Vector2{data:_xxxx(self.data)};}}
-	#[inline(always)] pub fn xy(self) -> Vector2 { unsafe{return Vector2{data:_xxxy(self.data)};}}
-	#[inline(always)] pub fn yx(self) -> Vector2 { unsafe{return Vector2{data:_xxyx(self.data)};}}
-	#[inline(always)] pub fn yy(self) -> Vector2 { unsafe{return Vector2{data:_xxyy(self.data)};}}
+	#[inline(always)] pub fn xxxx(self) -> Vector4 { unsafe{return Vector4{data:_xxxx(self.data)};}}
+	#[inline(always)] pub fn yyyy(self) -> Vector4 { unsafe{return Vector4{data:_yyyy(self.data)};}}
+
+	#[inline(always)] pub fn xx(self) -> Vector2 { unsafe{return Vector2{data:_xxzw(self.data)};}}
+	#[inline(always)] pub fn xy(self) -> Vector2 { unsafe{return Vector2{data:_xyzw(self.data)};}}
+	#[inline(always)] pub fn yx(self) -> Vector2 { unsafe{return Vector2{data:_yxzw(self.data)};}}
+	#[inline(always)] pub fn yy(self) -> Vector2 { unsafe{return Vector2{data:_yyzw(self.data)};}}
 }
 
 
@@ -398,7 +401,12 @@ impl std::ops::Add for Vector2{
 		Vector2::add(self, _rhs)
 	}
 }
-
+impl std::ops::AddAssign for Vector2 {
+	#[inline(always)]
+    fn add_assign(&mut self, other: Vector2) {
+        *self = Vector2::add(*self, other)
+    }
+}
 impl std::ops::Sub for Vector2{
 	type Output = Vector2;
 	#[inline]
@@ -406,7 +414,21 @@ impl std::ops::Sub for Vector2{
 		Vector2::sub(self, _rhs)
 	}
 }
-
+impl std::ops::SubAssign for Vector2 {
+	#[inline(always)]
+    fn sub_assign(&mut self, other: Vector2) {
+        *self = Vector2::sub(*self, other)
+    }
+}
+impl std::ops::Neg for Vector2 {
+	type Output = Vector2;
+	#[inline(always)]
+	fn neg(self) -> Self::Output {
+		unsafe{
+			return Vector2{data:_mm_xor_ps(_ico_signbit_ps(),self.data)};
+		}
+	}
+}
 impl std::ops::Mul<f32> for Vector2{
 	type Output = Vector2;
 	#[inline]
@@ -422,7 +444,12 @@ impl std::ops::Mul<Vector2> for f32{
 		Vector2::scale(_rhs, self)
 	}
 }
-
+impl std::ops::MulAssign<f32> for Vector2{
+	#[inline(always)]
+	fn mul_assign(&mut self, _rhs: f32){
+		*self = Vector2::scale(*self, _rhs)
+	}
+}
 impl std::ops::Div<f32> for Vector2{
 	type Output = Vector2;
 	#[inline]
@@ -430,9 +457,23 @@ impl std::ops::Div<f32> for Vector2{
 		Vector2::div(self, _rhs)
 	}
 }
-	
+impl std::ops::Div<Vector2> for f32{
+	type Output = Vector2;
+	#[inline(always)]
+	fn div(self : f32, _rhs: Vector2) -> Vector2{
+		return Vector2::component_div(Vector2::set(self), _rhs);
+	}
+}
+impl std::ops::DivAssign<f32> for Vector2{
+	#[inline(always)]
+	fn div_assign(&mut self, _rhs: f32){
+		*self = Vector2::div(*self, _rhs)
+	}
+}
 impl PartialEq for Vector2 {
     fn eq(&self, other: &Vector2) -> bool {
     	return Vector2::equals(*self, *other);
     }
 }
+#[cfg(test)]
+mod tests;

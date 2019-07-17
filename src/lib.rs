@@ -234,20 +234,20 @@ unsafe fn _ico_cross_ps(lhs : __m128, rhs : __m128) ->__m128{
     // y  <-  a.z*b.x - a.x*b.z
     // z  <-  a.x*b.y - a.y*b.x
     // We can save a shuffle by grouping it in this wacky order:
-    let mut tmp0 =  _mm_mul_ps(lhs, _mm_shuffle_ps(rhs, rhs, _ico_shuffle(3, 1, 0, 2)));
+    let mut tmp0 =  _mm_mul_ps(lhs, _zxyw(rhs));
     //__m128 tmp1 =  _mm_mul_ps(_mm_shuffle_ps(lhs, lhs, _MM_SHUFFLE(3, 1, 0, 2)), rhs);
     //tmp0 = _mm_sub_ps(tmp1, tmp0);
-    tmp0 = _mm_fmsub_ps(_mm_shuffle_ps(lhs, lhs, _ico_shuffle(3, 1, 0, 2)), rhs, tmp0);
+    tmp0 = _mm_fmsub_ps(_zxyw(lhs), rhs, tmp0);
     
-    return _mm_shuffle_ps(tmp0, tmp0, _ico_shuffle(3, 1, 0, 2));
+    return _zxyw(tmp0);// _mm_shuffle_ps(tmp0, tmp0, _ico_shuffle(3, 1, 0, 2));
 }
 
 #[inline(always)]
 unsafe fn _ico_dp4_ps( v0 : __m128,  v1 : __m128) ->__m128{
 	let mut tmp0 = _mm_mul_ps(v0, v1);
-	let mut tmp1 = _mm_shuffle_ps(tmp0, tmp0, _ico_shuffle(2, 3, 0, 1)); //yxwz
+	let mut tmp1 = _yxwz(tmp0);// _mm_shuffle_ps(tmp0, tmp0, _ico_shuffle(2, 3, 0, 1)); //yxwz
 	tmp0 = _mm_add_ps(tmp0, tmp1);//xy, xy, zw, zw
-	tmp1 = _mm_shuffle_ps(tmp0, tmp0, _ico_shuffle(0, 1, 2, 3)); //wxyz
+	tmp1 = _wzyx(tmp0);//_mm_shuffle_ps(tmp0, tmp0, _ico_shuffle(0, 1, 2, 3)); //wxyz
 	return _mm_add_ps(tmp0, tmp1);
 }
 

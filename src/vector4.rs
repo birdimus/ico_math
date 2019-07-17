@@ -42,21 +42,21 @@ impl Vector4{
 	#[inline(always)]
 	pub fn y(self) -> f32 {
 		unsafe{
-			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(1, 1, 1, 1)));
+			return _mm_cvtss_f32(self.yyyy().data);
 		}	
 	}
 
 	#[inline(always)]
 	pub fn z(self) -> f32 {
 		unsafe{
-			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(2, 2, 2, 2)));
+			return _mm_cvtss_f32(self.zzzz().data);
 		}	
 	}
 
 	#[inline(always)]
 	pub fn w(self) -> f32 {
 		unsafe{
-			return _mm_cvtss_f32(_mm_shuffle_ps(self.data, self.data, _ico_shuffle(3,3,3,3)));
+			return _mm_cvtss_f32(self.wwww().data);
 		}	
 	}
 
