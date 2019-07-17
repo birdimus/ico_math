@@ -15,6 +15,16 @@ mod tests {
         
     }
     #[test]
+    fn set() {
+
+    	let a = Vector3::set(-5.0);
+
+	    assert_eq!(a.x(), -5.0);
+        assert_eq!(a.y(), -5.0);
+        assert_eq!(a.z(), -5.0);
+        
+    }
+    #[test]
     fn zero() {
 
     	let a = Vector3::zero();

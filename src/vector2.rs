@@ -366,6 +366,37 @@ impl Vector2{
 		return Vector2::sqrt(Vector2::dot(self, self)).x();	
 	}
 
+	#[inline(always)]
+	/// Right handed system, positive rotation is counterclockwise about the axis of rotation.
+	pub fn rotate(v1 : Vector2, radians : f64) -> Vector2 {
+		let f = radians.sin_cos();
+
+		let mut sn : f32 = f.0 as f32;
+		let mut cs : f32 = f.1 as f32;
+
+		unsafe{
+
+			// Any values below the epsilon get clamped to zero.  This fixes precision issues around zero.
+			let epsilon = _mm_set1_ps(EPSILON_AT_ONE);
+			let sncs = _mm_set_ps(-sn, sn, cs, cs);
+			let mask = _mm_cmpgt_ps(_ico_abs_ps(sncs), epsilon);
+
+
+			let masked_sncs = _mm_and_ps(sncs, mask);
+
+			//x1y1x2y2
+			let xyxy = _mm_movelh_ps(v1.data, v1.data);
+			//x * cs, y * cs, x*sn, y*-sn
+			let v2 = _mm_mul_ps(xyxy, masked_sncs);
+
+			///x1 + y2, y1 + x2,
+			//x = x * cs - y * sn;
+			//y = x * sn + y * cs;
+			return Vector2{data: _mm_add_ps(v2,_wzyx(v2))};//wzyx
+			
+		}
+	}
+
 	#[inline(always)] pub fn xxxx(self) -> Vector4 { unsafe{return Vector4{data:_xxxx(self.data)};}}
 	#[inline(always)] pub fn yyyy(self) -> Vector4 { unsafe{return Vector4{data:_yyyy(self.data)};}}
 

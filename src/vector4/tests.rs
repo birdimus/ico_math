@@ -15,6 +15,16 @@ mod tests {
         assert_eq!(a.w(), 4.0);
     }
     #[test]
+    fn set() {
+
+        let a = Vector4::set(-5.0);
+
+        assert_eq!(a.x(), -5.0);
+        assert_eq!(a.y(), -5.0);
+        assert_eq!(a.z(), -5.0);
+        assert_eq!(a.w(), -5.0);
+    }
+    #[test]
     fn zero() {
 
     	let a = Vector4::zero();
@@ -24,6 +34,7 @@ mod tests {
         assert_eq!(a.z(), 0.0);
         assert_eq!(a.w(), 0.0);
     }
+
     #[test]
     fn set_x() {
 

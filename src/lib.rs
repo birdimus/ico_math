@@ -12,6 +12,9 @@ const NORMALIZATION_EPSILON : f32 = 1.0e-10;
 
 const SIGN_BIT : f32 = -0.0;
 
+
+const EPSILON_AT_ONE : f32 = 0.00000012;
+
 #[derive(Copy, Clone)]
 #[repr(C, align(16))]
 pub struct RawVec{

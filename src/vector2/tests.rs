@@ -14,6 +14,14 @@ mod tests {
         
     }
     #[test]
+    fn set() {
+
+        let a = Vector2::set(-5.0);
+
+        assert_eq!(a.x(), -5.0);
+        assert_eq!(a.y(), -5.0);
+    }
+    #[test]
     fn zero() {
 
     	let a = Vector2::zero();
@@ -736,7 +744,46 @@ mod tests {
     	}	
 	
 	}
-	
+	#[test]
+    fn rotate() {
+        use std::arch::x86_64::*;
+        unsafe{
+            // make sure this works with garbage in zw.
+        let a = Vector2{data : _mm_set_ps(100.0, -3.0, 1.0, 0.0)};
+
+        let c = Vector2::rotate(a, 0.5* std::f64::consts::PI);
+
+        assert_eq!(c.x(), -1.0);
+        assert_eq!(c.y(), 0.0);
+        }   
+        unsafe{
+            // make sure this works with garbage in zw.
+        let a = Vector2{data : _mm_set_ps(100.0, -3.0, 0.0, 1.0)};
+
+        let c = Vector2::rotate(a, 0.5* std::f64::consts::PI);
+
+        assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), 1.0);
+        } 
+        unsafe{
+            // make sure this works with garbage in zw.
+        let a = Vector2{data : _mm_set_ps(100.0, -3.0, 0.0, -1.0)};
+
+        let c = Vector2::rotate(a, 0.5* std::f64::consts::PI);
+
+        assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), -1.0);
+        } 
+        unsafe{
+            // make sure this works with garbage in zw.
+        let a = Vector2{data : _mm_set_ps(100.0, -3.0, 1.0, 0.0)};
+
+        let c = Vector2::rotate(a, std::f64::consts::PI);
+
+        assert_eq!(c.x(), 0.0);
+        assert_eq!(c.y(), -1.0);
+        }  
+    }
 
 	#[test]
 	fn swizzle() {
