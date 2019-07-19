@@ -14,7 +14,10 @@ const SIGN_BIT : f32 = -0.0;
 
 
 const EPSILON_AT_ONE : f32 = 0.00000012;
-
+const INV_TWO_PI : f32 = 0.159154943091895335768883763372514362034459645740456448747;
+const TWO_PI : f32 = 6.283185307179586476925286766559005768394338798750211641949;
+const HALF_PI : f32 = 1.57079632679;
+const PI : f32 = 3.14159265359;
 #[derive(Copy, Clone)]
 #[repr(C, align(16))]
 pub struct RawVec{
@@ -262,6 +265,118 @@ unsafe fn _ico_quat_mul(lhs : __m128, rhs : __m128) -> __m128{
     let xyw = _mm_fmadd_ps(_zwxy(rhs), y, xw);
     let z = _mm_xor_ps( _zzzz(lhs), _mm_set_ps(-0.0,0.0,0.0,-0.0));
     return _mm_fmadd_ps(_yxwz(rhs),z, xyw);
+}
+
+#[inline(always)]
+/// Bounce between 0 and 1
+unsafe fn _ico_ping_pong(vec : __m128 ) -> __m128{
+  // 2 * abs(x + 0.5 - floor(x + 0.5) - 0.5)
+  //  2 * abs(x - floor(x + 0.5))
+    let shifted = _mm_add_ps(vec, _ico_half_ps());
+    let internal = _ico_abs_ps(_mm_sub_ps(vec, _mm_floor_ps(shifted)));
+    return _mm_add_ps(internal,internal); // multiply by 2
+}
+
+
+#[inline(always)]
+unsafe fn _ico_approx_cos01(vec : __m128 ) -> __m128{
+    
+    ///  2 approximations were used to compute this result
+    ///  A = 4x^3 - 6x^2 + 1
+    ///  B = -2x^5 + 5x^4 - 5x^2 + 1
+    /// The range was cut in half
+    ///  A = 2x^3 - 3x^2 + 1
+    ///  B = -x^5 + 2.5x^4 - 2.5x^2 + 1
+    ///  These were weighted (1-t)*A + (t)*B to minimize error and ensure 0,1,0.25, 0.75, and 0.5 provided exact solutions
+    /// Max absolute error on domain [0,1], range [-1,1] is 0.000192f at ~0.25 +- 0.125
+    /// Max relative error on domain [0,1]. range [-1,1] approaches 0.00069f at 0.5
+    
+    
+    
+    /// 1.115408f Was found empirically as T.
+    //// coeff for {x^5, x^4, x^3, x^2}
+    
+    //// Next, coefficients had to be shifted to account for limitations in floating point representation
+    //// COMPUTED SCALARS: (-2.230816f,5.57704f, -0.461632f, -4.884592f );
+    ///  x^4, x^3 coefficients were adjusted
+    let scalars = _mm_set_ps(-2.230816,5.5770397, -0.4616319, -4.884592 );
+    //let scalars = _mm_castsi128_ps(_mm_set_epi32( 0xc00ec5b0, 0x40b2771c, 0xbeec5b04, 0xc09c4e94));
+    /// This is a series approximation of cos.  Error < 0.01% in the domain
+    let vec2 = _mm_mul_ps(vec, vec);
+    let mut result = _mm_fmadd_ps(vec2, _xxxx(scalars), _ico_one_ps());
+    
+    let vec3 = _mm_mul_ps(vec2, vec);
+    result = _mm_fmadd_ps(vec3, _yyyy(scalars), result);
+    
+    let vec4 = _mm_mul_ps(vec3, vec);
+    result = _mm_fmadd_ps(vec4, _zzzz(scalars), result);
+    
+    let vec5 = _mm_mul_ps(vec4, vec);
+    result = _mm_fmadd_ps(vec5, _wwww(scalars), result);
+
+    // As a final step, clamp to between -1 and 1 for safety.
+    let one = _ico_one_ps();
+    let mask = _mm_cmpgt_ps(_ico_abs_ps(result), one);
+    let clamped = _ico_copysign_ps(one, result);
+    return _ico_select_ps(result, clamped, mask);
+}
+
+#[inline(always)]
+unsafe fn _ico_cos_ps(vec : __m128 ) -> __m128{
+  //let scaled = _mm_div_ps(vec, _mm_set1_ps(TWO_PI));
+  let scaled = _mm_mul_ps(vec, _mm_set1_ps(INV_TWO_PI));
+  let looped = _ico_ping_pong(scaled);
+  return _ico_approx_cos01(looped);
+}
+#[inline(always)]
+unsafe fn _ico_cos_deg_ps(vec : __m128 ) -> __m128{
+  let scaled = _mm_div_ps(vec, _mm_set1_ps(360.0));
+  let looped = _ico_ping_pong(scaled);
+  return _ico_approx_cos01(looped);
+}
+#[inline(always)]
+unsafe fn _ico_sin_ps(vec : __m128 ) -> __m128{
+  //let scaled = _mm_div_ps(vec, _mm_set1_ps(TWO_PI));
+  let scaled = _mm_mul_ps(vec, _mm_set1_ps(INV_TWO_PI));
+
+  let shifted = _mm_add_ps(scaled, _ico_half_ps());
+  let internal = _mm_sub_ps(scaled, _mm_floor_ps(shifted));
+  let sin_shift = _mm_sub_ps(internal, _mm_set1_ps(0.25));
+
+  let looped = _ico_ping_pong(sin_shift);
+  return _ico_approx_cos01(looped);
+}
+#[inline(always)]
+unsafe fn _ico_sin_deg_ps(vec : __m128 ) -> __m128{
+  let scaled = _mm_div_ps(vec, _mm_set1_ps(360.0));
+
+  let shifted = _mm_add_ps(scaled, _ico_half_ps());
+  let internal = _mm_sub_ps(scaled, _mm_floor_ps(shifted));
+  let sin_shift = _mm_sub_ps(internal, _mm_set1_ps(0.25));
+
+  let looped = _ico_ping_pong(sin_shift);
+  return _ico_approx_cos01(looped);
+}
+
+#[inline(always)]
+/// max error 0.0000655 radians
+/// based on the nvidia acos function
+/// a 4th or 5th order approximation might be exact for float.  probably not worth the trouble.
+unsafe fn _ico_acos_ps(vec : __m128 ) -> __m128{
+
+  
+  let abs_vec = _ico_abs_ps(vec);
+  let scalars = _mm_set_ps(HALF_PI,-0.21295,0.0762,-0.1565827644 - 0.0762 - -0.21295 );
+  let mut result = _mm_fmadd_ps(_xxxx(scalars), abs_vec, _yyyy(scalars));
+  result = _mm_fmadd_ps(result, abs_vec, _zzzz(scalars));
+  result = _mm_fmadd_ps(result, abs_vec, _wwww(scalars));
+  let sqrt_vec = _mm_sqrt_ps(_mm_sub_ps(_ico_one_ps(), abs_vec));
+  result = _mm_mul_ps(result, sqrt_vec);
+
+  let inv_mask = _mm_cmplt_ps(vec, _mm_setzero_ps());
+  result = _mm_xor_ps(result, _mm_and_ps(_ico_signbit_ps(), inv_mask));
+  result = _mm_add_ps(result, _mm_and_ps(inv_mask,  _mm_set1_ps(PI)));
+  return result;
 }
 
 #[cfg(test)]

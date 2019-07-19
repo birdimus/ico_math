@@ -687,7 +687,82 @@ mod tests {
         
     	}	
 	}
+	#[test]
+	fn sin(){	
+		{
+		let a = Vector3::sin(Vector3::new(0.0,0.5*std::f32::consts::PI,std::f32::consts::PI));
 
+        assert_eq!(a.x(), 0.0);
+        assert_eq!(a.y(), 1.0);
+        assert_eq!(a.z(), 0.0);
+        
+    	}	
+    	{
+		let a = Vector3::sin(Vector3::new(0.25*std::f32::consts::PI,-0.25*std::f32::consts::PI,-std::f32::consts::PI));
+
+        assert_eq!(a.x(), 0.70710678118);
+        assert_eq!(a.y(), -0.70710678118);
+        assert_eq!(a.z(), 0.0);
+        
+    	}	
+
+    	{
+		let a = Vector3::sin(Vector3::new(100000.25*std::f32::consts::PI,-100000.25*std::f32::consts::PI,-99999.0*std::f32::consts::PI));
+
+        assert_eq!(a.x(), 0.70710678118);
+        assert_eq!(a.y(), -0.70710678118);
+        assert_eq!(a.z(), 0.0);
+        
+    	}
+	}
+	#[test]
+	fn cos(){	
+		{
+		let a = Vector3::cos(Vector3::new(0.0,0.5*std::f32::consts::PI,std::f32::consts::PI));
+
+        assert_eq!(a.x(), 1.0);
+        assert_eq!(a.y(), 0.0);
+        assert_eq!(a.z(), -1.0);
+        
+    	}	
+    	{
+		let a = Vector3::cos(Vector3::new(0.25*std::f32::consts::PI,-0.25*std::f32::consts::PI,-std::f32::consts::PI));
+
+        assert_eq!(a.x(), 0.70710678118);
+        assert_eq!(a.y(), 0.70710678118);
+        assert_eq!(a.z(), -1.0);
+        
+    	}	
+    	
+    	{
+		let a = Vector3::cos(Vector3::new(100000.25*std::f32::consts::PI,-100000.25*std::f32::consts::PI,-99999.0*std::f32::consts::PI));
+
+        assert_eq!(a.x(), 0.70710678118);
+        assert_eq!(a.y(), 0.70710678118);
+        assert_eq!(a.z(), -1.0);
+        
+    	}
+	}
+	// #[test]
+	// fn acos(){	
+	// 	{
+	// 	let a = Vector3::acos(Vector3::new(-1.0, 0.0, 1.0));
+
+ //        assert_eq!(a.x(), std::f32::consts::PI);
+ //        assert_eq!(a.y(), 0.5*std::f32::consts::PI);
+ //        assert_eq!(a.z(), 0.0);
+        
+ //    	}
+ //    	{
+	// 	let a = Vector3::acos(Vector3::new(-0.70710678118, 0.0, 0.70710678118));
+
+ //        assert_eq!(a.x(), 0.75*std::f32::consts::PI);
+ //        assert_eq!(a.y(), 0.5*std::f32::consts::PI);
+ //        assert_eq!(a.z(), 0.25*std::f32::consts::PI);
+        
+ //    	}
+    	
+ //    }
 	#[test]
 	fn max(){	
 		{

@@ -317,6 +317,18 @@ impl Vector3{
 			Vector3{data :  _mm_sqrt_ps(v1.data)}
 		}
 	}
+	#[inline(always)]
+	pub fn sin(v1 : Vector3) -> Vector3{	
+		unsafe{
+			Vector3{data :  _ico_sin_ps(v1.data)}
+		}
+	}
+	#[inline(always)]
+	pub fn cos(v1 : Vector3) -> Vector3{	
+		unsafe{
+			Vector3{data :  _ico_cos_ps(v1.data)}
+		}
+	}
 
 	#[inline(always)]
 	pub fn max(v1 : Vector3, v2 : Vector3) -> Vector3{	

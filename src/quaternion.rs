@@ -285,10 +285,12 @@ impl Quaternion{
 
 	    	let cos_theta_f = _mm_cvtss_f32(cos_theta);
 	    	let theta : f32 = cos_theta_f.acos();
+
+	    	//TODO: use sse for fast sines all at once
 			let sin_theta : f32 = (1.0 - cos_theta_f*cos_theta_f).sqrt();//theta.sin();
-			
 			let a = ((1.0f32-t) * theta).sin() / sin_theta;
 			let b = _mm_set1_ps((t * theta).sin() / sin_theta);
+
 			// again this uses the flipped sign.
 			let a_scale = _mm_xor_ps(sign_flip, _mm_set1_ps(a));
 			let dest = _mm_mul_ps(to.data, b);
