@@ -359,17 +359,23 @@ unsafe fn _ico_sin_deg_ps(vec : __m128 ) -> __m128{
 }
 
 #[inline(always)]
-/// max error 0.0000655 radians
-/// based on the nvidia acos function
-/// a 4th or 5th order approximation might be exact for float.  probably not worth the trouble.
+unsafe fn _ico_tan_ps(vec : __m128 ) -> __m128{
+  return _mm_div_ps(_ico_sin_ps(vec), _ico_cos_ps(vec));
+}
+
+#[inline(always)]
+/// max error 0.000001 radians
+/// 4th order approximation
+/// acos(x)/sqrt(1-x) goes from pi/2 at 0 to sqrt(2) at 1 ==  0 to -0.15658276442
 unsafe fn _ico_acos_ps(vec : __m128 ) -> __m128{
 
   
   let abs_vec = _ico_abs_ps(vec);
-  let scalars = _mm_set_ps(HALF_PI,-0.21295,0.0762,-0.1565827644 - 0.0762 - -0.21295 );
+  let scalars = _mm_set_ps(-0.2142619,0.08528893,-0.03673658,0.009126827);
   let mut result = _mm_fmadd_ps(_xxxx(scalars), abs_vec, _yyyy(scalars));
   result = _mm_fmadd_ps(result, abs_vec, _zzzz(scalars));
   result = _mm_fmadd_ps(result, abs_vec, _wwww(scalars));
+  result = _mm_fmadd_ps(result, abs_vec, _mm_set1_ps(HALF_PI));
   let sqrt_vec = _mm_sqrt_ps(_mm_sub_ps(_ico_one_ps(), abs_vec));
   result = _mm_mul_ps(result, sqrt_vec);
 
@@ -377,6 +383,9 @@ unsafe fn _ico_acos_ps(vec : __m128 ) -> __m128{
   result = _mm_xor_ps(result, _mm_and_ps(_ico_signbit_ps(), inv_mask));
   result = _mm_add_ps(result, _mm_and_ps(inv_mask,  _mm_set1_ps(PI)));
   return result;
+}
+unsafe fn _ico_asin_ps(vec : __m128 ) -> __m128{
+  return _mm_sub_ps(_mm_set1_ps(HALF_PI), _ico_acos_ps(vec));
 }
 
 #[cfg(test)]
