@@ -1,3 +1,4 @@
+#![no_std]
 mod vector2;
 mod vector3;
 mod vector4;
@@ -7,7 +8,7 @@ mod vector4_int;
 mod quaternion;
 mod dual_quaternion;
 mod matrix4x4;
-use std::arch::x86_64::*;
+use core::arch::x86_64::*;
 const NORMALIZATION_EPSILON : f32 = 1.0e-10;
 
 const SIGN_BIT : f32 = -0.0;
@@ -79,7 +80,7 @@ pub struct Matrix4x4{
 }
 
 /// A replacement for the _MM_SHUFFLE macro.
-const fn _ico_shuffle(z : u32, y : u32, x : u32, w : u32) -> u32 {
+const fn _ico_shuffle(z : i32, y : i32, x : i32, w : i32) -> i32 {
     (((z) << 6) | ((y) << 4) | ((x) << 2) | (w))
 }
 

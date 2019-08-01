@@ -3,7 +3,7 @@ use crate::Vector3;
 use crate::Vector4;
 use crate::Vector2Int;
 
-use std::arch::x86_64::*;
+use core::arch::x86_64::*;
 use crate::_ico_shuffle;
 use crate::_ico_abs_ps;
 use crate::_ico_truncate_ps;
@@ -425,33 +425,33 @@ impl From<Vector2Int> for Vector2 {
     }
 }
 
-impl std::ops::Add for Vector2{
+impl core::ops::Add for Vector2{
 	type Output = Vector2;
 	#[inline]
 	fn add(self, _rhs: Vector2) -> Vector2{
 		Vector2::add(self, _rhs)
 	}
 }
-impl std::ops::AddAssign for Vector2 {
+impl core::ops::AddAssign for Vector2 {
 	#[inline(always)]
     fn add_assign(&mut self, other: Vector2) {
         *self = Vector2::add(*self, other)
     }
 }
-impl std::ops::Sub for Vector2{
+impl core::ops::Sub for Vector2{
 	type Output = Vector2;
 	#[inline]
 	fn sub(self, _rhs: Vector2) -> Vector2{
 		Vector2::sub(self, _rhs)
 	}
 }
-impl std::ops::SubAssign for Vector2 {
+impl core::ops::SubAssign for Vector2 {
 	#[inline(always)]
     fn sub_assign(&mut self, other: Vector2) {
         *self = Vector2::sub(*self, other)
     }
 }
-impl std::ops::Neg for Vector2 {
+impl core::ops::Neg for Vector2 {
 	type Output = Vector2;
 	#[inline(always)]
 	fn neg(self) -> Self::Output {
@@ -460,7 +460,7 @@ impl std::ops::Neg for Vector2 {
 		}
 	}
 }
-impl std::ops::Mul<f32> for Vector2{
+impl core::ops::Mul<f32> for Vector2{
 	type Output = Vector2;
 	#[inline]
 	fn mul(self, _rhs: f32) -> Vector2{
@@ -468,34 +468,34 @@ impl std::ops::Mul<f32> for Vector2{
 	}
 }
 
-impl std::ops::Mul<Vector2> for f32{
+impl core::ops::Mul<Vector2> for f32{
 	type Output = Vector2;
 	#[inline]
 	fn mul(self, _rhs: Vector2) -> Vector2{
 		Vector2::scale(_rhs, self)
 	}
 }
-impl std::ops::MulAssign<f32> for Vector2{
+impl core::ops::MulAssign<f32> for Vector2{
 	#[inline(always)]
 	fn mul_assign(&mut self, _rhs: f32){
 		*self = Vector2::scale(*self, _rhs)
 	}
 }
-impl std::ops::Div<f32> for Vector2{
+impl core::ops::Div<f32> for Vector2{
 	type Output = Vector2;
 	#[inline]
 	fn div(self, _rhs: f32) -> Vector2{
 		Vector2::div(self, _rhs)
 	}
 }
-impl std::ops::Div<Vector2> for f32{
+impl core::ops::Div<Vector2> for f32{
 	type Output = Vector2;
 	#[inline(always)]
 	fn div(self : f32, _rhs: Vector2) -> Vector2{
 		return Vector2::component_div(Vector2::set(self), _rhs);
 	}
 }
-impl std::ops::DivAssign<f32> for Vector2{
+impl core::ops::DivAssign<f32> for Vector2{
 	#[inline(always)]
 	fn div_assign(&mut self, _rhs: f32){
 		*self = Vector2::div(*self, _rhs)

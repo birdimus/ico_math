@@ -1,4 +1,4 @@
-use std::arch::x86_64::*;
+use core::arch::x86_64::*;
 use crate::Matrix4x4;
 use crate::Vector3;
 use crate::Vector4;
@@ -267,7 +267,7 @@ impl Matrix4x4{
 
 
 }
-impl std::ops::Mul<Matrix4x4> for Matrix4x4{
+impl core::ops::Mul<Matrix4x4> for Matrix4x4{
 	type Output = Matrix4x4;
 	#[inline]
 	fn mul(self, _rhs: Matrix4x4) -> Matrix4x4{

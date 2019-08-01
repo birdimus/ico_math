@@ -306,7 +306,7 @@ mod tests {
 			assert_eq!(Vector2::all(c), false);
 		}	
 		unsafe{
-			use std::arch::x86_64::*;
+			use core::arch::x86_64::*;
 			let a = Vector2 { data : _mm_set_ps(0.0, 1.0,2.0, 0.0)};
 			let b = Vector2 { data : _mm_set_ps(99.0, 1.0,2.0, 0.0)};
 			let c = Vector2::component_equal(a,b);
@@ -345,7 +345,7 @@ mod tests {
 			assert_eq!(Vector2::any(c), false);
 		}	
 		unsafe{
-			use std::arch::x86_64::*;
+			use core::arch::x86_64::*;
 			let a = Vector2 { data : _mm_set_ps(0.0, 1.0,2.0,3.0)};
 			let b = Vector2 { data : _mm_set_ps(0.0, 99.0,99.0,99.0)};
 			let c = Vector2::component_equal(a,b);
@@ -620,7 +620,7 @@ mod tests {
 	
 	#[test]
 	fn dot(){	
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in zw.
 		let a = Vector2{data : _mm_set_ps(100.0, -1.0, 0.0, 0.0)};
@@ -692,7 +692,7 @@ mod tests {
     	}
     	{
     	//SHOULD NOT BE NAN
-		let a = Vector2::new( std::f32::MAX,1.0);
+		let a = Vector2::new( core::f32::MAX,1.0);
 		let c = Vector2::normalize(a);
 		assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), 0.0);
@@ -706,7 +706,7 @@ mod tests {
     	}
     	{
     	//SHOULD NOT BE NAN
-		let a = Vector2::new(std::f32::NAN,0.0);
+		let a = Vector2::new(core::f32::NAN,0.0);
 		let c = Vector2::normalize(a);
 		assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), 0.0);
@@ -721,7 +721,7 @@ mod tests {
 	#[test]
 	fn sqr_magnitude()  {
 		
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in zw.
 		let a = Vector2{data : _mm_set_ps(100.0, -3.0, -3.0, 0.0)};
@@ -733,7 +733,7 @@ mod tests {
 	}
 	#[test]
 	fn magnitude() {
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in zw.
 		let a = Vector2{data : _mm_set_ps(100.0, -3.0, -3.0, 0.0)};
@@ -746,12 +746,12 @@ mod tests {
 	}
 	#[test]
     fn rotate() {
-        use std::arch::x86_64::*;
+        use core::arch::x86_64::*;
         unsafe{
             // make sure this works with garbage in zw.
         let a = Vector2{data : _mm_set_ps(100.0, -3.0, 1.0, 0.0)};
 
-        let c = Vector2::rotate(a, 0.5* std::f64::consts::PI);
+        let c = Vector2::rotate(a, 0.5* core::f64::consts::PI);
 
         assert_eq!(c.x(), -1.0);
         assert_eq!(c.y(), 0.0);
@@ -760,7 +760,7 @@ mod tests {
             // make sure this works with garbage in zw.
         let a = Vector2{data : _mm_set_ps(100.0, -3.0, 0.0, 1.0)};
 
-        let c = Vector2::rotate(a, 0.5* std::f64::consts::PI);
+        let c = Vector2::rotate(a, 0.5* core::f64::consts::PI);
 
         assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), 1.0);
@@ -769,7 +769,7 @@ mod tests {
             // make sure this works with garbage in zw.
         let a = Vector2{data : _mm_set_ps(100.0, -3.0, 0.0, -1.0)};
 
-        let c = Vector2::rotate(a, 0.5* std::f64::consts::PI);
+        let c = Vector2::rotate(a, 0.5* core::f64::consts::PI);
 
         assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), -1.0);
@@ -778,7 +778,7 @@ mod tests {
             // make sure this works with garbage in zw.
         let a = Vector2{data : _mm_set_ps(100.0, -3.0, 1.0, 0.0)};
 
-        let c = Vector2::rotate(a, std::f64::consts::PI);
+        let c = Vector2::rotate(a, core::f64::consts::PI);
 
         assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), -1.0);
@@ -787,7 +787,7 @@ mod tests {
 
 	#[test]
 	fn swizzle() {
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in zw.
 		let a = Vector2{data : _mm_set_ps(100.0, 3.0, 2.0, 1.0)};

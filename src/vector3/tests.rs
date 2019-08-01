@@ -348,7 +348,7 @@ mod tests {
 			assert_eq!(Vector3::all(c), false);
 		}	
 		unsafe{
-			use std::arch::x86_64::*;
+			use core::arch::x86_64::*;
 			let a = Vector3 { data : _mm_set_ps(0.0, 1.0,2.0,3.0)};
 			let b = Vector3 { data : _mm_set_ps(99.0, 1.0,2.0,3.0)};
 			let c = Vector3::component_equal(a,b);
@@ -394,7 +394,7 @@ mod tests {
 			assert_eq!(Vector3::any(c), false);
 		}	
 		unsafe{
-			use std::arch::x86_64::*;
+			use core::arch::x86_64::*;
 			let a = Vector3 { data : _mm_set_ps(0.0, 1.0,2.0,3.0)};
 			let b = Vector3 { data : _mm_set_ps(0.0, 99.0,99.0,99.0)};
 			let c = Vector3::component_equal(a,b);
@@ -486,7 +486,7 @@ mod tests {
 	}
 	#[test]
 	fn cross(){	
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in w.
 		let a = Vector3{data : _mm_set_ps(100.0, -1.0, 0.0, 0.0)};
@@ -690,7 +690,7 @@ mod tests {
 	#[test]
 	fn sin(){	
 		{
-		let a = Vector3::sin(Vector3::new(0.0,0.5*std::f32::consts::PI,std::f32::consts::PI));
+		let a = Vector3::sin(Vector3::new(0.0,0.5*core::f32::consts::PI,core::f32::consts::PI));
 
         assert_eq!(a.x(), 0.0);
         assert_eq!(a.y(), 1.0);
@@ -698,7 +698,7 @@ mod tests {
         
     	}	
     	{
-		let a = Vector3::sin(Vector3::new(0.25*std::f32::consts::PI,-0.25*std::f32::consts::PI,-std::f32::consts::PI));
+		let a = Vector3::sin(Vector3::new(0.25*core::f32::consts::PI,-0.25*core::f32::consts::PI,-core::f32::consts::PI));
 
         assert_eq!(a.x(), 0.70710678118);
         assert_eq!(a.y(), -0.70710678118);
@@ -707,7 +707,7 @@ mod tests {
     	}	
 
     	{
-		let a = Vector3::sin(Vector3::new(100000.25*std::f32::consts::PI,-100000.25*std::f32::consts::PI,-99999.0*std::f32::consts::PI));
+		let a = Vector3::sin(Vector3::new(100000.25*core::f32::consts::PI,-100000.25*core::f32::consts::PI,-99999.0*core::f32::consts::PI));
 
         assert_eq!(a.x(), 0.70710678118);
         assert_eq!(a.y(), -0.70710678118);
@@ -718,7 +718,7 @@ mod tests {
 	#[test]
 	fn cos(){	
 		{
-		let a = Vector3::cos(Vector3::new(0.0,0.5*std::f32::consts::PI,std::f32::consts::PI));
+		let a = Vector3::cos(Vector3::new(0.0,0.5*core::f32::consts::PI,core::f32::consts::PI));
 
         assert_eq!(a.x(), 1.0);
         assert_eq!(a.y(), 0.0);
@@ -726,7 +726,7 @@ mod tests {
         
     	}	
     	{
-		let a = Vector3::cos(Vector3::new(0.25*std::f32::consts::PI,-0.25*std::f32::consts::PI,-std::f32::consts::PI));
+		let a = Vector3::cos(Vector3::new(0.25*core::f32::consts::PI,-0.25*core::f32::consts::PI,-core::f32::consts::PI));
 
         assert_eq!(a.x(), 0.70710678118);
         assert_eq!(a.y(), 0.70710678118);
@@ -735,7 +735,7 @@ mod tests {
     	}	
     	
     	{
-		let a = Vector3::cos(Vector3::new(100000.25*std::f32::consts::PI,-100000.25*std::f32::consts::PI,-99999.0*std::f32::consts::PI));
+		let a = Vector3::cos(Vector3::new(100000.25*core::f32::consts::PI,-100000.25*core::f32::consts::PI,-99999.0*core::f32::consts::PI));
 
         assert_eq!(a.x(), 0.70710678118);
         assert_eq!(a.y(), 0.70710678118);
@@ -748,17 +748,17 @@ mod tests {
 		{
 		let a = Vector3::acos(Vector3::new(-1.0, 0.0, 1.0));
 
-        assert_eq!(a.x(), std::f32::consts::PI);
-        assert_eq!(a.y(), 0.5*std::f32::consts::PI);
+        assert_eq!(a.x(), core::f32::consts::PI);
+        assert_eq!(a.y(), 0.5*core::f32::consts::PI);
         assert_eq!(a.z(), 0.0);
         
     	}
     	/*{
 		let a = Vector3::acos(Vector3::new(-0.70710678118, 0.0, 0.70710678118));
 
-        assert_eq!(a.x(), 0.75*std::f32::consts::PI);
-        assert_eq!(a.y(), 0.5*std::f32::consts::PI);
-        assert_eq!(a.z(), 0.25*std::f32::consts::PI);
+        assert_eq!(a.x(), 0.75*core::f32::consts::PI);
+        assert_eq!(a.y(), 0.5*core::f32::consts::PI);
+        assert_eq!(a.z(), 0.25*core::f32::consts::PI);
         
     	}*/
     	
@@ -791,7 +791,7 @@ mod tests {
 	
 	#[test]
 	fn dot(){	
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in w.
 		let a = Vector3{data : _mm_set_ps(100.0, -1.0, 0.0, 0.0)};
@@ -871,7 +871,7 @@ mod tests {
     	}
     	{
     	//SHOULD NOT BE NAN
-		let a = Vector3::new( std::f32::MAX,1.0,0.0);
+		let a = Vector3::new( core::f32::MAX,1.0,0.0);
 		let c = Vector3::normalize(a);
 		assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), 0.0);
@@ -887,7 +887,7 @@ mod tests {
     	}
     	{
     	//SHOULD NOT BE NAN
-		let a = Vector3::new(std::f32::NAN,0.0,0.0);
+		let a = Vector3::new(core::f32::NAN,0.0,0.0);
 		let c = Vector3::normalize(a);
 		assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), 0.0);
@@ -903,7 +903,7 @@ mod tests {
 	#[test]
 	fn sqr_magnitude()  {
 		
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in w.
 		let a = Vector3{data : _mm_set_ps(100.0, -3.0, 0.0, 0.0)};
@@ -915,7 +915,7 @@ mod tests {
 	}
 	#[test]
 	fn magnitude() {
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in w.
 		let a = Vector3{data : _mm_set_ps(100.0, -3.0, 0.0, 0.0)};
@@ -930,7 +930,7 @@ mod tests {
 
 	#[test]
 	fn swizzle() {
-		use std::arch::x86_64::*;
+		use core::arch::x86_64::*;
 		unsafe{
 			// make sure this works with garbage in w.
 		let a = Vector3{data : _mm_set_ps(100.0, 3.0, 2.0, 1.0)};

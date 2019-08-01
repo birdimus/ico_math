@@ -2,7 +2,7 @@ use crate::Vector4;
 use crate::Vector2Int;
 use crate::Vector3Int;
 use crate::Vector4Int;
-use std::arch::x86_64::*;
+use core::arch::x86_64::*;
 
 
 
@@ -236,7 +236,7 @@ impl From<Vector3Int> for Vector4Int {
         return Vector4Int { data : v.data };
     }
 }
-impl std::ops::Add for Vector4Int{
+impl core::ops::Add for Vector4Int{
 	type Output = Vector4Int;
 	#[inline]
 	fn add(self, _rhs: Vector4Int) -> Vector4Int{
@@ -244,14 +244,14 @@ impl std::ops::Add for Vector4Int{
 	}
 }
 
-impl std::ops::Sub for Vector4Int{
+impl core::ops::Sub for Vector4Int{
 	type Output = Vector4Int;
 	#[inline]
 	fn sub(self, _rhs: Vector4Int) -> Vector4Int{
 		Vector4Int::sub(self, _rhs)
 	}
 }
-impl std::ops::Mul<i32> for Vector4Int{
+impl core::ops::Mul<i32> for Vector4Int{
 	type Output = Vector4Int;
 	#[inline]
 	fn mul(self, _rhs: i32) -> Vector4Int{
@@ -259,7 +259,7 @@ impl std::ops::Mul<i32> for Vector4Int{
 	}
 }
 
-impl std::ops::Mul<Vector4Int> for i32{
+impl core::ops::Mul<Vector4Int> for i32{
 	type Output = Vector4Int;
 	#[inline]
 	fn mul(self, _rhs: Vector4Int) -> Vector4Int{

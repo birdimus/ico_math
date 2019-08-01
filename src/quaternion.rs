@@ -1,4 +1,4 @@
-use std::arch::x86_64::*;
+use core::arch::x86_64::*;
 use crate::Vector3;
 use crate::Quaternion;
 use crate::RawVec;
@@ -210,7 +210,7 @@ impl Quaternion{
 	 		//let mask = _mm_cmpgt_ps(sqr_length, _mm_set1_ps(NORMALIZATION_EPSILON));
 	 		let scaled = _mm_div_ps(q.data, _mm_sqrt_ps(sqr_length) );
 	 		// This will return false if the value is infinity, or NaN.
-	 		let mask = _mm_cmplt_ps(_ico_abs_ps(scaled), _mm_set1_ps(std::f32::INFINITY));
+	 		let mask = _mm_cmplt_ps(_ico_abs_ps(scaled), _mm_set1_ps(core::f32::INFINITY));
 			return Quaternion{data : _ico_select_ps(scaled,_mm_set_ps(1.0f32, 0.0f32, 0.0f32, 0.0f32), mask)};
 		}
 	}
@@ -312,7 +312,7 @@ impl Quaternion{
 	
 
 
-impl std::ops::Mul<Quaternion> for Quaternion{
+impl core::ops::Mul<Quaternion> for Quaternion{
 	type Output = Quaternion;
 	#[inline]
 	fn mul(self, _rhs: Quaternion) -> Quaternion{
@@ -320,7 +320,7 @@ impl std::ops::Mul<Quaternion> for Quaternion{
 	}
 }
 
-impl std::ops::Mul<Vector3> for Quaternion{
+impl core::ops::Mul<Vector3> for Quaternion{
 	type Output = Vector3;
 	#[inline]
 	fn mul(self, _rhs: Vector3) -> Vector3{

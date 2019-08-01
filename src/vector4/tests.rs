@@ -794,7 +794,7 @@ mod tests {
     	}
     	{
     	//SHOULD NOT BE NAN
-		let a = Vector4::new( std::f32::MAX,1.0,0.0,4.0);
+		let a = Vector4::new( core::f32::MAX,1.0,0.0,4.0);
 		let c = Vector4::normalize(a);
 		assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), 0.0);
@@ -810,7 +810,7 @@ mod tests {
     	}
     	{
     	//SHOULD NOT BE NAN
-		let a = Vector4::new(std::f32::NAN,0.0,0.0,4.0);
+		let a = Vector4::new(core::f32::NAN,0.0,0.0,4.0);
 		let c = Vector4::normalize(a);
 		assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), 0.0);
