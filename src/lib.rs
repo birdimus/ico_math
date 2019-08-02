@@ -1,4 +1,5 @@
 #![no_std]
+mod float_vector;
 mod vector2;
 mod vector3;
 mod vector4;
@@ -19,54 +20,67 @@ const INV_TWO_PI : f32 = 0.15915494309189533576888376337251436203445964574045644
 const TWO_PI : f32 = 6.283185307179586476925286766559005768394338798750211641949;
 const HALF_PI : f32 = 1.57079632679;
 const PI : f32 = 3.14159265359;
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct RawVec{
 	data : [f32;4],
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct FloatVector{
+  data : __m128,
+}
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct IntVector{
+  data : __m128i,
+}
+
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector2{
 	data : __m128,
 }
 
 /// A vector 3
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector3{
 	data : __m128,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector4{
 	data : __m128,
 }
 
-#[derive(Copy, Clone)]
+
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector2Int{
 	data : __m128i,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector3Int{
 	data : __m128i,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector4Int{
 	data : __m128i,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Quaternion{
 	data : __m128,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct DualQuaternion{
 	real : __m128,

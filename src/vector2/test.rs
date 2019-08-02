@@ -2,7 +2,8 @@ use super::*;
 
 
 #[cfg(test)]
-mod tests {
+mod test {
+	use crate::FloatVector;
 	use crate::Vector2;
 	#[test]
     fn new() {
@@ -176,7 +177,7 @@ mod tests {
     fn mul() {
 
     	let a = Vector2::new(1.0,2.0);
-		let b = -3.0;
+		let b = FloatVector::new(-3.0);
 		{
 		let c = a * b;
         assert_eq!(c.x(), -3.0);
@@ -213,7 +214,7 @@ mod tests {
     fn div_inv() {
 
     	let a = Vector2::new(1.0,2.0);
-		let b = 1.0;
+		let b = FloatVector::new(1.0);
 
 		let c = b / a;
         assert_eq!(c.x(), 1.0);
@@ -625,7 +626,7 @@ mod tests {
 			// make sure this works with garbage in zw.
 		let a = Vector2{data : _mm_set_ps(100.0, -1.0, 0.0, 0.0)};
 		let b = Vector2{data : _mm_set_ps(200.0, 3.0, 0.0, -1.0)};
-		let c = Vector2::dot(a,b);
+		let c = Vector2::from(Vector2::dot(a,b));
 
 		assert_eq!(c.x(), 0.0);
         assert_eq!(c.y(), 0.0);
@@ -634,7 +635,7 @@ mod tests {
 			// make sure this works with garbage in zw.
 		let a = Vector2{data : _mm_set_ps(100.0, -1.0, -1.0, 5.0)};
 		let b = Vector2{data : _mm_set_ps(200.0, 1.0, 1.0, 7.0)};
-		let c = Vector2::dot(a,b);
+		let c = Vector2::from(Vector2::dot(a,b));
 
 		assert_eq!(c.x(), 34.0);
         assert_eq!(c.y(), 34.0);

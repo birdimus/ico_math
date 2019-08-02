@@ -1,3 +1,4 @@
+use crate::FloatVector;
 use crate::Vector2;
 use crate::Vector3;
 use crate::Vector4;
@@ -19,12 +20,12 @@ impl Vector2{
 			Vector2{data : _mm_set_ps(0.0f32, 0.0f32, y, x)}
 		}
 	}
+
 	#[inline(always)]
-	pub fn set(value : f32) -> Vector2{
-		unsafe{
-			Vector2{data : _mm_set1_ps(value)}
-		}
+	pub fn set<T : Into<FloatVector>>(value : T) -> Vector2 {
+		return Vector2{data : value.into().data};
 	}
+
 	#[inline(always)]
 	pub fn zero() -> Vector2 {
 		unsafe{
@@ -33,35 +34,30 @@ impl Vector2{
 	}
 
 	#[inline(always)]
-	pub fn x(self) -> f32 {
+	pub fn x(self) -> FloatVector {
+		return FloatVector{data:self.xxxx().data};	
+	}
+
+	#[inline(always)]
+	pub fn y(self) -> FloatVector {
+		return FloatVector{data:self.yyyy().data};	
+	}
+
+	#[inline(always)]
+	pub fn set_x<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
-			return _mm_cvtss_f32(self.data);
+			self.data = _mm_move_ss(self.data, value.into().data);
 		}	
 	}
 
 	#[inline(always)]
-	pub fn y(self) -> f32 {
+	pub fn set_y<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
-			return _mm_cvtss_f32(self.yy().data);
-		}	
-	}
-
-
-
-	#[inline(always)]
-	pub fn set_x(&mut self, value : f32) {
-		unsafe{
-			self.data = _mm_move_ss(self.data, _mm_set_ss(value));
-		}	
-	}
-
-	#[inline(always)]
-	pub fn set_y(&mut self, value : f32) {
-		unsafe{
-			let v1 = _mm_move_ss(_mm_set1_ps(value), self.data);
+			let v1 = _mm_move_ss(value.into().data, self.data);
 			self.data = _mm_shuffle_ps(v1,self.data, _ico_shuffle(3, 2, 1, 0));
 		}	
 	}
+
 
 
 	#[inline(always)]
@@ -118,16 +114,16 @@ impl Vector2{
 	}
 
 	#[inline(always)]
-	pub fn scale(v1 : Vector2, scalar : f32) -> Vector2{	
+	pub fn scale<T : Into<FloatVector>>(v1 : Vector2, scalar : T) -> Vector2{	
 		unsafe{
-			Vector2{data : _mm_mul_ps(v1.data, _mm_set1_ps(scalar))}
+			Vector2{data : _mm_mul_ps(v1.data, scalar.into().data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn div(v1 : Vector2, scalar : f32) -> Vector2{	
+	pub fn div<T : Into<FloatVector>>(v1 : Vector2, scalar : T) -> Vector2{	
 		unsafe{
-			Vector2{data : _mm_div_ps(v1.data, _mm_set1_ps(scalar))}
+			Vector2{data : _mm_div_ps(v1.data, scalar.into().data)}
 		}
 	}
 
@@ -310,19 +306,19 @@ impl Vector2{
 		}
 	}
 	#[inline(always)]
-	pub fn dot(v0 : Vector2, v1 : Vector2) -> Vector2{	
+	pub fn dot(v0 : Vector2, v1 : Vector2) -> FloatVector{	
 		unsafe{
 			let tmp0 = _mm_mul_ps(v0.data, v1.data);
 			let mut tmp1 = _yxzw(tmp0);// _mm_shuffle_ps(tmp0,tmp0, _ico_shuffle(3, 2, 0, 1)); //yxzw
 			
 			tmp1 = _mm_add_ps(tmp0, tmp1);//xy,xy,qq,qq
-			return Vector2{data : _mm_unpacklo_ps(tmp1,tmp1)};//xy,xy.xy,xy
+			return FloatVector{data : _mm_unpacklo_ps(tmp1,tmp1)};//xy,xy.xy,xy
 		}
 	}
 	#[inline(always)]
-	pub fn lerp(v1 : Vector2, v2 : Vector2, t : f32) -> Vector2{	
+	pub fn lerp<T : Into<FloatVector>>(v1 : Vector2, v2 : Vector2, t : T) -> Vector2{	
 		unsafe{
-			let t_val = _mm_set1_ps(t);
+			let t_val = t.into().data;
 			let tmp = _mm_fnmadd_ps(v1.data, t_val, v1.data); //a - (a*t)
 			Vector2{data : _mm_fmadd_ps(v2.data, t_val, tmp)} //b * t + a
 		}
@@ -330,40 +326,40 @@ impl Vector2{
 
 	#[inline(always)]
 	pub fn normalize(v1 : Vector2) -> Vector2{	
-		let length = Vector2::sqrt(Vector2::dot(v1,v1));
-		let norm = Vector2::component_div(v1, length);
+		let length = FloatVector::sqrt(Vector2::dot(v1,v1));
+		let norm = Vector2::div(v1, length);
 		
 		unsafe{
 			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
-			let result_length_sqr = Vector2::dot(norm,norm);
+			let result_length_sqr = Vector2::from(Vector2::dot(norm,norm));
 			let mask_less = Vector2::component_less( result_length_sqr, Vector2{data :_ico_two_ps()});
 			return Vector2::and(norm, mask_less);
 		}
 	}
 
 	#[inline(always)]
-	pub fn normalize_length(v1 : Vector2) -> (Vector2, f32){	
-		let length = Vector2::sqrt(Vector2::dot(v1,v1));
-		let norm = Vector2::component_div(v1, length);
+	pub fn normalize_length(v1 : Vector2) -> (Vector2, FloatVector){	
+		let length = FloatVector::sqrt(Vector2::dot(v1,v1));
+		let norm = Vector2::div(v1, length);
 		
 		unsafe{
 
 			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
-			let result_length_sqr = Vector2::dot(norm,norm);
+			let result_length_sqr = Vector2::from(Vector2::dot(norm,norm));
 			let mask_less = Vector2::component_less( result_length_sqr, Vector2{data :_ico_two_ps()});
-			return (Vector2::and(norm, mask_less), length.x());
+			return (Vector2::and(norm, mask_less), length);
 		}
 	}
 
 	
 
 	#[inline(always)]
-	pub fn sqr_magnitude(self) -> f32 {
-		return Vector2::dot(self, self).x();	
+	pub fn sqr_magnitude(self) -> FloatVector {
+		return Vector2::dot(self, self);	
 	}
 	#[inline(always)]
-	pub fn magnitude(self) -> f32 {
-		return Vector2::sqrt(Vector2::dot(self, self)).x();	
+	pub fn magnitude(self) -> FloatVector {
+		return FloatVector::sqrt(Vector2::dot(self, self));	
 	}
 
 	#[inline(always)]
@@ -371,8 +367,8 @@ impl Vector2{
 	pub fn rotate(v1 : Vector2, radians : f64) -> Vector2 {
 		let f = radians.sin_cos();
 
-		let mut sn : f32 = f.0 as f32;
-		let mut cs : f32 = f.1 as f32;
+		let sn : f32 = f.0 as f32;
+		let cs : f32 = f.1 as f32;
 
 		unsafe{
 
@@ -407,17 +403,26 @@ impl Vector2{
 }
 
 
+impl From<FloatVector> for Vector2 {
+	#[inline(always)]
+    fn from(v : FloatVector) -> Vector2 {
+        return Vector2 { data :v.data};	
+    }
+}
 impl From<Vector3> for Vector2 {
+	#[inline(always)]
     fn from(v : Vector3) -> Vector2 {
         Vector2 { data : v.data }
     }
 }
 impl From<Vector4> for Vector2 {
+	#[inline(always)]
     fn from(v : Vector4) -> Vector2 {
         Vector2 { data : v.data }
     }
 }
 impl From<Vector2Int> for Vector2 {
+	#[inline(always)]
     fn from(v : Vector2Int) -> Vector2 {
     	unsafe{
         	return Vector2 { data : _mm_cvtepi32_ps(v.data) };
@@ -440,7 +445,7 @@ impl core::ops::AddAssign for Vector2 {
 }
 impl core::ops::Sub for Vector2{
 	type Output = Vector2;
-	#[inline]
+	#[inline(always)]
 	fn sub(self, _rhs: Vector2) -> Vector2{
 		Vector2::sub(self, _rhs)
 	}
@@ -460,51 +465,51 @@ impl core::ops::Neg for Vector2 {
 		}
 	}
 }
-impl core::ops::Mul<f32> for Vector2{
+impl<T : Into<FloatVector>> core::ops::Mul<T> for Vector2{
 	type Output = Vector2;
-	#[inline]
-	fn mul(self, _rhs: f32) -> Vector2{
-		Vector2::scale(self, _rhs)
+	#[inline(always)]
+	fn mul(self, _rhs: T) -> Vector2{
+		Vector2::scale(self, _rhs.into())
 	}
 }
-
-impl core::ops::Mul<Vector2> for f32{
+impl<T : Into<FloatVector>> core::ops::MulAssign<T> for Vector2{
+	#[inline(always)]
+	fn mul_assign(&mut self, _rhs: T){
+		*self = Vector2::scale(*self, _rhs.into())
+	}
+}
+impl core::ops::Mul<Vector2> for FloatVector{
 	type Output = Vector2;
-	#[inline]
-	fn mul(self, _rhs: Vector2) -> Vector2{
+	#[inline(always)]
+	fn mul(self : FloatVector, _rhs: Vector2) -> Vector2{
 		Vector2::scale(_rhs, self)
 	}
 }
-impl core::ops::MulAssign<f32> for Vector2{
-	#[inline(always)]
-	fn mul_assign(&mut self, _rhs: f32){
-		*self = Vector2::scale(*self, _rhs)
-	}
-}
-impl core::ops::Div<f32> for Vector2{
-	type Output = Vector2;
-	#[inline]
-	fn div(self, _rhs: f32) -> Vector2{
-		Vector2::div(self, _rhs)
-	}
-}
-impl core::ops::Div<Vector2> for f32{
+
+impl<T : Into<FloatVector>> core::ops::Div<T> for Vector2{
 	type Output = Vector2;
 	#[inline(always)]
-	fn div(self : f32, _rhs: Vector2) -> Vector2{
-		return Vector2::component_div(Vector2::set(self), _rhs);
+	fn div(self, _rhs: T) -> Vector2{
+		Vector2::div(self, _rhs.into())
 	}
 }
-impl core::ops::DivAssign<f32> for Vector2{
+impl core::ops::Div<Vector2> for FloatVector{
+	type Output = Vector2;
 	#[inline(always)]
-	fn div_assign(&mut self, _rhs: f32){
-		*self = Vector2::div(*self, _rhs)
+	fn div(self : FloatVector, _rhs: Vector2) -> Vector2{
+		return Vector2::component_div(Vector2::from(self), _rhs);
 	}
 }
+impl<T : Into<FloatVector>> core::ops::DivAssign<T> for Vector2{
+	#[inline(always)]
+	fn div_assign(&mut self, _rhs: T){
+		*self = Vector2::div(*self, _rhs.into())
+	}
+}	
 impl PartialEq for Vector2 {
     fn eq(&self, other: &Vector2) -> bool {
     	return Vector2::equals(*self, *other);
     }
 }
 #[cfg(test)]
-mod tests;
+mod test;

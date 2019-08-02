@@ -2,7 +2,8 @@ use super::*;
 
 
 #[cfg(test)]
-mod tests {
+mod test {
+    use crate::FloatVector;
 	use crate::Vector4;
 	#[test]
     fn new() {
@@ -217,7 +218,7 @@ mod tests {
     fn mul() {
 
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
-		let b = -3.0;
+		let b = FloatVector::new(-3.0);
 		{
 		let c = a * b;
         assert_eq!(c.x(), -3.0);
@@ -260,7 +261,7 @@ mod tests {
     fn div_inv() {
 
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
-		let b = 1.0;
+		let b = FloatVector::new(1.0);
 
 		let c = b / a;
         assert_eq!(c.x(), 1.0);
@@ -717,7 +718,7 @@ mod tests {
 			// make sure this works with garbage in w.
 		let a = Vector4::new(100.0, -1.0, 2.0, 1.0);
 		let b = Vector4::new(10.0, 1.0, 6.0, -1.0);
-		let c = Vector4::dot(a,b);
+		let c = Vector4::from(Vector4::dot(a,b));
 
 		assert_eq!(c.x(), 1010.0);
         assert_eq!(c.y(), 1010.0);
@@ -728,7 +729,7 @@ mod tests {
 			// make sure this works with garbage in w.
 		let a = Vector4::new(3.0, -1.0, -3.0, 5.0);
 		let b = Vector4::new(2.0, 1.0, 1.0, 7.0);
-		let c = Vector4::dot(a,b);
+		let c = Vector4::from(Vector4::dot(a,b));
 
 		assert_eq!(c.x(), 37.0);
         assert_eq!(c.y(), 37.0);
