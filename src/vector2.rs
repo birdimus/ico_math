@@ -1,17 +1,11 @@
+use core::arch::x86_64::*;
 use crate::FloatVector;
 use crate::Vector2;
 use crate::Vector3;
 use crate::Vector4;
 use crate::Vector2Int;
+use crate::sse_extensions::*;
 
-use core::arch::x86_64::*;
-use crate::_ico_shuffle;
-use crate::_ico_abs_ps;
-use crate::_ico_truncate_ps;
-use crate::_ico_copysign_ps;
-use crate::_ico_two_ps;
-use crate::_ico_signbit_ps;
-use crate::*;
 impl Vector2{
 	/// Returns a new Vector2
 	#[inline(always)]

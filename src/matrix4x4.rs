@@ -1,11 +1,10 @@
 use core::arch::x86_64::*;
+use crate::sse_extensions::*;
 use crate::Matrix4x4;
 use crate::Vector3;
 use crate::Vector4;
 use crate::Quaternion;
-use crate::_ico_shuffle;
-use crate::SIGN_BIT;
-use crate::*;
+
 
 impl Matrix4x4{
 

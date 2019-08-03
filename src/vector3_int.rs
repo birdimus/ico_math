@@ -1,8 +1,9 @@
+use core::arch::x86_64::*;
 use crate::Vector3;
 use crate::Vector2Int;
 use crate::Vector3Int;
 use crate::Vector4Int;
-use core::arch::x86_64::*;
+use crate::sse_extensions::*;
 
 
 

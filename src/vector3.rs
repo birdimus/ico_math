@@ -1,17 +1,12 @@
+use core::arch::x86_64::*;
 use crate::FloatVector;
 use crate::Vector2;
 use crate::Vector3;
 use crate::Vector4;
 use crate::Vector3Int;
+use crate::sse_extensions::*;
 
-use core::arch::x86_64::*;
-use crate::_ico_shuffle;
-use crate::_ico_abs_ps;
-use crate::_ico_cross_ps;
-use crate::_ico_copysign_ps;
-use crate::_ico_two_ps;
-use crate::_ico_signbit_ps;
-use crate::*;
+
 impl Vector3{
 	/// Returns a new Vector3
 	#[inline(always)]
@@ -20,7 +15,7 @@ impl Vector3{
 			Vector3{data : _mm_set_ps(0.0f32, z, y, x)}
 		}
 	}
-	
+
 	#[inline(always)]
 	pub fn set<T : Into<FloatVector>>(value : T) -> Vector3 {
 		return Vector3{data : value.into().data};

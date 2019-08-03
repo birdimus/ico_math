@@ -5,6 +5,7 @@ use super::*;
 mod test {
 	use crate::FloatVector;
 	use crate::Vector2;
+	
 	#[test]
     fn new() {
 

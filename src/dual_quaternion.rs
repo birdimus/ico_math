@@ -1,11 +1,9 @@
 use core::arch::x86_64::*;
-use crate::_ico_shuffle;
 use crate::Vector3;
 use crate::Vector4;
 use crate::Quaternion;
 use crate::DualQuaternion;
-use crate::_ico_quat_mul;
-use crate::_ico_dp4_ps;
+use super::sse_extensions::*;
 impl DualQuaternion{
 
 	#[inline(always)]

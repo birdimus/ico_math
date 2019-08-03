@@ -1,14 +1,8 @@
-use crate::FloatVector;
-
-
 use core::arch::x86_64::*;
-use crate::_ico_shuffle;
-use crate::_ico_abs_ps;
-use crate::_ico_truncate_ps;
-use crate::_ico_copysign_ps;
-use crate::_ico_two_ps;
-use crate::_ico_signbit_ps;
-use crate::*;
+use crate::FloatVector;
+use crate::IntVector;
+use crate::sse_extensions::*;
+
 impl FloatVector{
 	/// Returns a new FloatVector
 	#[inline(always)]

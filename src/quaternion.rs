@@ -2,15 +2,8 @@ use core::arch::x86_64::*;
 use crate::Vector3;
 use crate::Quaternion;
 use crate::RawVec;
-use crate::_ico_shuffle;
-use crate::_ico_quat_mul;
-use crate::_ico_abs_ps;
-use crate::_ico_dp4_ps;
-use crate::_ico_signbit_ps;
-use crate::_ico_select_ps;
-use crate::_ico_one_ps;
-use crate::NORMALIZATION_EPSILON;
-use crate::SIGN_BIT;
+use crate::sse_extensions::*;
+
 const SLERP_EPSILON : f32 = 0.9995;
 impl Quaternion{
 
