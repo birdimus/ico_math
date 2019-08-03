@@ -1,14 +1,13 @@
 use core::arch::x86_64::*;
-use crate::structure::SIMDVector4;
-
+use crate::structure::SIMDVector3;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
-pub struct Vector4Bool{
+pub struct Vector3Bool{
   pub data : __m128i,
 }
 
-impl SIMDVector4 for Vector4Bool{
+impl SIMDVector3 for Vector3Bool{
 #[inline(always)]
   fn data(self)->__m128{
     return unsafe{_mm_castsi128_ps (self.data)};
@@ -18,16 +17,16 @@ impl SIMDVector4 for Vector4Bool{
   }
 }
 
-impl Vector4Bool{
+impl Vector3Bool{
 #[inline(always)]
-  pub fn new(x : bool, y : bool, z : bool, w : bool) -> Vector4Bool{
+  pub fn new(x : bool, y : bool, z : bool) -> Vector3Bool{
     let x_val : u32 = if x {0xFFFFFFFF} else{0};
     let y_val : u32  = if y {0xFFFFFFFF} else{0};
     let z_val : u32  = if z {0xFFFFFFFF} else{0};
-    let w_val : u32  = if w {0xFFFFFFFF} else{0};
+
     unsafe{
-      return Vector4Bool{data : _mm_set_epi32(
-        core::mem::transmute::<u32, i32>(w_val),
+      return Vector3Bool{data : _mm_set_epi32(
+        0,
         core::mem::transmute::<u32, i32>(z_val),
         core::mem::transmute::<u32, i32>(y_val), 
         core::mem::transmute::<u32, i32>(x_val))};
@@ -51,12 +50,7 @@ impl Vector4Bool{
       return (_mm_movemask_epi8 (self.data) & 3840 ) == 3840;
     }
   }
-  #[inline(always)]
-  pub fn w(self) -> bool {
-    unsafe{ // 4096 8192 16384 32768
-      return (_mm_movemask_epi8 (self.data) & 61440 ) == 61440;
-    }
-  }
+
 
 
   #[inline(always)]
@@ -80,54 +74,18 @@ impl Vector4Bool{
        self.data = _mm_insert_epi32(self.data, core::mem::transmute::<u32, i32>(val), 2);
     } 
   }
-  #[inline(always)]
-  pub fn set_w(&mut self, value : bool) {
-    let val : u32 = if value {0xFFFFFFFF} else{0};
-    unsafe{
-       self.data = _mm_insert_epi32(self.data, core::mem::transmute::<u32, i32>(val), 3);
-    } 
-  }
-
 
   
   #[inline(always)]
-  pub fn and(self, v2 : Vector4Bool) -> Vector4Bool{  
+  pub fn all(self : Vector3Bool) -> bool{  
     unsafe{
-      return Vector4Bool{data : _mm_and_si128(self.data, v2.data)};
-    }
-  }
-
-  #[inline(always)]
-  pub fn or(self, v2 : Vector4Bool) -> Vector4Bool{ 
-    unsafe{
-      return Vector4Bool{data : _mm_or_si128(self.data, v2.data)};
-    }
-  }
-
-  #[inline(always)]
-  pub fn andnot(self, v2 : Vector4Bool) -> Vector4Bool{ 
-    unsafe{
-      return Vector4Bool{data : _mm_andnot_si128(self.data, v2.data)};
-    }
-  }
-
-  #[inline(always)]
-  pub fn xor(self, v2 : Vector4Bool) -> Vector4Bool{  
-    unsafe{
-      return Vector4Bool{data : _mm_xor_si128(self.data, v2.data)};
-    }
-  }
-
-  #[inline(always)]
-  pub fn all(self : Vector4Bool) -> bool{  
-    unsafe{
-      return (_mm_movemask_epi8 (self.data)  ) == 0x0000FFFF;
+      return (_mm_movemask_epi8 (self.data) & 4095 ) == 4095;
     }
   }
   #[inline(always)]
-  pub fn any(self : Vector4Bool) -> bool{  
+  pub fn any(self : Vector3Bool) -> bool{  
     unsafe{
-      return _mm_movemask_epi8 (self.data) != 0;
+      return (_mm_movemask_epi8 (self.data) & 4095 ) != 0;
     }
   }
 

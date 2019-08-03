@@ -1,8 +1,14 @@
 use core::arch::x86_64::*;
-use crate::Vector3;
-use crate::Quaternion;
-use crate::RawFloatVector;
 use crate::sse_extensions::*;
+use crate::vector3::Vector3;
+use crate::raw::RawVector_f32;
+
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct Quaternion{
+	pub data : __m128,
+}
 
 const SLERP_EPSILON : f32 = 0.9995;
 impl Quaternion{
@@ -52,7 +58,7 @@ impl Quaternion{
 
 
 	#[inline(always)]
-	pub fn store(self,  dst : &mut RawFloatVector){	
+	pub fn store(self,  dst : &mut RawVector_f32){	
 		let x : *mut f32 = &mut (dst.data[0]) as *mut f32;
 		unsafe{
 			_mm_store_ps(x, self.data);

@@ -1,22 +1,29 @@
 use core::arch::x86_64::*;
 use core::hash::Hasher;
 use core::hash::Hash;
-use crate::RawFloatVector;
-use crate::FloatVector;
-use crate::Vector2;
-use crate::Vector3;
-use crate::Vector4;
-use crate::SIMDVector4;
-use crate::Vector4Int;
-use crate::Vector4Bool;
-use crate::Quaternion;
+use crate::float_vector::FloatVector;
+use crate::vector2::Vector2;
+use crate::vector3::Vector3;
+
+use crate::structure::SIMDVector4;
+use crate::vector4_int::Vector4Int;
+use crate::vector4_bool::Vector4Bool;
+use crate::quaternion::Quaternion;
 use crate::sse_extensions::*;
 
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct Vector4{
+	pub data : __m128,
+}
 
 impl SIMDVector4 for Vector4{
 #[inline(always)]
   fn data(self)->__m128{
   	return self.data;
+  }
+  fn data_i(self)->__m128i{
+  	return unsafe{ _mm_castps_si128 (self.data)};
   }
 }
 impl Vector4{
@@ -170,16 +177,7 @@ impl Vector4{
 	}
 	
 
-// 	#[inline(always)]
-// 	pub fn approx_equal(v1 : Vector4, v2 : Vector4) -> Vector4{	
-// 		let delta = Vector4::abs(v1 - v2);
-// 		let abs_v1 = Vector4::abs(v1);
-// 		let abs_v2 = Vector4::abs(v2);
-// 		component_less(abs_v1, abs_v2)
-// 		unsafe{
-// 			Vector4{data : _mm_cmpeq_ps(v1.data, v2.data)}
-// 		}
-// 	}
+
 
 //from Knuth
 // 	bool approximatelyEqual(float a, float b, float epsilon)
@@ -681,30 +679,30 @@ impl From<Vector4Int> for Vector4 {
     }
 }
 
-impl core::ops::Add for Vector4{
+impl<T : Into<Vector4>> core::ops::Add<T> for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
-	fn add(self, _rhs: Vector4) -> Vector4{
-		Vector4::add(self, _rhs)
+	fn add(self, _rhs: T) -> Vector4{
+		Vector4::add(self, _rhs.into())
 	}
 }
-impl core::ops::AddAssign for Vector4 {
+impl<T : Into<Vector4>> core::ops::AddAssign<T> for Vector4 {
 	#[inline(always)]
-    fn add_assign(&mut self, other: Vector4) {
-        *self = Vector4::add(*self, other)
+    fn add_assign(&mut self, other: T) {
+        *self = Vector4::add(*self, other.into())
     }
 }
-impl core::ops::Sub for Vector4{
+impl<T : Into<Vector4>> core::ops::Sub<T> for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
-	fn sub(self, _rhs: Vector4) -> Vector4{
-		Vector4::sub(self, _rhs)
+	fn sub(self, _rhs: T) -> Vector4{
+		Vector4::sub(self, _rhs.into())
 	}
 }
-impl core::ops::SubAssign for Vector4 {
+impl<T : Into<Vector4>> core::ops::SubAssign<T> for Vector4 {
 	#[inline(always)]
-    fn sub_assign(&mut self, other: Vector4) {
-        *self = Vector4::sub(*self, other)
+    fn sub_assign(&mut self, other: T) {
+        *self = Vector4::sub(*self, other.into())
     }
 }
 impl core::ops::Neg for Vector4 {
@@ -762,7 +760,6 @@ impl PartialEq for Vector4 {
 	#[inline(always)]
     fn eq(&self, other: &Vector4) -> bool {
     	return Vector4::equal(*self, *other).all();
-    	//return Vector4::equals(*self, *other);
     }
 }
 

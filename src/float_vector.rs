@@ -1,7 +1,13 @@
 use core::arch::x86_64::*;
-use crate::FloatVector;
-use crate::IntVector;
 use crate::sse_extensions::*;
+use crate::int_vector::IntVector;
+
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct FloatVector{
+  pub data : __m128,
+}
 
 impl FloatVector{
 	/// Returns a new FloatVector
@@ -110,10 +116,7 @@ impl FloatVector{
 
 	#[inline(always)]
 	pub fn equals(v1 : FloatVector, v2 : FloatVector) -> bool{	
-		unsafe{
-			let d = _mm_cmpeq_ps(v1.data, v2.data);
-			return (_mm_movemask_ps(d) ) == 15;
-		}
+		return v1.value() == v2.value();
 	}
 
 	#[inline(always)]

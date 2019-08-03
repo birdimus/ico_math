@@ -1,10 +1,14 @@
 use core::arch::x86_64::*;
 use crate::sse_extensions::*;
-use crate::Matrix4x4;
-use crate::Vector3;
-use crate::Vector4;
-use crate::Quaternion;
+use crate::vector3::Vector3;
+use crate::vector4::Vector4;
+use crate::quaternion::Quaternion;
 
+#[derive(Copy, Clone)]
+#[repr(C, align(16))]
+pub struct Matrix4x4{
+	pub m : [__m128; 4],
+}
 
 impl Matrix4x4{
 

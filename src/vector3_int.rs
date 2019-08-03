@@ -1,14 +1,19 @@
 use core::arch::x86_64::*;
 use core::hash::Hasher;
 use core::hash::Hash;
-use crate::Vector3;
-use crate::RawIntVector;
-use crate::IntVector;
-use crate::Vector2Int;
-use crate::Vector3Int;
-use crate::Vector4Int;
+use crate::vector3::Vector3;
+use crate::raw::RawVector_i32;
+use crate::int_vector::IntVector;
+use crate::vector2_int::Vector2Int;
+use crate::vector4_int::Vector4Int;
 use crate::sse_extensions::*;
 
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct Vector3Int{
+	pub data : __m128i,
+}
 
 
 impl Vector3Int{
@@ -252,18 +257,7 @@ impl From<Vector3> for Vector3Int {
         }
     }
 }
-impl From<Vector2Int> for Vector3Int {
-	#[inline(always)]
-    fn from(v : Vector2Int) -> Vector3Int {
-        return Vector3Int { data : v.data };
-    }
-}
-impl From<Vector4Int> for Vector3Int {
-	#[inline(always)]
-    fn from(v : Vector4Int) -> Vector3Int {
-        return Vector3Int { data : v.data };
-    }
-}
+
 
 
 impl core::ops::Add for Vector3Int{
@@ -331,7 +325,7 @@ impl PartialEq for Vector3Int {
 }
 impl Hash for Vector3Int {
     fn hash<H: Hasher>(&self, state: &mut H) {
-    	let mut dst = RawIntVector{data:[0;4]};
+    	let mut dst = RawVector_i32{data:[0;4]};
     	unsafe{
     		let x : *mut __m128i = &mut (dst.data[0]) as *mut i32 as *mut __m128i;
     		_mm_store_si128(x, self.data);

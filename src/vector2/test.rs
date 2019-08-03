@@ -3,9 +3,9 @@ use super::*;
 
 #[cfg(test)]
 mod test {
-	use crate::FloatVector;
-	use crate::Vector2;
-	
+	use crate::float_vector::FloatVector;
+	use crate::vector2::Vector2;
+
 	#[test]
     fn new() {
 

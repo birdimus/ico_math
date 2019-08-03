@@ -1,10 +1,16 @@
 use core::arch::x86_64::*;
-use crate::FloatVector;
-use crate::Vector2;
-use crate::Vector3;
-use crate::Vector4;
-use crate::Vector3Int;
+use crate::float_vector::FloatVector;
+use crate::vector2::Vector2;
+use crate::vector4::Vector4;
+use crate::vector3_int::Vector3Int;
 use crate::sse_extensions::*;
+
+/// A vector 3
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct Vector3{
+	pub data : __m128,
+}
 
 
 impl Vector3{

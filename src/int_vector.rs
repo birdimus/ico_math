@@ -1,13 +1,19 @@
 use core::arch::x86_64::*;
 use core::hash::Hasher;
 use core::hash::Hash;
-use crate::IntVector;
-use crate::FloatVector;
-use crate::Vector3Int;
-use crate::Vector4Int;
 use crate::sse_extensions::*;
+use crate::float_vector::FloatVector;
+use crate::vector3_int::Vector3Int;
+use crate::vector4_int::Vector4Int;
 
 
+
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct IntVector{
+  pub data : __m128i,
+}
 
 impl IntVector{
 	/// Returns a new Vector2
@@ -144,10 +150,7 @@ impl IntVector{
 
 	#[inline(always)]
 	pub fn equals(v1 : IntVector, v2 : IntVector) -> bool{	
-		unsafe{
-			let d = _mm_cmpeq_epi32(v1.data, v2.data);
-			return (_mm_movemask_epi8(d) ) == 0x0000FFFF;
-		}
+		return v1.value() == v2.value();
 	}
 	
 }

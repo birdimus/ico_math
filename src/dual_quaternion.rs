@@ -1,9 +1,17 @@
 use core::arch::x86_64::*;
-use crate::Vector3;
-use crate::Vector4;
-use crate::Quaternion;
-use crate::DualQuaternion;
-use super::sse_extensions::*;
+use crate::sse_extensions::*;
+use crate::vector3::Vector3;
+use crate::vector4::Vector4;
+use crate::quaternion::Quaternion;
+
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct DualQuaternion{
+	pub real : __m128,
+	pub dual : __m128,
+}
+
 impl DualQuaternion{
 
 	#[inline(always)]
