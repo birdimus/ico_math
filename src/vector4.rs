@@ -6,9 +6,19 @@ use crate::FloatVector;
 use crate::Vector2;
 use crate::Vector3;
 use crate::Vector4;
+use crate::SIMDVector4;
 use crate::Vector4Int;
+use crate::Vector4Bool;
 use crate::Quaternion;
 use crate::sse_extensions::*;
+
+
+impl SIMDVector4 for Vector4{
+#[inline(always)]
+  fn data(self)->__m128{
+  	return self.data;
+  }
+}
 impl Vector4{
 	/// Returns a new Vector4
 	#[inline(always)]
@@ -82,288 +92,281 @@ impl Vector4{
 	}
 
 	#[inline(always)]
-	pub fn add(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn add<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_add_ps(v1.data, v2.data)}
+			Vector4{data : _mm_add_ps(self.data, v2.into().data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn sub(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn sub<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_sub_ps(v1.data, v2.data)}
+			Vector4{data : _mm_sub_ps(self.data, v2.into().data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn component_mul(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn mul<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_mul_ps(v1.data, v2.data)}
+			Vector4{data : _mm_mul_ps(self.data, v2.into().data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn component_div(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn div<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_div_ps(v1.data, v2.data)}
+			Vector4{data : _mm_div_ps(self.data, v2.into().data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn fmadd(v1 : Vector4, v2 : Vector4, v3 : Vector4) -> Vector4{	
+	pub fn mul_add<T : Into<Vector4>, R : Into<Vector4>>(self, v2 : T, v3 : R) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_fmadd_ps(v1.data, v2.data, v3.data)}
+			return Vector4{data : _mm_fmadd_ps(self.data, v2.into().data, v3.into().data)};
 		}
 	}
 	#[inline(always)]
-	pub fn fmsub(v1 : Vector4, v2 : Vector4, v3 : Vector4) -> Vector4{	
+	pub fn mul_sub<T : Into<Vector4>, R : Into<Vector4>>(self, v2 : T, v3 : R) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_fmsub_ps(v1.data, v2.data, v3.data)}
+			return Vector4{data : _mm_fmsub_ps(self.data, v2.into().data, v3.into().data)};
 		}
 	}
 	#[inline(always)]
-	pub fn fnmadd(v1 : Vector4, v2 : Vector4, v3 : Vector4) -> Vector4{	
+	pub fn neg_mul_add<T : Into<Vector4>, R : Into<Vector4>>(self, v2 : T, v3 : R) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_fnmadd_ps(v1.data, v2.data, v3.data)}
+			return Vector4{data : _mm_fnmadd_ps(self.data, v2.into().data, v3.into().data)};
 		}
 	}
 	#[inline(always)]
-	pub fn fnmsub(v1 : Vector4, v2 : Vector4, v3 : Vector4) -> Vector4{	
+	pub fn neg_mul_sub<T : Into<Vector4>, R : Into<Vector4>>(self, v2 : T, v3 : R) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_fnmsub_ps(v1.data, v2.data, v3.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn scale<T : Into<FloatVector>>(v1 : Vector4, scalar : T) -> Vector4{	
-		unsafe{
-			Vector4{data : _mm_mul_ps(v1.data, scalar.into().data)}
+			return Vector4{data : _mm_fnmsub_ps(self.data, v2.into().data, v3.into().data)};
 		}
 	}
 
 	#[inline(always)]
-	pub fn div<T : Into<FloatVector>>(v1 : Vector4, scalar : T) -> Vector4{	
+	pub fn and<T : SIMDVector4>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_div_ps(v1.data, scalar.into().data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn and(v1 : Vector4, v2 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data : _mm_and_ps(v1.data, v2.data)}
+			Vector4{data : _mm_and_ps(self.data, v2.data())}
 		}
 	}
 	#[inline(always)]
-	pub fn or(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn or<T : SIMDVector4>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_or_ps(v1.data, v2.data)}
+			Vector4{data : _mm_or_ps(self.data, v2.data())}
 		}
 	}
 	#[inline(always)]
-	pub fn andnot(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn andnot<T : SIMDVector4>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_andnot_ps(v1.data, v2.data)}
+			Vector4{data : _mm_andnot_ps(self.data, v2.data())}
 		}
 	}
 	#[inline(always)]
-	pub fn xor(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn xor<T : SIMDVector4>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_xor_ps(v1.data, v2.data)}
+			Vector4{data : _mm_xor_ps(self.data, v2.data())}
 		}
 	}
 	
+
+// 	#[inline(always)]
+// 	pub fn approx_equal(v1 : Vector4, v2 : Vector4) -> Vector4{	
+// 		let delta = Vector4::abs(v1 - v2);
+// 		let abs_v1 = Vector4::abs(v1);
+// 		let abs_v2 = Vector4::abs(v2);
+// 		component_less(abs_v1, abs_v2)
+// 		unsafe{
+// 			Vector4{data : _mm_cmpeq_ps(v1.data, v2.data)}
+// 		}
+// 	}
+
+//from Knuth
+// 	bool approximatelyEqual(float a, float b, float epsilon)
+// {
+//     return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+// }
+
+// bool essentiallyEqual(float a, float b, float epsilon)
+// {
+//     return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+// }
+
+// bool definitelyGreaterThan(float a, float b, float epsilon)
+// {
+//     return (a - b) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+// }
+
+// bool definitelyLessThan(float a, float b, float epsilon)
+// {
+//     return (b - a) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+// }
 	#[inline(always)]
-	pub fn all(v1 : Vector4) -> bool{	
+	pub fn equal<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
 		unsafe{
-			return (_mm_movemask_ps(v1.data) ) == 15;
+			Vector4Bool{data : _mm_castps_si128(_mm_cmpeq_ps(self.data, v2.into().data))}
+		}
+	}
+	#[inline(always)]
+	pub fn not_equal<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+		unsafe{
+			Vector4Bool{data : _mm_castps_si128(_mm_cmpneq_ps(self.data, v2.into().data))}
+		}
+	}
+	#[inline(always)]
+	pub fn greater_equal<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+		unsafe{
+			Vector4Bool{data : _mm_castps_si128(_mm_cmpge_ps(self.data, v2.into().data))}
+		}
+	}
+	#[inline(always)]
+	pub fn greater<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+		unsafe{
+			Vector4Bool{data : _mm_castps_si128(_mm_cmpgt_ps(self.data, v2.into().data))}
+		}
+	}
+	#[inline(always)]
+	pub fn less_equal<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+		unsafe{
+			Vector4Bool{data : _mm_castps_si128(_mm_cmple_ps(self.data, v2.into().data))}
+		}
+	}
+	#[inline(always)]
+	pub fn less<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+		unsafe{
+			Vector4Bool{data : _mm_castps_si128(_mm_cmplt_ps(self.data, v2.into().data))}
 		}
 	}
 
-	#[inline(always)]
-	pub fn any(v1 : Vector4) -> bool{	
-		unsafe{
-			return (_mm_movemask_ps(v1.data) ) != 0;
-		}
-	}
 
 	#[inline(always)]
-	pub fn equals(v1 : Vector4, v2 : Vector4) -> bool{	
+	pub fn abs(self) -> Vector4{	
 		unsafe{
-			let d = _mm_cmpeq_ps(v1.data, v2.data);
-			return (_mm_movemask_ps(d) ) == 15;
-		}
-	}
-
-	#[inline(always)]
-	pub fn component_equal(v1 : Vector4, v2 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data : _mm_cmpeq_ps(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn component_not_equal(v1 : Vector4, v2 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data : _mm_cmpneq_ps(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn component_greater_equal(v1 : Vector4, v2 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data : _mm_cmpge_ps(v1.data, v2.data)}
+			Vector4{data :  _ico_abs_ps(self.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn component_greater(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn copysign(self, v2 : Vector4) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_cmpgt_ps(v1.data, v2.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn component_less_equal(v1 : Vector4, v2 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data : _mm_cmple_ps(v1.data, v2.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn component_less(v1 : Vector4, v2 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data : _mm_cmplt_ps(v1.data, v2.data)}
-		}
-	}
-
-
-	#[inline(always)]
-	pub fn abs(v1 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data :  _ico_abs_ps(v1.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn copysign(v1 : Vector4, v2 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data :  _ico_copysign_ps(v1.data, v2.data)}
+			Vector4{data :  _ico_copysign_ps(self.data, v2.data)}
 		}
 	}
 
 	#[inline(always)]
 	/// Floor function.  Returns signed 0 when applicable.
-	pub fn floor(v1 : Vector4) -> Vector4{	
+	pub fn floor(self) -> Vector4{	
 		unsafe{
 			Vector4{data :  
-				_mm_floor_ps(v1.data)}
+				_mm_floor_ps(self.data)}
 				//_ico_floor_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
 	/// Ceil function.  Returns signed 0 when applicable.
-	pub fn ceil(v1 : Vector4) -> Vector4{	
+	pub fn ceil(self) -> Vector4{	
 		unsafe{
 			Vector4{data :  
-				_mm_ceil_ps(v1.data)}
+				_mm_ceil_ps(self.data)}
 				//_ico_ceil_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
 	/// Round to nearest even function. Returns signed 0 when applicable.
-	pub fn round(v1 : Vector4) -> Vector4{	
+	pub fn round(self) -> Vector4{	
 		unsafe{
 			Vector4{data : 
-			_mm_round_ps(v1.data, _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC)}
-			// _ico_round_ps(v1.data)}
+			_mm_round_ps(self.data, _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn floor_to_int(v1 : Vector4) -> Vector4Int{	
+	pub fn floor_to_int(self) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data :  _mm_cvttps_epi32(_mm_floor_ps(v1.data))}
+			Vector4Int{data :  _mm_cvttps_epi32(_mm_floor_ps(self.data))}
 		}
 	}
 
 	#[inline(always)]
-	pub fn ceil_to_int(v1 : Vector4) -> Vector4Int{	
+	pub fn ceil_to_int(self) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data :  _mm_cvttps_epi32(_mm_ceil_ps(v1.data))}
+			Vector4Int{data :  _mm_cvttps_epi32(_mm_ceil_ps(self.data))}
 		}
 	}
 
 	#[inline(always)]
-	pub fn truncate(v1 : Vector4) -> Vector4{	
+	pub fn truncate(self) -> Vector4{	
 		unsafe{
 			Vector4{data :  
-				_mm_round_ps(v1.data, _MM_FROUND_TO_ZERO |_MM_FROUND_NO_EXC)}
+				_mm_round_ps(self.data, _MM_FROUND_TO_ZERO |_MM_FROUND_NO_EXC)}
 				//_ico_truncate_ps(v1.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn frac(v1 : Vector4) -> Vector4{	
-		return Vector4::sub(v1, Vector4::floor(v1));
+	pub fn frac(self) -> Vector4{	
+		return Vector4::sub(self, Vector4::floor(self));
 	}
 
 	#[inline(always)]
-	pub fn sqrt(v1 : Vector4) -> Vector4{	
+	pub fn sqrt(self) -> Vector4{	
 		unsafe{
-			Vector4{data :  _mm_sqrt_ps(v1.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn max(v1 : Vector4, v2 : Vector4) -> Vector4{	
-		unsafe{
-			Vector4{data : _mm_max_ps(v1.data, v2.data)}
+			Vector4{data :  _mm_sqrt_ps(self.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn min(v1 : Vector4, v2 : Vector4) -> Vector4{	
+	pub fn max<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_min_ps(v1.data, v2.data)}
+			Vector4{data : _mm_max_ps(self.data, v2.into().data)}
+		}
+	}
+
+	#[inline(always)]
+	pub fn min<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
+		unsafe{
+			Vector4{data : _mm_min_ps(self.data, v2.into().data)}
 		}
 	}
 	#[inline(always)]
-	pub fn dot(v1 : Vector4, v2 : Vector4) -> FloatVector{	
+	pub fn dot<T : Into<Vector4>>(self, v2 : T) -> FloatVector{	
 		unsafe{
-			return  FloatVector{data : _ico_dp4_ps(v1.data,v2.data)};
+			return  FloatVector{data : _ico_dp4_ps(self.data,v2.into().data)};
 		}
 	}
 	#[inline(always)]
-	pub fn lerp<T : Into<FloatVector>>(v1 : Vector4, v2 : Vector4, t : T) -> Vector4{	
+	pub fn lerp<T : Into<Vector4>, R : Into<FloatVector>>(self, v2 : T, t : R) -> Vector4{	
 		unsafe{
 			let t_val = t.into().data;
-			let tmp = _mm_fnmadd_ps(v1.data, t_val, v1.data); //a - (a*t)
-			Vector4{data : _mm_fmadd_ps(v2.data, t_val, tmp)} //b * t + a
+			let tmp = _mm_fnmadd_ps(self.data, t_val, self.data); //a - (a*t)
+			Vector4{data : _mm_fmadd_ps(v2.into().data, t_val, tmp)} //b * t + a
 		}
 	}
 
 	#[inline(always)]
-	pub fn normalize(v1 : Vector4) -> Vector4{	
-		let length = FloatVector::sqrt(Vector4::dot(v1,v1));
-		let norm = Vector4::div(v1, length);
+	pub fn normalize(self) -> Vector4{	
+		let length = FloatVector::sqrt(Vector4::dot(self,self));
+		let norm = Vector4::div(self, length);
 		
 		unsafe{
 			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
 			let result_length_sqr = Vector4::from(Vector4::dot(norm,norm));
-			let mask_less = Vector4::component_less( result_length_sqr, Vector4{data :_ico_two_ps()});
+			let mask_less = Vector4::less( result_length_sqr, Vector4{data :_ico_two_ps()});
 			return Vector4::and(norm, mask_less);
 		}
 	}
 
 	#[inline(always)]
-	pub fn normalize_length(v1 : Vector4) -> (Vector4, FloatVector){	
-		let length = FloatVector::sqrt(Vector4::dot(v1,v1));
-		let norm = Vector4::div(v1, length);
+	pub fn normalize_length(self) -> (Vector4, FloatVector){	
+		let length = FloatVector::sqrt(Vector4::dot(self,self));
+		let norm = Vector4::div(self, length);
 		
 		unsafe{
 
 			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
 			let result_length_sqr = Vector4::from(Vector4::dot(norm,norm));
-			let mask_less = Vector4::component_less( result_length_sqr, Vector4{data :_ico_two_ps()});
+			let mask_less = Vector4::less( result_length_sqr, Vector4{data :_ico_two_ps()});
 			return (Vector4::and(norm, mask_less), length);
 		}
 	}
@@ -638,6 +641,15 @@ impl Vector4{
 	#[inline(always)] pub fn wwww(self) -> Vector4 { unsafe{return Vector4{data:_wwww(self.data)};}}
 }
 
+
+impl From<f32> for Vector4 {
+	#[inline(always)]
+    fn from(v : f32) -> Vector4 {
+    	unsafe{
+        return Vector4 { data :_mm_set1_ps(v)};	
+    	}
+    }
+}
 impl From<FloatVector> for Vector4 {
 	#[inline(always)]
     fn from(v : FloatVector) -> Vector4 {
@@ -668,12 +680,7 @@ impl From<Vector4Int> for Vector4 {
         }
     }
 }
-impl From<Quaternion> for Vector4 {
-	#[inline(always)]
-    fn from(q : Quaternion) -> Vector4 {
-        return Vector4 { data : q.data};
-    }
-}
+
 impl core::ops::Add for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
@@ -713,20 +720,20 @@ impl<T : Into<FloatVector>> core::ops::Mul<T> for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
 	fn mul(self, _rhs: T) -> Vector4{
-		Vector4::scale(self, _rhs.into())
+		Vector4::mul(self, _rhs.into())
 	}
 }
 impl<T : Into<FloatVector>> core::ops::MulAssign<T> for Vector4{
 	#[inline(always)]
 	fn mul_assign(&mut self, _rhs: T){
-		*self = Vector4::scale(*self, _rhs.into())
+		*self = Vector4::mul(*self, _rhs.into())
 	}
 }
 impl core::ops::Mul<Vector4> for FloatVector{
 	type Output = Vector4;
 	#[inline(always)]
 	fn mul(self : FloatVector, _rhs: Vector4) -> Vector4{
-		Vector4::scale(_rhs, self)
+		Vector4::mul(_rhs, self)
 	}
 }
 
@@ -741,7 +748,7 @@ impl core::ops::Div<Vector4> for FloatVector{
 	type Output = Vector4;
 	#[inline(always)]
 	fn div(self : FloatVector, _rhs: Vector4) -> Vector4{
-		return Vector4::component_div(Vector4::from(self), _rhs);
+		return Vector4::div(Vector4::from(self), _rhs);
 	}
 }
 impl<T : Into<FloatVector>> core::ops::DivAssign<T> for Vector4{
@@ -754,10 +761,14 @@ impl<T : Into<FloatVector>> core::ops::DivAssign<T> for Vector4{
 impl PartialEq for Vector4 {
 	#[inline(always)]
     fn eq(&self, other: &Vector4) -> bool {
-    	return Vector4::equals(*self, *other);
+    	return Vector4::equal(*self, *other).all();
+    	//return Vector4::equals(*self, *other);
     }
 }
 
+// knuth approx equal or essentially equal 
+// two values that compare equal MUST hash to the same value 
+//k1 == k2 -> hash(k1) == hash(k2)
 
 // for floats, check value != value (catch NaN)
 // check isZero or negative zero, and slam those together

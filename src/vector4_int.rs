@@ -1,6 +1,7 @@
 use core::arch::x86_64::*;
 use core::hash::Hasher;
 use core::hash::Hash;
+use crate::SIMDVector4;
 use crate::Vector4;
 use crate::RawIntVector;
 use crate::IntVector;
@@ -10,7 +11,12 @@ use crate::Vector4Int;
 use crate::sse_extensions::*;
 
 
-
+impl SIMDVector4 for Vector4Int{
+#[inline(always)]
+  fn data(self)->__m128{
+  	return unsafe{_mm_castsi128_ps (self.data)};
+  }
+}
 impl Vector4Int{
 	/// Returns a new Vector4
 	#[inline(always)]
@@ -45,29 +51,29 @@ impl Vector4Int{
 	}
 
 	#[inline(always)]
-	pub fn set_x<T : Into<i32>>(&self, value : T) {
+	pub fn set_x<T : Into<i32>>(&mut self, value : T) {
 		unsafe{
-			_mm_insert_epi32(self.data, value.into(), 0);
+			self.data = _mm_insert_epi32(self.data, value.into(), 0);
 		}	
 	}
 
 	#[inline(always)]
-	pub fn set_y<T : Into<i32>>(&self, value : T) {
+	pub fn set_y<T : Into<i32>>(&mut self, value : T) {
 		unsafe{
-			_mm_insert_epi32(self.data, value.into(), 1);
+			self.data = _mm_insert_epi32(self.data, value.into(), 1);
 		}	
 	}
 
 	#[inline(always)]
-	pub fn set_z<T : Into<i32>>(&self, value : T) {
+	pub fn set_z<T : Into<i32>>(&mut self, value : T) {
 		unsafe{
-			_mm_insert_epi32(self.data, value.into(), 2);
+			self.data = _mm_insert_epi32(self.data, value.into(), 2);
 		}	
 	}
 	#[inline(always)]
-	pub fn set_w<T : Into<i32>>(&self, value : T) {
+	pub fn set_w<T : Into<i32>>(&mut self, value : T) {
 		unsafe{
-			_mm_insert_epi32(self.data, value.into(), 3);
+			self.data = _mm_insert_epi32(self.data, value.into(), 3);
 		}	
 	}
 	

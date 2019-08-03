@@ -5,6 +5,7 @@ use super::*;
 mod test {
     use crate::FloatVector;
 	use crate::Vector4;
+    use crate::Vector4Bool;
 	#[test]
     fn new() {
 
@@ -144,7 +145,7 @@ mod test {
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(4.0,4.0,6.0,4.0);
 
-		let c = Vector4::component_mul(a,b);
+		let c = Vector4::mul(a,b);
         assert_eq!(c.x(), 4.0);
         assert_eq!(c.y(), 8.0);
         assert_eq!(c.z(), 18.0);
@@ -156,19 +157,19 @@ mod test {
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(4.0,4.0,6.0,4.0);
 
-		let c = Vector4::component_div(a,b);
+		let c = Vector4::div(a,b);
         assert_eq!(c.x(), 0.25);
         assert_eq!(c.y(), 0.5);
         assert_eq!(c.z(), 0.5);
         assert_eq!(c.w(), 1.0);
     }
     #[test]
-    fn fmadd() {
+    fn mul_add() {
 
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(4.0,4.0,6.0,4.0);
 		let c = Vector4::new(2.0,-5.0,10.0,4.0);
-		let d = Vector4::fmadd(a,b,c);
+		let d = Vector4::mul_add(a,b,c);
 
         assert_eq!(d.x(), 6.0);
         assert_eq!(d.y(), 3.0);
@@ -176,12 +177,12 @@ mod test {
         assert_eq!(d.w(), 20.0);
     }
     #[test]
-    fn fmsub() {
+    fn mul_sub() {
 
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(4.0,4.0,6.0,4.0);
 		let c = Vector4::new(2.0,-5.0,10.0,4.0);
-		let d = Vector4::fmsub(a,b,c);
+		let d = Vector4::mul_sub(a,b,c);
 
         assert_eq!(d.x(), 2.0);
         assert_eq!(d.y(), 13.0);
@@ -189,12 +190,12 @@ mod test {
         assert_eq!(d.w(), 12.0);
     }
     #[test]
-    fn fnmadd() {
+    fn neg_mul_add() {
 
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(4.0,4.0,6.0,4.0);
 		let c = Vector4::new(2.0,-5.0,10.0,4.0);
-		let d = Vector4::fnmadd(a,b,c);
+		let d = Vector4::neg_mul_add(a,b,c);
 
         assert_eq!(d.x(), -2.0);
         assert_eq!(d.y(), -13.0);
@@ -202,12 +203,12 @@ mod test {
         assert_eq!(d.w(), -12.0);
     }
     #[test]
-    fn fnmsub() {
+    fn neg_mul_sub() {
 
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(4.0,4.0,6.0,4.0);
 		let c = Vector4::new(2.0,-5.0,10.0,4.0);
-		let d = Vector4::fnmsub(a,b,c);
+		let d = Vector4::neg_mul_sub(a,b,c);
 
         assert_eq!(d.x(), -6.0);
         assert_eq!(d.y(), -3.0);
@@ -334,43 +335,43 @@ mod test {
 	    	let a = Vector4::new(1.0,2.0,3.0,4.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::all(c), true);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::all(c), true);
 		}	
 		{
 	    	let a = Vector4::new(0.0,2.0,3.0,4.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::all(c), false);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::all(c), false);
 		}	
 		{
 	    	let a = Vector4::new(1.0,0.0,3.0,4.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::all(c), false);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::all(c), false);
 		}
 		{
 	    	let a = Vector4::new(1.0,2.0,0.0,4.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::all(c), false);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::all(c), false);
 		}	
         {
             let a = Vector4::new(1.0,2.0,3.0,0.0);
             let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-            let c = Vector4::component_equal(a,b);
-            assert_eq!(Vector4::all(c), false);
+            let c = Vector4::equal(a,b);
+            assert_eq!(Vector4Bool::all(c), false);
         }
 		{
 	    	let a = Vector4::new(0.0,0.0,0.0,0.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::all(c), false);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::all(c), false);
 		}	
 
 
@@ -381,54 +382,54 @@ mod test {
 	    	let a = Vector4::new(1.0,2.0,3.0,4.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::any(c), true);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::any(c), true);
 		}	
 		{
 	    	let a = Vector4::new(0.0,0.0,3.0,0.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::any(c), true);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::any(c), true);
 		}	
 		{
 	    	let a = Vector4::new(1.0,0.0,0.0,0.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::any(c), true);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::any(c), true);
 		}
 		{
 	    	let a = Vector4::new(0.0,2.0,0.0,0.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::any(c), true);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::any(c), true);
 		}	
         {
             let a = Vector4::new(0.0,0.0,0.0,4.0);
             let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-            let c = Vector4::component_equal(a,b);
-            assert_eq!(Vector4::any(c), true);
+            let c = Vector4::equal(a,b);
+            assert_eq!(Vector4Bool::any(c), true);
         }
 		{
 	    	let a = Vector4::new(0.0,0.0,0.0,0.0);
 			let b = Vector4::new(1.0,2.0,3.0,4.0);
 
-			let c = Vector4::component_equal(a,b);
-			assert_eq!(Vector4::any(c), false);
+			let c = Vector4::equal(a,b);
+			assert_eq!(Vector4Bool::any(c), false);
 		}	
 
 
     }
     #[test]
-    fn component_equal() {
+    fn equal() {
 
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(1.0,1.0,4.0,4.0);
 
-		let mask = Vector4::component_equal(a,b);
+		let mask = Vector4::equal(a,b);
 		let c = Vector4::new(-1000.0,-1000.0,-1000.0,-1000.0);
 		let d = Vector4::and(c, mask);
 
@@ -438,12 +439,12 @@ mod test {
         
     }
     #[test]
-    fn component_not_equal() {
+    fn not_equal() {
 
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(1.0,1.0,4.0,4.0);
 
-		let mask = Vector4::component_not_equal(a,b);
+		let mask = Vector4::not_equal(a,b);
 		let c = Vector4::new(-1000.0,-1000.0,-1000.0,-1000.0);
 		let d = Vector4::and(c, mask);
 
@@ -453,11 +454,11 @@ mod test {
         
     }
     #[test]
-	fn component_greater_equal() {
+	fn greater_equal() {
 		let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(1.0,1.0,4.0,4.0);
 
-		let mask = Vector4::component_greater_equal(a,b);
+		let mask = Vector4::greater_equal(a,b);
 		let c = Vector4::new(-1000.0,-1000.0,-1000.0,-1000.0);
 		let d = Vector4::and(c, mask);
 
@@ -466,11 +467,11 @@ mod test {
         assert_eq!(d.z(), 0.0);
 	}
 	#[test]
-	fn component_greater() {
+	fn greater() {
 		let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(1.0,1.0,4.0,4.0);
 
-		let mask = Vector4::component_greater(a,b);
+		let mask = Vector4::greater(a,b);
 		let c = Vector4::new(-1000.0,-1000.0,-1000.0,-1000.0);
 		let d = Vector4::and(c, mask);
 
@@ -479,11 +480,11 @@ mod test {
         assert_eq!(d.z(), 0.0);
 	}
 	#[test]
-	fn component_less_equal() {
+	fn less_equal() {
 		let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(1.0,1.0,4.0,4.0);
 
-		let mask = Vector4::component_less_equal(a,b);
+		let mask = Vector4::less_equal(a,b);
 		let c = Vector4::new(-1000.0,-1000.0,-1000.0,-1000.0);
 		let d = Vector4::and(c, mask);
 
@@ -492,11 +493,11 @@ mod test {
         assert_eq!(d.z(), -1000.0);
 	}
 	#[test]
-	fn component_less() {
+	fn less() {
 		let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = Vector4::new(1.0,1.0,4.0,4.0);
 
-		let mask = Vector4::component_less(a,b);
+		let mask = Vector4::less(a,b);
 		let c = Vector4::new(-1000.0,-1000.0,-1000.0,-1000.0);
 		let d = Vector4::and(c, mask);
 

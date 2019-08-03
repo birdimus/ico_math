@@ -36,16 +36,16 @@ impl Vector2Int{
 	}
 
 	#[inline(always)]
-	pub fn set_x<T : Into<i32>>(&self, value : T) {
+	pub fn set_x<T : Into<i32>>(&mut self, value : T) {
 		unsafe{
-			_mm_insert_epi32(self.data, value.into(), 0);
+			self.data = _mm_insert_epi32(self.data, value.into(), 0);
 		}	
 	}
 
 	#[inline(always)]
-	pub fn set_y<T : Into<i32>>(&self, value : T) {
+	pub fn set_y<T : Into<i32>>(&mut self, value : T) {
 		unsafe{
-			_mm_insert_epi32(self.data, value.into(), 1);
+			self.data = _mm_insert_epi32(self.data, value.into(), 1);
 		}	
 	}
 
