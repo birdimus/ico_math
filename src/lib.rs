@@ -1,7 +1,7 @@
 /*
 
 Major TODOs
-HASH needs a custom implementation for the vec3, vec2 (vec4, quat default is ok)
+HASH needs a custom implementation for float, vecs - int should probably store & mask.
 Quaternion needs the euler conversion methods ported.
 SinCos vec implementations should be used.
 Load / Store stuff
@@ -29,8 +29,14 @@ use core::arch::x86_64::*;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
-pub struct RawVec{
-	data : [f32;4],
+pub struct RawFloatVector{
+  pub data : [f32;4],
+}
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, align(16))]
+pub struct RawIntVector{
+  data : [i32;4],
 }
 
 #[derive(Copy, Clone, Debug)]

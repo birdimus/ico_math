@@ -1,4 +1,6 @@
 use core::arch::x86_64::*;
+use core::hash::Hasher;
+use core::hash::Hash;
 use crate::IntVector;
 use crate::FloatVector;
 use crate::Vector3Int;
@@ -240,5 +242,10 @@ impl PartialEq<IntVector> for i32 {
 	#[inline(always)]
     fn eq(&self, other: &IntVector) -> bool {
     	return *self == other.value();
+    }
+}
+impl Hash for IntVector {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.value().hash(state);
     }
 }

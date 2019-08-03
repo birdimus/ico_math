@@ -1,7 +1,7 @@
 use core::arch::x86_64::*;
 use crate::Vector3;
 use crate::Quaternion;
-use crate::RawVec;
+use crate::RawFloatVector;
 use crate::sse_extensions::*;
 
 const SLERP_EPSILON : f32 = 0.9995;
@@ -52,7 +52,7 @@ impl Quaternion{
 
 
 	#[inline(always)]
-	pub fn store(self,  dst : &mut RawVec){	
+	pub fn store(self,  dst : &mut RawFloatVector){	
 		let x : *mut f32 = &mut (dst.data[0]) as *mut f32;
 		unsafe{
 			_mm_store_ps(x, self.data);

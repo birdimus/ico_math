@@ -1,4 +1,7 @@
 use core::arch::x86_64::*;
+use core::hash::Hasher;
+use core::hash::Hash;
+use crate::RawFloatVector;
 use crate::FloatVector;
 use crate::Vector2;
 use crate::Vector3;
@@ -754,5 +757,21 @@ impl PartialEq for Vector4 {
     	return Vector4::equals(*self, *other);
     }
 }
+
+
+// for floats, check value != value (catch NaN)
+// check isZero or negative zero, and slam those together
+// round
+// impl Hash for Vector4 {
+//     fn hash<H: Hasher>(&self, state: &mut H) {
+//     	let mut dst = RawFloatVector{data:[0.0;4]};
+//     	unsafe{
+//     		let x : *mut f32 = &mut (dst.data[0]) as *mut f32;
+//     		_mm_store_ps(x, self.data);
+//     	}
+//         dst.data.hash(state);
+//     }
+// }
+
 #[cfg(test)]
 mod test;

@@ -1,4 +1,7 @@
 use core::arch::x86_64::*;
+use core::hash::Hasher;
+use core::hash::Hash;
+use crate::RawIntVector;
 use crate::IntVector;
 use crate::Vector2;
 use crate::Vector2Int;
@@ -283,5 +286,17 @@ impl PartialEq for Vector2Int {
 	#[inline(always)]
     fn eq(&self, other: &Vector2Int) -> bool {
     	return Vector2Int::equals(*self, *other);
+    }
+}
+impl Hash for Vector2Int {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+    	let mut dst = RawIntVector{data:[0;4]};
+    	unsafe{
+    		let x : *mut __m128i = &mut (dst.data[0]) as *mut i32 as *mut __m128i;
+    		_mm_store_si128(x, self.data);
+    	}
+    	dst.data[2] = 0;
+    	dst.data[3] = 0;
+        dst.data.hash(state);
     }
 }
