@@ -1420,3 +1420,1105 @@ pub unsafe fn _wwwz(m : __m128)->__m128{
 pub unsafe fn _wwww(m : __m128)->__m128{
   return _mm_shuffle_ps(m,m, _ico_shuffle(3,3,3,3));
 }
+
+
+/////////. INTEGER SHUFFLES
+
+#[inline(always)]
+pub unsafe fn _xxxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,0,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xxyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,0,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xxzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,0,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xxwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,0,0));
+}
+#[inline(always)]
+pub unsafe fn _xxww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,0,0));
+}
+
+
+#[inline(always)]
+pub unsafe fn _xyxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,1,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xyyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,1,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xyzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,1,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xywx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xywy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xywz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,1,0));
+}
+#[inline(always)]
+pub unsafe fn _xyww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,1,0));
+}
+
+
+
+#[inline(always)]
+pub unsafe fn _xzxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,2,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xzyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,2,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xzzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,2,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xzwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,2,0));
+}
+#[inline(always)]
+pub unsafe fn _xzww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,2,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xwxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,3,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xwyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,3,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xwzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,3,0));
+}
+
+#[inline(always)]
+pub unsafe fn _xwwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,3,0));
+}
+#[inline(always)]
+pub unsafe fn _xwww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,3,0));
+}
+
+#[inline(always)]
+pub unsafe fn _yxxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,0,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yxyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,0,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yxzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,0,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yxwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,0,1));
+}
+#[inline(always)]
+pub unsafe fn _yxww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,0,1));
+}
+
+
+#[inline(always)]
+pub unsafe fn _yyxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,1,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yyyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,1,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yyzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,1,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yywx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yywy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yywz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,1,1));
+}
+#[inline(always)]
+pub unsafe fn _yyww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,1,1));
+}
+
+
+
+#[inline(always)]
+pub unsafe fn _yzxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,2,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yzyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,2,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yzzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,2,1));
+}
+
+#[inline(always)]
+pub unsafe fn _yzwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,2,1));
+}
+#[inline(always)]
+pub unsafe fn _yzww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,2,1));
+}
+
+#[inline(always)]
+pub unsafe fn _ywxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,3,1));
+}
+
+#[inline(always)]
+pub unsafe fn _ywyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,3,1));
+}
+
+#[inline(always)]
+pub unsafe fn _ywzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,3,1));
+}
+
+#[inline(always)]
+pub unsafe fn _ywwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,3,1));
+}
+#[inline(always)]
+pub unsafe fn _ywww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,3,1));
+}
+
+#[inline(always)]
+pub unsafe fn _zxxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,0,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zxyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,0,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zxzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,0,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zxwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,0,2));
+}
+#[inline(always)]
+pub unsafe fn _zxww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,0,2));
+}
+
+
+#[inline(always)]
+pub unsafe fn _zyxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,1,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zyyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,1,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zyzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,1,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zywx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zywy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zywz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,1,2));
+}
+#[inline(always)]
+pub unsafe fn _zyww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,1,2));
+}
+
+
+
+#[inline(always)]
+pub unsafe fn _zzxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,2,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zzyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,2,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zzzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,2,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zzwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,2,2));
+}
+#[inline(always)]
+pub unsafe fn _zzww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,2,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zwxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,3,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zwyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,3,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zwzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,3,2));
+}
+
+#[inline(always)]
+pub unsafe fn _zwwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,3,2));
+}
+#[inline(always)]
+pub unsafe fn _zwww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,3,2));
+}
+#[inline(always)]
+pub unsafe fn _wxxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,0,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wxyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,0,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wxzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,0,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wxwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,0,3));
+}
+#[inline(always)]
+pub unsafe fn _wxww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,0,3));
+}
+
+
+#[inline(always)]
+pub unsafe fn _wyxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,1,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wyyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,1,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wyzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,1,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wywx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wywy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wywz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,1,3));
+}
+#[inline(always)]
+pub unsafe fn _wyww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,1,3));
+}
+
+
+
+#[inline(always)]
+pub unsafe fn _wzxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,2,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wzyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,2,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wzzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,2,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wzwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,2,3));
+}
+#[inline(always)]
+pub unsafe fn _wzww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,2,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wwxx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,0,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwxy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,0,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwxz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,0,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwxw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,0,3,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wwyx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,1,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwyy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,1,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwyz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,1,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwyw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,1,3,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wwzx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,2,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwzy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,2,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwzz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,2,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwzw_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,2,3,3));
+}
+
+#[inline(always)]
+pub unsafe fn _wwwx_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(0,3,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwwy_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(1,3,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwwz_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(2,3,3,3));
+}
+#[inline(always)]
+pub unsafe fn _wwww_i(m : __m128i)->__m128i{
+  return _mm_shuffle_epi32(m, _ico_shuffle(3,3,3,3));
+}

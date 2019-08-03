@@ -117,39 +117,39 @@ impl FloatVector{
 	}
 
 	#[inline(always)]
-	pub fn component_equal(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
+	pub fn equal(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
 		unsafe{
 			FloatVector{data : _mm_cmpeq_ps(v1.data, v2.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn component_not_equal(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
+	pub fn not_equal(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
 		unsafe{
 			FloatVector{data : _mm_cmpneq_ps(v1.data, v2.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn component_greater_equal(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
+	pub fn greater_equal(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
 		unsafe{
 			FloatVector{data : _mm_cmpge_ps(v1.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn component_greater(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
+	pub fn greater(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
 		unsafe{
 			FloatVector{data : _mm_cmpgt_ps(v1.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn component_less_equal(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
+	pub fn less_equal(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
 		unsafe{
 			FloatVector{data : _mm_cmple_ps(v1.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn component_less(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
+	pub fn less(v1 : FloatVector, v2 : FloatVector) -> FloatVector{	
 		unsafe{
 			FloatVector{data : _mm_cmplt_ps(v1.data, v2.data)}
 		}
@@ -260,16 +260,19 @@ impl FloatVector{
 }
 
 impl From<FloatVector> for f32 {
+	#[inline(always)]
     fn from(v : FloatVector) -> f32 {
     	return v.value();
     }
 }
 impl From<f32> for FloatVector {
+	#[inline(always)]
     fn from(v : f32) -> FloatVector {
     	return FloatVector::new(v);
     }
 }
 impl From<IntVector> for FloatVector {
+	#[inline(always)]
     fn from(v : IntVector) -> FloatVector {
     	unsafe{
         	return FloatVector { data : _mm_cvtepi32_ps(v.data) };
@@ -277,30 +280,31 @@ impl From<IntVector> for FloatVector {
     }
 }
 
-impl core::ops::Add for FloatVector{
+impl<T : Into<FloatVector>> core::ops::Add<T> for FloatVector{
 	type Output = FloatVector;
-	#[inline]
-	fn add(self, _rhs: FloatVector) -> FloatVector{
-		FloatVector::add(self, _rhs)
+	#[inline(always)]
+	fn add(self, _rhs: T) -> FloatVector{
+		FloatVector::add(self, _rhs.into())
 	}
 }
-impl core::ops::AddAssign for FloatVector {
+impl<T : Into<FloatVector>> core::ops::AddAssign<T> for FloatVector {
 	#[inline(always)]
-    fn add_assign(&mut self, other: FloatVector) {
-        *self = FloatVector::add(*self, other)
+    fn add_assign(&mut self, other: T) {
+        *self = FloatVector::add(*self, other.into())
     }
 }
-impl core::ops::Sub for FloatVector{
+impl<T : Into<FloatVector>> core::ops::Sub<T> for FloatVector{
 	type Output = FloatVector;
-	#[inline]
-	fn sub(self, _rhs: FloatVector) -> FloatVector{
-		FloatVector::sub(self, _rhs)
+	#[inline(always)]
+	fn sub(self, _rhs: T) -> FloatVector{
+		FloatVector::sub(self, _rhs.into())
 	}
 }
-impl core::ops::SubAssign for FloatVector {
+
+impl<T : Into<FloatVector>> core::ops::SubAssign<T> for FloatVector {
 	#[inline(always)]
-    fn sub_assign(&mut self, other: FloatVector) {
-        *self = FloatVector::sub(*self, other)
+    fn sub_assign(&mut self, other: T) {
+        *self = FloatVector::sub(*self, other.into())
     }
 }
 impl core::ops::Neg for FloatVector {
@@ -312,46 +316,50 @@ impl core::ops::Neg for FloatVector {
 		}
 	}
 }
-impl core::ops::Mul<FloatVector> for FloatVector{
+
+impl<T : Into<FloatVector>> core::ops::Mul<T> for FloatVector{
 	type Output = FloatVector;
-	#[inline]
-	fn mul(self, _rhs: FloatVector) -> FloatVector{
-		FloatVector::mul(self, _rhs)
+	#[inline(always)]
+	fn mul(self, _rhs: T) -> FloatVector{
+		FloatVector::mul(self, _rhs.into())
+	}
+}
+impl<T : Into<FloatVector>> core::ops::MulAssign<T> for FloatVector{
+	#[inline(always)]
+	fn mul_assign(&mut self, _rhs: T){
+		*self = FloatVector::mul(*self, _rhs.into())
 	}
 }
 
 
-impl core::ops::MulAssign<FloatVector> for FloatVector{
-	#[inline(always)]
-	fn mul_assign(&mut self, _rhs: FloatVector){
-		*self = FloatVector::mul(*self, _rhs)
-	}
-}
-impl core::ops::Div<FloatVector> for FloatVector{
+impl<T : Into<FloatVector>> core::ops::Div<T> for FloatVector{
 	type Output = FloatVector;
-	#[inline]
-	fn div(self, _rhs: FloatVector) -> FloatVector{
-		FloatVector::div(self, _rhs)
+	#[inline(always)]
+	fn div(self, _rhs: T) -> FloatVector{
+		FloatVector::div(self, _rhs.into())
 	}
 }
-impl core::ops::DivAssign<FloatVector> for FloatVector{
+impl<T : Into<FloatVector>> core::ops::DivAssign<T> for FloatVector{
 	#[inline(always)]
-	fn div_assign(&mut self, _rhs: FloatVector){
-		*self = FloatVector::div(*self, _rhs)
+	fn div_assign(&mut self, _rhs: T){
+		*self = FloatVector::div(*self, _rhs.into())
 	}
 }
 impl PartialEq for FloatVector {
+	#[inline(always)]
     fn eq(&self, other: &FloatVector) -> bool {
     	return FloatVector::equals(*self, *other);
     }
 }
 impl PartialEq<f32> for FloatVector {
+	#[inline(always)]
 	fn eq(&self, other: &f32) -> bool {
     	return self.value() == *other;
     }
     
 }
 impl PartialEq<FloatVector> for f32 {
+	#[inline(always)]
     fn eq(&self, other: &FloatVector) -> bool {
     	return *self == other.value();
     }

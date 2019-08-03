@@ -426,7 +426,7 @@ impl From<Vector2Int> for Vector2 {
 
 impl core::ops::Add for Vector2{
 	type Output = Vector2;
-	#[inline]
+	#[inline(always)]
 	fn add(self, _rhs: Vector2) -> Vector2{
 		Vector2::add(self, _rhs)
 	}
@@ -501,6 +501,7 @@ impl<T : Into<FloatVector>> core::ops::DivAssign<T> for Vector2{
 	}
 }	
 impl PartialEq for Vector2 {
+	#[inline(always)]
     fn eq(&self, other: &Vector2) -> bool {
     	return Vector2::equals(*self, *other);
     }

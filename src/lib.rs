@@ -1,6 +1,20 @@
+/*
+
+Major TODOs
+HASH needs a custom implementation for the vec3, vec2 (vec4, quat default is ok)
+Quaternion needs the euler conversion methods ported.
+SinCos vec implementations should be used.
+Load / Store stuff
+More tests
+
+*/
+
+
+
 #![no_std]
 mod sse_extensions;
 mod float_vector;
+mod int_vector;
 mod vector2;
 mod vector3;
 mod vector4;
@@ -49,7 +63,6 @@ pub struct Vector3{
 pub struct Vector4{
 	data : __m128,
 }
-
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]

@@ -1,4 +1,5 @@
 use core::arch::x86_64::*;
+use crate::IntVector;
 use crate::Vector2;
 use crate::Vector2Int;
 use crate::Vector3Int;
@@ -22,31 +23,26 @@ impl Vector2Int{
 		}
 	}
 	#[inline(always)]
-	pub fn x(&self) -> i32 {
+	pub fn x(self) -> IntVector {
+		return IntVector{data:self.xxxx().data};	
+	}
+
+	#[inline(always)]
+	pub fn y(self) -> IntVector {
+		return IntVector{data:self.yyyy().data};	
+	}
+
+	#[inline(always)]
+	pub fn set_x<T : Into<i32>>(&self, value : T) {
 		unsafe{
-			return _mm_cvtsi128_si32(self.data);
+			_mm_insert_epi32(self.data, value.into(), 0);
 		}	
 	}
 
 	#[inline(always)]
-	pub fn y(&self) -> i32 {
+	pub fn set_y<T : Into<i32>>(&self, value : T) {
 		unsafe{
-			return  _mm_extract_epi32(self.data,1);
-		}	
-	}
-
-
-	#[inline(always)]
-	pub fn set_x(&self, value : i32) {
-		unsafe{
-			_mm_insert_epi32(self.data, value, 0);
-		}	
-	}
-
-	#[inline(always)]
-	pub fn set_y(&self, value : i32) {
-		unsafe{
-			_mm_insert_epi32(self.data, value, 1);
+			_mm_insert_epi32(self.data, value.into(), 1);
 		}	
 	}
 
@@ -97,72 +93,72 @@ impl Vector2Int{
 	#[inline(always)]
 	pub fn add(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_add_epi32(v1.data, v2.data)}
+			return Vector2Int{data : _mm_add_epi32(v1.data, v2.data)};
 		}
 	}
 
 	#[inline(always)]
 	pub fn sub(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_sub_epi32(v1.data, v2.data)}
+			return Vector2Int{data : _mm_sub_epi32(v1.data, v2.data)};
 		}
 	}
 	#[inline(always)]
 	pub fn component_mul(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_mullo_epi32(v1.data, v2.data)}
+			return Vector2Int{data : _mm_mullo_epi32(v1.data, v2.data)};
 		}
 	}
 	#[inline(always)]
-	pub fn scale(v1 : Vector2Int, scalar : i32) -> Vector2Int{	
+	pub fn scale<T : Into<IntVector>>(v1 : Vector2Int, scalar : T) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_mullo_epi32(v1.data, _mm_set1_epi32(scalar))}
+			return Vector2Int{data : _mm_mullo_epi32(v1.data, scalar.into().data)};
 		}
 	}
 	#[inline(always)]
 	pub fn and(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_and_si128(v1.data, v2.data)}
+			return Vector2Int{data : _mm_and_si128(v1.data, v2.data)};
 		}
 	}
 
 	#[inline(always)]
 	pub fn or(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_or_si128(v1.data, v2.data)}
+			return Vector2Int{data : _mm_or_si128(v1.data, v2.data)};
 		}
 	}
 
 	#[inline(always)]
 	pub fn andnot(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_andnot_si128(v1.data, v2.data)}
+			return Vector2Int{data : _mm_andnot_si128(v1.data, v2.data)};
 		}
 	}
 
 	#[inline(always)]
 	pub fn xor(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_xor_si128(v1.data, v2.data)}
+			return Vector2Int{data : _mm_xor_si128(v1.data, v2.data)};
 		}
 	}
 
 	#[inline(always)]
 	pub fn component_equal(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_cmpeq_epi32(v1.data, v2.data)}
+			return Vector2Int{data : _mm_cmpeq_epi32(v1.data, v2.data)};
 		}
 	}
 	#[inline(always)]
 	pub fn component_greater(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_cmpgt_epi32(v1.data, v2.data)}
+			return Vector2Int{data : _mm_cmpgt_epi32(v1.data, v2.data)};
 		}
 	}
 	#[inline(always)]
 	pub fn component_less(v1 : Vector2Int, v2 : Vector2Int) -> Vector2Int{	
 		unsafe{
-			Vector2Int{data : _mm_cmplt_epi32(v1.data, v2.data)}
+			return Vector2Int{data : _mm_cmplt_epi32(v1.data, v2.data)};
 		}
 	}
 	#[inline(always)]
@@ -184,18 +180,29 @@ impl Vector2Int{
 			return (_mm_movemask_epi8(d) & 255) == 255;
 		}
 	}
+
+
+	#[inline(always)] pub fn xxxx(self) -> Vector4Int { unsafe{return Vector4Int{data:_xxxx_i(self.data)};}}
+	#[inline(always)] pub fn yyyy(self) -> Vector4Int { unsafe{return Vector4Int{data:_yyyy_i(self.data)};}}
+
+	#[inline(always)] pub fn xx(self) -> Vector2Int { unsafe{return Vector2Int{data:_xxzw_i(self.data)};}}
+	#[inline(always)] pub fn xy(self) -> Vector2Int { unsafe{return Vector2Int{data:_xyzw_i(self.data)};}}
+	#[inline(always)] pub fn yx(self) -> Vector2Int { unsafe{return Vector2Int{data:_yxzw_i(self.data)};}}
+	#[inline(always)] pub fn yy(self) -> Vector2Int { unsafe{return Vector2Int{data:_yyzw_i(self.data)};}}
 	
 }
 
-impl From<i32> for Vector2Int {
-    fn from(val : i32) -> Vector2Int {
+impl From<IntVector> for Vector2Int {
+	#[inline(always)]
+    fn from(val : IntVector) -> Vector2Int {
        unsafe{
-			return Vector2Int{data : _mm_set1_epi32 (val)};
+			return Vector2Int{data : val.data};
 		}
     }
 }
 
 impl From<Vector2> for Vector2Int {
+	#[inline(always)]
     fn from(v : Vector2) -> Vector2Int {
     	unsafe{
         	return Vector2Int { data : _mm_cvttps_epi32(v.data) };
@@ -203,11 +210,13 @@ impl From<Vector2> for Vector2Int {
     }
 }
 impl From<Vector3Int> for Vector2Int {
+	#[inline(always)]
     fn from(v : Vector3Int) -> Vector2Int {
         return Vector2Int { data : v.data };
     }
 }
 impl From<Vector4Int> for Vector2Int {
+	#[inline(always)]
     fn from(v : Vector4Int) -> Vector2Int {
         return Vector2Int { data : v.data };
     }
@@ -216,35 +225,62 @@ impl From<Vector4Int> for Vector2Int {
 
 impl core::ops::Add for Vector2Int{
 	type Output = Vector2Int;
-	#[inline]
+	#[inline(always)]
 	fn add(self, _rhs: Vector2Int) -> Vector2Int{
 		Vector2Int::add(self, _rhs)
 	}
 }
-
+impl core::ops::AddAssign for Vector2Int {
+	#[inline(always)]
+    fn add_assign(&mut self, other: Vector2Int) {
+        *self = Vector2Int::add(*self, other)
+    }
+}
 impl core::ops::Sub for Vector2Int{
 	type Output = Vector2Int;
-	#[inline]
+	#[inline(always)]
 	fn sub(self, _rhs: Vector2Int) -> Vector2Int{
 		Vector2Int::sub(self, _rhs)
 	}
 }
-impl core::ops::Mul<i32> for Vector2Int{
+impl core::ops::SubAssign for Vector2Int {
+	#[inline(always)]
+    fn sub_assign(&mut self, other: Vector2Int) {
+        *self = Vector2Int::sub(*self, other)
+    }
+}
+impl core::ops::Neg for Vector2Int {
 	type Output = Vector2Int;
-	#[inline]
-	fn mul(self, _rhs: i32) -> Vector2Int{
-		Vector2Int::scale(self, _rhs)
+	#[inline(always)]
+	fn neg(self) -> Self::Output {
+		unsafe{
+			return Vector2Int{data:_mm_sub_epi32(_mm_set1_epi32(0), self.data)};
+		}
 	}
 }
 
-impl core::ops::Mul<Vector2Int> for i32{
+impl<T : Into<IntVector>> core::ops::Mul<T> for Vector2Int{
 	type Output = Vector2Int;
-	#[inline]
-	fn mul(self, _rhs: Vector2Int) -> Vector2Int{
+	#[inline(always)]
+	fn mul(self, _rhs: T) -> Vector2Int{
+		Vector2Int::scale(self, _rhs.into())
+	}
+}
+impl<T : Into<IntVector>> core::ops::MulAssign<T> for Vector2Int{
+	#[inline(always)]
+	fn mul_assign(&mut self, _rhs: T){
+		*self = Vector2Int::scale(*self, _rhs.into())
+	}
+}
+impl core::ops::Mul<Vector2Int> for IntVector{
+	type Output = Vector2Int;
+	#[inline(always)]
+	fn mul(self : IntVector, _rhs: Vector2Int) -> Vector2Int{
 		Vector2Int::scale(_rhs, self)
 	}
 }
 impl PartialEq for Vector2Int {
+	#[inline(always)]
     fn eq(&self, other: &Vector2Int) -> bool {
     	return Vector2Int::equals(*self, *other);
     }

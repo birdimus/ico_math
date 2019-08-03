@@ -686,7 +686,7 @@ impl core::ops::AddAssign for Vector4 {
 }
 impl core::ops::Sub for Vector4{
 	type Output = Vector4;
-	#[inline]
+	#[inline(always)]
 	fn sub(self, _rhs: Vector4) -> Vector4{
 		Vector4::sub(self, _rhs)
 	}
@@ -749,6 +749,7 @@ impl<T : Into<FloatVector>> core::ops::DivAssign<T> for Vector4{
 }	
 	
 impl PartialEq for Vector4 {
+	#[inline(always)]
     fn eq(&self, other: &Vector4) -> bool {
     	return Vector4::equals(*self, *other);
     }
