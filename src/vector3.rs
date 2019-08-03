@@ -3,9 +3,11 @@ use crate::float_vector::FloatVector;
 use crate::vector2::Vector2;
 use crate::vector4::Vector4;
 use crate::vector3_int::Vector3Int;
+use crate::vector3_bool::Vector3Bool;
 use crate::sse_extensions::*;
+use crate::structure::SIMDVector3;
 
-/// A vector 3
+/// A vector of 3 floats (x,y,z).
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector3{
@@ -14,7 +16,7 @@ pub struct Vector3{
 
 
 impl Vector3{
-	/// Returns a new Vector3
+	/// Construct a new vector from f32 components.
 	#[inline(always)]
 	pub fn new(x : f32, y : f32, z : f32) -> Vector3{
 		unsafe{
@@ -22,11 +24,13 @@ impl Vector3{
 		}
 	}
 
+	/// Set all values of the vector to the same f32 value.
 	#[inline(always)]
 	pub fn set<T : Into<FloatVector>>(value : T) -> Vector3 {
 		return Vector3{data : value.into().data};
 	}
 
+	/// Construct a new vector of zeros.
 	#[inline(always)]
 	pub fn zero() -> Vector3 {
 		unsafe{
@@ -34,21 +38,25 @@ impl Vector3{
 		}
 	}
 
+	/// Get the x value of the vector, broadcast to all components as a FloatVector (xxxx).
 	#[inline(always)]
 	pub fn x(self) -> FloatVector {
-		return FloatVector{data:self.xxxx().data};
+		return FloatVector{data:self.xxxx().data};	
 	}
 
+	/// Get the y value of the vector, broadcast to all components as a FloatVector (yyyy).
 	#[inline(always)]
 	pub fn y(self) -> FloatVector {
-		return FloatVector{data:self.yyyy().data};
+		return FloatVector{data:self.yyyy().data};		
 	}
 
+	/// Get the z value of the vector, broadcast to all components as a FloatVector (zzzz).
 	#[inline(always)]
 	pub fn z(self) -> FloatVector {
-		return FloatVector{data:self.zzzz().data};
+		return FloatVector{data:self.zzzz().data};		
 	}
 
+	/// Set the x value of this vector, leaving the other components unchanged.
 	#[inline(always)]
 	pub fn set_x<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
@@ -56,6 +64,7 @@ impl Vector3{
 		}	
 	}
 
+	/// Set the y value of this vector, leaving the other components unchanged.
 	#[inline(always)]
 	pub fn set_y<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
@@ -64,287 +73,20 @@ impl Vector3{
 		}	
 	}
 
+	/// Set the z value of this vector, leaving the other components unchanged.
+	/// This doesn't modify W.
+	/// This could save an op, by doing: self.data = _mm_shuffle_ps(self.data, value.into().data, _ico_shuffle(3, 2, 1, 0));
 	#[inline(always)]
 	pub fn set_z<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
-			self.data = _mm_shuffle_ps(self.data, value.into().data, _ico_shuffle(3, 2, 1, 0));
+			let v1 = _mm_move_ss(self.data, value.into().data);
+			self.data = _mm_shuffle_ps(self.data, v1,  _ico_shuffle(3, 0, 1, 0));
 		}	
 	}
 
-	#[inline(always)]
-	pub fn add(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_add_ps(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn sub(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_sub_ps(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn component_mul(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_mul_ps(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn component_div(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_div_ps(v1.data, v2.data)}
-		}
-	}
-
-	/// Multiply v1 and v2, and add v3.
-	#[inline(always)]
-	pub fn fmadd(v1 : Vector3, v2 : Vector3, v3 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_fmadd_ps(v1.data, v2.data, v3.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn fmsub(v1 : Vector3, v2 : Vector3, v3 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_fmsub_ps(v1.data, v2.data, v3.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn fnmadd(v1 : Vector3, v2 : Vector3, v3 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_fnmadd_ps(v1.data, v2.data, v3.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn fnmsub(v1 : Vector3, v2 : Vector3, v3 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_fnmsub_ps(v1.data, v2.data, v3.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn scale<T : Into<FloatVector>>(v1 : Vector3, scalar : T) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_mul_ps(v1.data, scalar.into().data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn div<T : Into<FloatVector>>(v1 : Vector3, scalar : T) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_div_ps(v1.data, scalar.into().data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn and(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_and_ps(v1.data, v2.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn or(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_or_ps(v1.data, v2.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn andnot(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_andnot_ps(v1.data, v2.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn xor(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_xor_ps(v1.data, v2.data)}
-		}
-	}
-	
-	#[inline(always)]
-	pub fn all(v1 : Vector3) -> bool{	
-		unsafe{
-			return (_mm_movemask_ps(v1.data) & 7) == 7;
-		}
-	}
-
-	#[inline(always)]
-	pub fn any(v1 : Vector3) -> bool{	
-		unsafe{
-			return (_mm_movemask_ps(v1.data) & 7) != 0;
-		}
-	}
-
-	#[inline(always)]
-	pub fn equals(v1 : Vector3, v2 : Vector3) -> bool{	
-		let d = Vector3::component_equal(v1,v2);
-		return Vector3::all(d);
-	}
-	#[inline(always)]
-	pub fn is_zero(v1 : Vector3) -> bool{	
-		let d = Vector3::component_equal(v1,Vector3::zero());
-		return Vector3::all(d);
-	}
-
-	#[inline(always)]
-	pub fn component_equal(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_cmpeq_ps(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn component_not_equal(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_cmpneq_ps(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn component_greater_equal(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_cmpge_ps(v1.data, v2.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn component_greater(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_cmpgt_ps(v1.data, v2.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn component_less_equal(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_cmple_ps(v1.data, v2.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn component_less(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_cmplt_ps(v1.data, v2.data)}
-		}
-	}
 
 
-	#[inline(always)]
-	/// Right handed cross product
-	pub fn cross(lhs : Vector3, rhs : Vector3) -> Vector3{	
-		unsafe{
-			return Vector3{data :  _ico_cross_ps(lhs.data, rhs.data)};
-		}
-	}
-
-	#[inline(always)]
-	pub fn abs(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  _ico_abs_ps(v1.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn copysign(magnitude : Vector3, sign : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  _ico_copysign_ps(magnitude.data, sign.data)}
-		}
-	}
-	#[inline(always)]
-	/// Floor function.  Returns signed 0 when applicable.
-	pub fn floor(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  
-				_mm_floor_ps(v1.data)}
-				//_ico_floor_ps(v1.data)}
-		}
-	}
-
-	#[inline(always)]
-	/// Ceil function.  Returns signed 0 when applicable.
-	pub fn ceil(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  
-				_mm_ceil_ps(v1.data)}
-				//_ico_ceil_ps(v1.data)}
-		}
-	}
-
-	#[inline(always)]
-	/// Round to nearest even function. Returns signed 0 when applicable.
-	pub fn round(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : 
-			_mm_round_ps(v1.data, _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC)}
-			// _ico_round_ps(v1.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn floor_to_int(v1 : Vector3) -> Vector3Int{	
-		unsafe{
-			Vector3Int{data :  _mm_cvttps_epi32(_mm_floor_ps(v1.data))}
-		}
-	}
-
-	#[inline(always)]
-	pub fn ceil_to_int(v1 : Vector3) -> Vector3Int{	
-		unsafe{
-			Vector3Int{data :  _mm_cvttps_epi32(_mm_ceil_ps(v1.data))}
-		}
-	}
-
-	#[inline(always)]
-	pub fn truncate(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  
-				_mm_round_ps(v1.data, _MM_FROUND_TO_ZERO |_MM_FROUND_NO_EXC)}
-				//_ico_truncate_ps(v1.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn frac(v1 : Vector3) -> Vector3{	
-		return Vector3::sub(v1, Vector3::floor(v1));
-	}
-
-	#[inline(always)]
-	pub fn sqrt(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  _mm_sqrt_ps(v1.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn sin(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  _ico_sin_ps(v1.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn cos(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  _ico_cos_ps(v1.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn acos(v1 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data :  _ico_acos_ps(v1.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn max(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_max_ps(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn min(v1 : Vector3, v2 : Vector3) -> Vector3{	
-		unsafe{
-			Vector3{data : _mm_min_ps(v1.data, v2.data)}
-		}
-	}
+	/// Compute the 3 element dot-product, and return it as a broadcast FloatVector.
 	#[inline(always)]
 	pub fn dot(v1 : Vector3, v2 : Vector3) -> FloatVector{	
 		unsafe{
@@ -356,55 +98,355 @@ impl Vector3{
 			FloatVector{data : _mm_add_ps(tmp3, _wzyx(tmp3))}
 		}
 	}
+
+	/// Right handed cross product.
 	#[inline(always)]
-	pub fn lerp<T : Into<FloatVector>>(v1 : Vector3, v2 : Vector3, t : T) -> Vector3{	
+	pub fn cross(lhs : Vector3, rhs : Vector3) -> Vector3{	
 		unsafe{
-			let t_val = t.into().data;
-			let tmp = _mm_fnmadd_ps(v1.data, t_val, v1.data); //a - (a*t)
-			Vector3{data : _mm_fmadd_ps(v2.data, t_val, tmp)} //b * t + a
+			return Vector3{data :  _ico_cross_ps(lhs.data, rhs.data)};
 		}
 	}
 
+	/// Compute the sum of two vectors and return it as a new vector.
+  #[inline(always)]
+  pub fn add(self, v2 : Vector3) -> Vector3{  
+    unsafe{
+      Vector3{data : _mm_add_ps(self.data, v2.data)}
+    }
+  }
 
+  /// Subtract a vector and return it as a new vector.
+  #[inline(always)]
+  pub fn sub(self, v2 : Vector3) -> Vector3{  
+    unsafe{
+      Vector3{data : _mm_sub_ps(self.data, v2.data)}
+    }
+  }
 
-	#[inline(always)]
-	pub fn normalize(v1 : Vector3) -> Vector3{	
-		let length = FloatVector::sqrt(Vector3::dot(v1,v1));
-		let norm = Vector3::div(v1, length);
-		
-		unsafe{
-			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
-			let result_length_sqr = Vector3::from(Vector3::dot(norm,norm));
-			let mask_less = Vector3::component_less( result_length_sqr, Vector3{data :_ico_two_ps()});
-			return Vector3::and(norm, mask_less);
-		}
-	}
+  /// Multiply two vectors component-wise, and return it as a new vector.  
+  /// (x1 * x2, y1 * y2, z1 * z2, w1 * w2)
+  #[inline(always)]
+  pub fn mul(self, v2 : Vector3) -> Vector3{  
+    unsafe{
+      Vector3{data : _mm_mul_ps(self.data, v2.data)}
+    }
+  }
 
-	#[inline(always)]
-	pub fn normalize_length(v1 : Vector3) -> (Vector3, FloatVector){	
-		let length = FloatVector::sqrt(Vector3::dot(v1,v1));
-		let norm = Vector3::div(v1, length);
-		
-		unsafe{
+  /// Divide two vectors component-wise, and return it as a new vector.  
+  /// (x1 / x2, y1 / y2, z1 / z2, w1 / w2)
+  #[inline(always)]
+  pub fn div(self, v2 : Vector3) -> Vector3{  
+    unsafe{
+      Vector3{data : _mm_div_ps(self.data, v2.data)}
+    }
+  }
 
-			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
-			let result_length_sqr = Vector3::from(Vector3::dot(norm,norm));
-			let mask_less = Vector3::component_less( result_length_sqr, Vector3{data :_ico_two_ps()});
-			return (Vector3::and(norm, mask_less), length);
-		}
-	}
+  /// Fused Multiply Add.  Result = (a * b) + c.
+  #[inline(always)]
+  pub fn mul_add(self, v2 : Vector3, v3 : Vector3) -> Vector3{  
+    unsafe{
+      return Vector3{data : _mm_fmadd_ps(self.data, v2.data, v3.data)};
+    }
+  }
 
-	
+  /// Fused Multiply Sub.  Result = (a * b) - c.
+  #[inline(always)]
+  pub fn mul_sub(self, v2 : Vector3, v3 : Vector3) -> Vector3{  
+    unsafe{
+      return Vector3{data : _mm_fmsub_ps(self.data, v2.data, v3.data)};
+    }
+  }
 
-	#[inline(always)]
-	pub fn sqr_magnitude(self) -> FloatVector {
-		return Vector3::dot(self, self);	
-	}
+  /// Negated Fused Multiply Add.  Result = -(a * b) + c.
+  #[inline(always)]
+  pub fn neg_mul_add(self, v2 : Vector3, v3 : Vector3) -> Vector3{  
+    unsafe{
+      return Vector3{data : _mm_fnmadd_ps(self.data, v2.data, v3.data)};
+    }
+  }
 
-	#[inline(always)]
-	pub fn magnitude(self) -> FloatVector {
-		return FloatVector::sqrt(Vector3::dot(self, self));	
-	}
+  /// Negated Fused Multiply Sub.  Result = -(a * b) - c.
+  #[inline(always)]
+  pub fn neg_mul_sub(self, v2 : Vector3, v3 : Vector3) -> Vector3{  
+    unsafe{
+      return Vector3{data : _mm_fnmsub_ps(self.data, v2.data, v3.data)};
+    }
+  }
+
+  /// Compute the bitwise AND of two vectors.
+  /// This function treats inputs as binary data, and doesn't perform any conversions.
+  #[inline(always)]
+  pub fn and<T : SIMDVector3>(self, v2 : T) -> Vector3{ 
+    unsafe{
+      Vector3{data : _mm_and_ps(self.data, v2.data())}
+    }
+  }
+
+  /// Compute the bitwise OR of two vectors.
+  /// This function treats inputs as binary data, and doesn't perform any conversions.
+  #[inline(always)]
+  pub fn or<T : SIMDVector3>(self, v2 : T) -> Vector3{  
+    unsafe{
+      Vector3{data : _mm_or_ps(self.data, v2.data())}
+    }
+  }
+
+  /// Compute the bitwise ANDNOT of two vectors.
+  /// This function treats inputs as binary data, and doesn't perform any conversions.
+  #[inline(always)]
+  pub fn andnot<T : SIMDVector3>(self, v2 : T) -> Vector3{  
+    unsafe{
+      Vector3{data : _mm_andnot_ps(self.data, v2.data())}
+    }
+  }
+
+  /// Compute the bitwise XOR of two vectors.
+  /// This function treats inputs as binary data, and doesn't perform any conversions.
+  #[inline(always)]
+  pub fn xor<T : SIMDVector3>(self, v2 : T) -> Vector3{ 
+    unsafe{
+      Vector3{data : _mm_xor_ps(self.data, v2.data())}
+    }
+  }
+  
+  /// Equals, computed component-wise.  This compares bits, and is exact.
+  #[inline(always)]
+  pub fn equal(self, v2 : Vector3) -> Vector3Bool{  
+    unsafe{
+      Vector3Bool{data : _mm_castps_si128(_mm_cmpeq_ps(self.data, v2.data))}
+    }
+  }
+  /// NotEquals, computed component-wise.  This compares bits, and is exact.
+  #[inline(always)]
+  pub fn not_equal(self, v2 : Vector3) -> Vector3Bool{  
+    unsafe{
+      Vector3Bool{data : _mm_castps_si128(_mm_cmpneq_ps(self.data, v2.data))}
+    }
+  }
+  /// Greater than or equal to, computed component-wise.  This compares bits, and is exact.
+  #[inline(always)]
+  pub fn greater_equal(self, v2 : Vector3) -> Vector3Bool{  
+    unsafe{
+      Vector3Bool{data : _mm_castps_si128(_mm_cmpge_ps(self.data, v2.data))}
+    }
+  }
+  /// Greater than, computed component-wise.  This compares bits, and is exact.
+  #[inline(always)]
+  pub fn greater(self, v2 : Vector3) -> Vector3Bool{  
+    unsafe{
+      Vector3Bool{data : _mm_castps_si128(_mm_cmpgt_ps(self.data, v2.data))}
+    }
+  }
+  /// Less than or equal to, computed component-wise.  This compares bits, and is exact.
+  #[inline(always)]
+  pub fn less_equal(self, v2 : Vector3) -> Vector3Bool{ 
+    unsafe{
+      Vector3Bool{data : _mm_castps_si128(_mm_cmple_ps(self.data, v2.data))}
+    }
+  }
+  /// Less than, computed component-wise.  This compares bits, and is exact.
+  #[inline(always)]
+  pub fn less(self, v2 : Vector3) -> Vector3Bool{ 
+    unsafe{
+      Vector3Bool{data : _mm_castps_si128(_mm_cmplt_ps(self.data, v2.data))}
+    }
+  }
+
+  /// The absolute value of each component of the vector.
+  #[inline(always)]
+  pub fn abs(self) -> Vector3{  
+    unsafe{
+      Vector3{data :  _ico_abs_ps(self.data)}
+    }
+  }
+
+  /// Take the magnitude of the first argument (self), and use the sign of the second argument to produce a new vector
+  #[inline(always)]
+  pub fn copysign(self, v2 : Vector3) -> Vector3{ 
+    unsafe{
+      Vector3{data :  _ico_copysign_ps(self.data, v2.data)}
+    }
+  }
+
+  /// Floor function.  Returns signed 0 when applicable.
+  #[inline(always)]
+  pub fn floor(self) -> Vector3{  
+    unsafe{
+      Vector3{data :  
+        _mm_floor_ps(self.data)}
+    }
+  }
+
+  /// Ceil function.  Returns signed 0 when applicable.
+  #[inline(always)]
+  pub fn ceil(self) -> Vector3{ 
+    unsafe{
+      Vector3{data :  
+        _mm_ceil_ps(self.data)}
+    }
+  }
+
+  /// Round to nearest even function. Returns signed 0 when applicable.
+  #[inline(always)]
+  pub fn round(self) -> Vector3{  
+    unsafe{
+      Vector3{data : 
+      _mm_round_ps(self.data, _MM_FROUND_TO_NEAREST_INT |_MM_FROUND_NO_EXC)}
+    }
+  }
+
+  /// Truncate function.
+  #[inline(always)]
+  pub fn truncate(self) -> Vector3{ 
+    unsafe{
+      Vector3{data :  
+        _mm_round_ps(self.data, _MM_FROUND_TO_ZERO |_MM_FROUND_NO_EXC)}
+    }
+  }
+
+  /// Convert to an integer vector using the floor function.
+  #[inline(always)]
+  pub fn floor_to_int(self) -> Vector3Int{  
+    unsafe{
+      Vector3Int{data :  _mm_cvttps_epi32(self.floor().data)}
+    }
+  }
+
+  /// Convert to an integer vector using the ceil function.
+  #[inline(always)]
+  pub fn ceil_to_int(self) -> Vector3Int{ 
+    unsafe{
+      Vector3Int{data :  _mm_cvttps_epi32(self.ceil().data)}
+    }
+  }
+  /// Convert to an integer vector using the round function.
+  #[inline(always)]
+  pub fn round_to_int(self) -> Vector3Int{  
+    unsafe{
+      Vector3Int{data :  _mm_cvttps_epi32(self.round().data)}
+    }
+  }
+
+  /// Convert to an integer vector using the truncate function.
+  #[inline(always)]
+  pub fn truncate_to_int(self) -> Vector3Int{ 
+    unsafe{
+      Vector3Int{data :  _mm_cvttps_epi32(self.truncate().data)}
+    }
+  }
+  
+  /// Compute the fractional component of each component
+  /// Result = X - Floor(x)
+  #[inline(always)]
+  pub fn frac(self) -> Vector3{ 
+    return Vector3::sub(self, Vector3::floor(self));
+  }
+
+  /// Compute the square root of each component
+  #[inline(always)]
+  pub fn sqrt(self) -> Vector3{ 
+    unsafe{
+      Vector3{data :  _mm_sqrt_ps(self.data)}
+    }
+  }
+
+  /// Compute the approximate sin of each component
+  #[inline(always)]
+  pub fn sin(self) -> Vector3{  
+    unsafe{
+      Vector3{data :  _ico_sin_ps(self.data)}
+    }
+  }
+
+  /// Compute the approximate cos of each component
+  #[inline(always)]
+  pub fn cos(self) -> Vector3{  
+    unsafe{
+      Vector3{data :  _ico_cos_ps(self.data)}
+    }
+  }
+
+  /// Compute the approximate acos of each component
+  #[inline(always)]
+  pub fn acos(self) -> Vector3{ 
+    unsafe{
+      Vector3{data :  _ico_acos_ps(self.data)}
+    }
+  }
+
+  /// Compute the component-wise max.
+  #[inline(always)]
+  pub fn max(self, v2 : Vector3) -> Vector3{  
+    unsafe{
+      Vector3{data : _mm_max_ps(self.data, v2.data)}
+    }
+  }
+
+  /// Compute the component-wise min.
+  #[inline(always)]
+  pub fn min(self, v2 : Vector3) -> Vector3{  
+    unsafe{
+      Vector3{data : _mm_min_ps(self.data, v2.data)}
+    }
+  }
+  /// Choose component wise between A and B based on the mask.  False = A, True = B.
+  #[inline(always)]
+  pub fn select(self, v2 : Vector3, mask : Vector3Bool) -> Vector3{ 
+    unsafe{
+      Vector3{data : _ico_select_ps(self.data, v2.data, _mm_castsi128_ps(mask.data))}
+    }
+  }
+  /// Linear interpolate from a to b based on a float.
+  #[inline(always)]
+  pub fn lerp<T : Into<FloatVector>>(self, v2 : Vector3, t : T) -> Vector3{ 
+    unsafe{
+      let t_val = t.into().data;
+      let tmp = _mm_fnmadd_ps(self.data, t_val, self.data); //a - (a*t)
+      Vector3{data : _mm_fmadd_ps(v2.data, t_val, tmp)} //b * t + a
+    }
+  }
+
+  /// Normalize the vector.  Returns a zero vector if the result would be infinity or NAN.
+  #[inline(always)]
+  pub fn normalize(self) -> Vector3{  
+    let length = FloatVector::sqrt(Vector3::dot(self,self));
+    let norm = Vector3::div(self, Vector3::from(length));
+    
+    unsafe{
+      // This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
+      let result_length_sqr = Vector3::from(Vector3::dot(norm,norm));
+      let mask_less = Vector3::less( result_length_sqr, Vector3{data :_ico_two_ps()});
+      return Vector3::and(norm, mask_less);
+    }
+  }
+
+  /// Normalize the vector.  Returns a zero vector if the result would be infinity or NAN.
+  /// Also returns the length of the vector prior to normalization.
+  #[inline(always)]
+  pub fn normalize_length(self) -> (Vector3, FloatVector){  
+    let length = FloatVector::sqrt(Vector3::dot(self,self));
+    let norm = Vector3::div(self, Vector3::from(length));
+    
+    unsafe{
+
+      // This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
+      let result_length_sqr = Vector3::from(Vector3::dot(norm,norm));
+      let mask_less = Vector3::less( result_length_sqr, Vector3{data :_ico_two_ps()});
+      return (Vector3::and(norm, mask_less), length);
+    }
+  }
+  
+  /// The square magnitude of the vector.  Equal to Dot(self, self).
+  #[inline(always)]
+  pub fn sqr_magnitude(self) -> FloatVector {
+    return Vector3::dot(self, self);  
+  }
+
+  /// The magnitude of the vector.  Equal to Sqrt(Dot(self, self)).
+  #[inline(always)]
+  pub fn magnitude(self) -> FloatVector {
+    return FloatVector::sqrt(Vector3::dot(self, self)); 
+  }
 
 	#[inline(always)] pub fn xxxx(self) -> Vector4 { unsafe{return Vector4{data:_xxxx(self.data)};}}
 	#[inline(always)] pub fn yyyy(self) -> Vector4 { unsafe{return Vector4{data:_yyyy(self.data)};}}
@@ -442,6 +484,12 @@ impl Vector3{
 }
 
 
+impl From<f32> for Vector3 {
+	#[inline(always)]
+    fn from(v : f32) -> Vector3 {
+    	return Vector3::set(v);
+    }
+}
 impl From<FloatVector> for Vector3 {
 	#[inline(always)]
     fn from(v : FloatVector) -> Vector3 {
@@ -472,6 +520,7 @@ impl From<Vector3Int> for Vector3 {
     }
 }
 
+
 impl core::ops::Add for Vector3{
 	type Output = Vector3;
 	#[inline(always)]
@@ -485,7 +534,6 @@ impl core::ops::AddAssign for Vector3 {
         *self = Vector3::add(*self, other)
     }
 }
-
 impl core::ops::Sub for Vector3{
 	type Output = Vector3;
 	#[inline(always)]
@@ -512,20 +560,20 @@ impl<T : Into<FloatVector>> core::ops::Mul<T> for Vector3{
 	type Output = Vector3;
 	#[inline(always)]
 	fn mul(self, _rhs: T) -> Vector3{
-		Vector3::scale(self, _rhs.into())
+		return Vector3::mul(self, Vector3::from(_rhs.into()));
 	}
 }
 impl<T : Into<FloatVector>> core::ops::MulAssign<T> for Vector3{
 	#[inline(always)]
 	fn mul_assign(&mut self, _rhs: T){
-		*self = Vector3::scale(*self, _rhs.into())
+		*self = Vector3::mul(*self,Vector3::from(_rhs.into()));
 	}
 }
 impl core::ops::Mul<Vector3> for FloatVector{
 	type Output = Vector3;
 	#[inline(always)]
 	fn mul(self : FloatVector, _rhs: Vector3) -> Vector3{
-		Vector3::scale(_rhs, self)
+		return Vector3::mul(_rhs, Vector3::from(self));
 	}
 }
 
@@ -533,27 +581,38 @@ impl<T : Into<FloatVector>> core::ops::Div<T> for Vector3{
 	type Output = Vector3;
 	#[inline(always)]
 	fn div(self, _rhs: T) -> Vector3{
-		Vector3::div(self, _rhs.into())
+		return Vector3::div(self, Vector3::from(_rhs.into()));
 	}
 }
 impl core::ops::Div<Vector3> for FloatVector{
 	type Output = Vector3;
 	#[inline(always)]
 	fn div(self : FloatVector, _rhs: Vector3) -> Vector3{
-		return Vector3::component_div(Vector3::from(self), _rhs);
+		return Vector3::div(Vector3::from(self), _rhs);
 	}
 }
 impl<T : Into<FloatVector>> core::ops::DivAssign<T> for Vector3{
 	#[inline(always)]
 	fn div_assign(&mut self, _rhs: T){
-		*self = Vector3::div(*self, _rhs.into())
+		*self = Vector3::div(*self, Vector3::from(_rhs.into()));
 	}
 }	
+	
 impl PartialEq for Vector3 {
 	#[inline(always)]
     fn eq(&self, other: &Vector3) -> bool {
-    	return Vector3::equals(*self, *other);
+    	return Vector3::equal(*self, *other).all();
     }
+}
+
+impl SIMDVector3 for Vector3{
+#[inline(always)]
+  fn data(self)->__m128{
+  	return self.data;
+  }
+  fn data_i(self)->__m128i{
+  	return unsafe{ _mm_castps_si128 (self.data)};
+  }
 }
 
 #[cfg(test)]

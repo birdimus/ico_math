@@ -5,6 +5,7 @@ use super::*;
 mod test {
 	use crate::float_vector::FloatVector;
 	use crate::vector2::Vector2;
+	use crate::vector2_bool::Vector2Bool;
 
 	#[test]
     fn new() {
@@ -110,7 +111,7 @@ mod test {
     	let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(4.0,4.0);
 
-		let c = Vector2::component_mul(a,b);
+		let c = Vector2::mul(a,b);
         assert_eq!(c.x(), 4.0);
         assert_eq!(c.y(), 8.0);
         
@@ -121,54 +122,54 @@ mod test {
     	let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(4.0,4.0);
 
-		let c = Vector2::component_div(a,b);
+		let c = Vector2::div(a,b);
         assert_eq!(c.x(), 0.25);
         assert_eq!(c.y(), 0.5);
         
     }
     #[test]
-    fn fmadd() {
+    fn mul_add() {
 
     	let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(4.0,4.0);
 		let c = Vector2::new(2.0,-5.0);
-		let d = Vector2::fmadd(a,b,c);
+		let d = Vector2::mul_add(a,b,c);
 
         assert_eq!(d.x(), 6.0);
         assert_eq!(d.y(), 3.0);
         
     }
     #[test]
-    fn fmsub() {
+    fn mul_sub() {
 
     	let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(4.0,4.0);
 		let c = Vector2::new(2.0,-5.0);
-		let d = Vector2::fmsub(a,b,c);
+		let d = Vector2::mul_sub(a,b,c);
 
         assert_eq!(d.x(), 2.0);
         assert_eq!(d.y(), 13.0);
         
     }
     #[test]
-    fn fnmadd() {
+    fn neg_mul_add() {
 
     	let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(4.0,4.0);
 		let c = Vector2::new(2.0,-5.0);
-		let d = Vector2::fnmadd(a,b,c);
+		let d = Vector2::neg_mul_add(a,b,c);
 
         assert_eq!(d.x(), -2.0);
         assert_eq!(d.y(), -13.0);
         
     }
     #[test]
-    fn fnmsub() {
+    fn neg_mul_sub() {
 
     	let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(4.0,4.0);
 		let c = Vector2::new(2.0,-5.0);
-		let d = Vector2::fnmsub(a,b,c);
+		let d = Vector2::neg_mul_sub(a,b,c);
 
         assert_eq!(d.x(), -6.0);
         assert_eq!(d.y(), -3.0);
@@ -206,7 +207,7 @@ mod test {
     	let a = Vector2::new(1.0,2.0);
 		let b = 4.0;
 
-		let c = Vector2::div(a,b);
+		let c = a/b;
         assert_eq!(c.x(), 0.25);
         assert_eq!(c.y(), 0.5);
         
@@ -282,37 +283,37 @@ mod test {
 	    	let a = Vector2::new(1.0,2.0);
 			let b = Vector2::new(1.0,2.0);
 
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::all(c), true);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::all(c), true);
 		}	
 		{
 	    	let a = Vector2::new(0.0,2.0);
 			let b = Vector2::new(1.0,2.0);
 
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::all(c), false);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::all(c), false);
 		}	
 		{
 	    	let a = Vector2::new(1.0,0.0);
 			let b = Vector2::new(1.0,2.0);
 
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::all(c), false);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::all(c), false);
 		}
 
 		{
 	    	let a = Vector2::new(0.0,0.0);
 			let b = Vector2::new(1.0,2.0);
 
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::all(c), false);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::all(c), false);
 		}	
 		unsafe{
 			use core::arch::x86_64::*;
 			let a = Vector2 { data : _mm_set_ps(0.0, 1.0,2.0, 0.0)};
 			let b = Vector2 { data : _mm_set_ps(99.0, 1.0,2.0, 0.0)};
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::all(c), true);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::all(c), true);
 		}
 
     }
@@ -322,46 +323,46 @@ mod test {
 	    	let a = Vector2::new(1.0,2.0);
 			let b = Vector2::new(1.0,2.0);
 
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::any(c), true);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::any(c), true);
 		}		
 		{
 	    	let a = Vector2::new(1.0,0.0);
 			let b = Vector2::new(1.0,2.0);
 
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::any(c), true);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::any(c), true);
 		}
 		{
 	    	let a = Vector2::new(0.0,2.0);
 			let b = Vector2::new(1.0,2.0);
 
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::any(c), true);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::any(c), true);
 		}	
 		{
 	    	let a = Vector2::new(0.0,0.0);
 			let b = Vector2::new(1.0,2.0);
 
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::any(c), false);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::any(c), false);
 		}	
 		unsafe{
 			use core::arch::x86_64::*;
 			let a = Vector2 { data : _mm_set_ps(0.0, 1.0,2.0,3.0)};
 			let b = Vector2 { data : _mm_set_ps(0.0, 99.0,99.0,99.0)};
-			let c = Vector2::component_equal(a,b);
-			assert_eq!(Vector2::any(c), false);
+			let c = Vector2::equal(a,b);
+			assert_eq!(Vector2Bool::any(c), false);
 		}
 
     }
     #[test]
-    fn component_equal() {
+    fn equal() {
 
     	let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(1.0,1.0);
 
-		let mask = Vector2::component_equal(a,b);
+		let mask = Vector2::equal(a,b);
 		let c = Vector2::new(-1000.0,-1000.0);
 		let d = Vector2::and(c, mask);
 
@@ -370,12 +371,12 @@ mod test {
         
     }
     #[test]
-    fn component_not_equal() {
+    fn not_equal() {
 
     	let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(1.0,1.0);
 
-		let mask = Vector2::component_not_equal(a,b);
+		let mask = Vector2::not_equal(a,b);
 		let c = Vector2::new(-1000.0,-1000.0);
 		let d = Vector2::and(c, mask);
 
@@ -384,11 +385,11 @@ mod test {
         
     }
     #[test]
-	fn component_greater_equal() {
+	fn greater_equal() {
 		let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(1.0,1.0);
 
-		let mask = Vector2::component_greater_equal(a,b);
+		let mask = Vector2::greater_equal(a,b);
 		let c = Vector2::new(-1000.0,-1000.0);
 		let d = Vector2::and(c, mask);
 
@@ -396,11 +397,11 @@ mod test {
         assert_eq!(d.y(), -1000.0);
 	}
 	#[test]
-	fn component_greater() {
+	fn greater() {
 		let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(1.0,1.0);
 
-		let mask = Vector2::component_greater(a,b);
+		let mask = Vector2::greater(a,b);
 		let c = Vector2::new(-1000.0,-1000.0);
 		let d = Vector2::and(c, mask);
 
@@ -408,11 +409,11 @@ mod test {
         assert_eq!(d.y(), -1000.0);
 	}
 	#[test]
-	fn component_less_equal() {
+	fn less_equal() {
 		let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(1.0,1.0);
 
-		let mask = Vector2::component_less_equal(a,b);
+		let mask = Vector2::less_equal(a,b);
 		let c = Vector2::new(-1000.0,-1000.0);
 		let d = Vector2::and(c, mask);
 
@@ -420,11 +421,11 @@ mod test {
         assert_eq!(d.y(), 0.0);
 	}
 	#[test]
-	fn component_less() {
+	fn less() {
 		let a = Vector2::new(1.0,2.0);
 		let b = Vector2::new(1.0,1.0);
 
-		let mask = Vector2::component_less(a,b);
+		let mask = Vector2::less(a,b);
 		let c = Vector2::new(-1000.0,-1000.0);
 		let d = Vector2::and(c, mask);
 

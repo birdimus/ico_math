@@ -1,6 +1,4 @@
 use core::arch::x86_64::*;
-use core::hash::Hasher;
-use core::hash::Hash;
 use crate::float_vector::FloatVector;
 use crate::vector2::Vector2;
 use crate::vector3::Vector3;
@@ -11,23 +9,18 @@ use crate::vector4_bool::Vector4Bool;
 use crate::quaternion::Quaternion;
 use crate::sse_extensions::*;
 
+/// A vector of 4 floats (x,y,z,w).
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector4{
 	pub data : __m128,
 }
 
-impl SIMDVector4 for Vector4{
-#[inline(always)]
-  fn data(self)->__m128{
-  	return self.data;
-  }
-  fn data_i(self)->__m128i{
-  	return unsafe{ _mm_castps_si128 (self.data)};
-  }
-}
+
+
 impl Vector4{
-	/// Returns a new Vector4
+
+	/// Construct a new vector from f32 components.
 	#[inline(always)]
 	pub fn new(x : f32, y : f32, z : f32, w : f32) -> Vector4{
 		unsafe{
@@ -35,11 +28,13 @@ impl Vector4{
 		}
 	}
 
+	/// Set all values of the vector to the same f32 value.
 	#[inline(always)]
 	pub fn set<T : Into<FloatVector>>(value : T) -> Vector4 {
 		return Vector4{data : value.into().data};
 	}
 
+	/// Construct a new vector of zeros.
 	#[inline(always)]
 	pub fn zero() -> Vector4 {
 		unsafe{
@@ -47,26 +42,31 @@ impl Vector4{
 		}
 	}
 
+	/// Get the x value of the vector, broadcast to all components as a FloatVector (xxxx).
 	#[inline(always)]
 	pub fn x(self) -> FloatVector {
 		return FloatVector{data:self.xxxx().data};	
 	}
 
+	/// Get the y value of the vector, broadcast to all components as a FloatVector (yyyy).
 	#[inline(always)]
 	pub fn y(self) -> FloatVector {
 		return FloatVector{data:self.yyyy().data};		
 	}
 
+	/// Get the z value of the vector, broadcast to all components as a FloatVector (zzzz).
 	#[inline(always)]
 	pub fn z(self) -> FloatVector {
 		return FloatVector{data:self.zzzz().data};		
 	}
 
+	/// Get the w value of the vector, broadcast to all components as a FloatVector (wwww).
 	#[inline(always)]
 	pub fn w(self) -> FloatVector {
 		return FloatVector{data:self.wwww().data};		
 	}
 
+	/// Set the x value of this vector, leaving the other components unchanged.
 	#[inline(always)]
 	pub fn set_x<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
@@ -74,6 +74,7 @@ impl Vector4{
 		}	
 	}
 
+	/// Set the y value of this vector, leaving the other components unchanged.
 	#[inline(always)]
 	pub fn set_y<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
@@ -82,6 +83,7 @@ impl Vector4{
 		}	
 	}
 
+	/// Set the z value of this vector, leaving the other components unchanged.
 	#[inline(always)]
 	pub fn set_z<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
@@ -90,6 +92,7 @@ impl Vector4{
 		}	
 	}
 
+	/// Set the w value of this vector, leaving the other components unchanged.
 	#[inline(always)]
 	pub fn set_w<T : Into<FloatVector>>(&mut self, value : T) {
 		unsafe{
@@ -98,77 +101,109 @@ impl Vector4{
 		}	
 	}
 
+	/// Compute the 4 element dot-product, and return it as a broadcast FloatVector.
 	#[inline(always)]
-	pub fn add<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
+	pub fn dot(self, v2 : Vector4) -> FloatVector{	
 		unsafe{
-			Vector4{data : _mm_add_ps(self.data, v2.into().data)}
+			return  FloatVector{data : _ico_dp4_ps(self.data,v2.data)};
 		}
 	}
 
+	/// Compute the sum of two vectors and return it as a new vector.
 	#[inline(always)]
-	pub fn sub<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
+	pub fn add(self, v2 : Vector4) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_sub_ps(self.data, v2.into().data)}
+			Vector4{data : _mm_add_ps(self.data, v2.data)}
 		}
 	}
 
+	/// Subtract a vector and return it as a new vector.
 	#[inline(always)]
-	pub fn mul<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
+	pub fn sub(self, v2 : Vector4) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_mul_ps(self.data, v2.into().data)}
+			Vector4{data : _mm_sub_ps(self.data, v2.data)}
 		}
 	}
 
+	/// Multiply two vectors component-wise, and return it as a new vector.  
+	/// (x1 * x2, y1 * y2, z1 * z2, w1 * w2)
 	#[inline(always)]
-	pub fn div<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
+	pub fn mul(self, v2 : Vector4) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_div_ps(self.data, v2.into().data)}
+			Vector4{data : _mm_mul_ps(self.data, v2.data)}
 		}
 	}
 
+	/// Divide two vectors component-wise, and return it as a new vector.  
+	/// (x1 / x2, y1 / y2, z1 / z2, w1 / w2)
 	#[inline(always)]
-	pub fn mul_add<T : Into<Vector4>, R : Into<Vector4>>(self, v2 : T, v3 : R) -> Vector4{	
+	pub fn div(self, v2 : Vector4) -> Vector4{	
 		unsafe{
-			return Vector4{data : _mm_fmadd_ps(self.data, v2.into().data, v3.into().data)};
-		}
-	}
-	#[inline(always)]
-	pub fn mul_sub<T : Into<Vector4>, R : Into<Vector4>>(self, v2 : T, v3 : R) -> Vector4{	
-		unsafe{
-			return Vector4{data : _mm_fmsub_ps(self.data, v2.into().data, v3.into().data)};
-		}
-	}
-	#[inline(always)]
-	pub fn neg_mul_add<T : Into<Vector4>, R : Into<Vector4>>(self, v2 : T, v3 : R) -> Vector4{	
-		unsafe{
-			return Vector4{data : _mm_fnmadd_ps(self.data, v2.into().data, v3.into().data)};
-		}
-	}
-	#[inline(always)]
-	pub fn neg_mul_sub<T : Into<Vector4>, R : Into<Vector4>>(self, v2 : T, v3 : R) -> Vector4{	
-		unsafe{
-			return Vector4{data : _mm_fnmsub_ps(self.data, v2.into().data, v3.into().data)};
+			Vector4{data : _mm_div_ps(self.data, v2.data)}
 		}
 	}
 
+	/// Fused Multiply Add.  Result = (a * b) + c.
+	#[inline(always)]
+	pub fn mul_add(self, v2 : Vector4, v3 : Vector4) -> Vector4{	
+		unsafe{
+			return Vector4{data : _mm_fmadd_ps(self.data, v2.data, v3.data)};
+		}
+	}
+
+	/// Fused Multiply Sub.  Result = (a * b) - c.
+	#[inline(always)]
+	pub fn mul_sub(self, v2 : Vector4, v3 : Vector4) -> Vector4{	
+		unsafe{
+			return Vector4{data : _mm_fmsub_ps(self.data, v2.data, v3.data)};
+		}
+	}
+
+	/// Negated Fused Multiply Add.  Result = -(a * b) + c.
+	#[inline(always)]
+	pub fn neg_mul_add(self, v2 : Vector4, v3 : Vector4) -> Vector4{	
+		unsafe{
+			return Vector4{data : _mm_fnmadd_ps(self.data, v2.data, v3.data)};
+		}
+	}
+
+	/// Negated Fused Multiply Sub.  Result = -(a * b) - c.
+	#[inline(always)]
+	pub fn neg_mul_sub(self, v2 : Vector4, v3 : Vector4) -> Vector4{	
+		unsafe{
+			return Vector4{data : _mm_fnmsub_ps(self.data, v2.data, v3.data)};
+		}
+	}
+
+	/// Compute the bitwise AND of two vectors.
+	/// This function treats inputs as binary data, and doesn't perform any conversions.
 	#[inline(always)]
 	pub fn and<T : SIMDVector4>(self, v2 : T) -> Vector4{	
 		unsafe{
 			Vector4{data : _mm_and_ps(self.data, v2.data())}
 		}
 	}
+
+	/// Compute the bitwise OR of two vectors.
+	/// This function treats inputs as binary data, and doesn't perform any conversions.
 	#[inline(always)]
 	pub fn or<T : SIMDVector4>(self, v2 : T) -> Vector4{	
 		unsafe{
 			Vector4{data : _mm_or_ps(self.data, v2.data())}
 		}
 	}
+
+	/// Compute the bitwise ANDNOT of two vectors.
+	/// This function treats inputs as binary data, and doesn't perform any conversions.
 	#[inline(always)]
 	pub fn andnot<T : SIMDVector4>(self, v2 : T) -> Vector4{	
 		unsafe{
 			Vector4{data : _mm_andnot_ps(self.data, v2.data())}
 		}
 	}
+
+	/// Compute the bitwise XOR of two vectors.
+	/// This function treats inputs as binary data, and doesn't perform any conversions.
 	#[inline(always)]
 	pub fn xor<T : SIMDVector4>(self, v2 : T) -> Vector4{	
 		unsafe{
@@ -176,73 +211,58 @@ impl Vector4{
 		}
 	}
 	
-
-
-
-//from Knuth
-// 	bool approximatelyEqual(float a, float b, float epsilon)
-// {
-//     return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
-// }
-
-// bool essentiallyEqual(float a, float b, float epsilon)
-// {
-//     return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
-// }
-
-// bool definitelyGreaterThan(float a, float b, float epsilon)
-// {
-//     return (a - b) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
-// }
-
-// bool definitelyLessThan(float a, float b, float epsilon)
-// {
-//     return (b - a) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
-// }
+	/// Equals, computed component-wise.  This compares bits, and is exact.
 	#[inline(always)]
-	pub fn equal<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+	pub fn equal(self, v2 : Vector4) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_castps_si128(_mm_cmpeq_ps(self.data, v2.into().data))}
+			Vector4Bool{data : _mm_castps_si128(_mm_cmpeq_ps(self.data, v2.data))}
 		}
 	}
+	/// NotEquals, computed component-wise.  This compares bits, and is exact.
 	#[inline(always)]
-	pub fn not_equal<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+	pub fn not_equal(self, v2 : Vector4) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_castps_si128(_mm_cmpneq_ps(self.data, v2.into().data))}
+			Vector4Bool{data : _mm_castps_si128(_mm_cmpneq_ps(self.data, v2.data))}
 		}
 	}
+	/// Greater than or equal to, computed component-wise.  This compares bits, and is exact.
 	#[inline(always)]
-	pub fn greater_equal<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+	pub fn greater_equal(self, v2 : Vector4) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_castps_si128(_mm_cmpge_ps(self.data, v2.into().data))}
+			Vector4Bool{data : _mm_castps_si128(_mm_cmpge_ps(self.data, v2.data))}
 		}
 	}
+	/// Greater than, computed component-wise.  This compares bits, and is exact.
 	#[inline(always)]
-	pub fn greater<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+	pub fn greater(self, v2 : Vector4) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_castps_si128(_mm_cmpgt_ps(self.data, v2.into().data))}
+			Vector4Bool{data : _mm_castps_si128(_mm_cmpgt_ps(self.data, v2.data))}
 		}
 	}
+	/// Less than or equal to, computed component-wise.  This compares bits, and is exact.
 	#[inline(always)]
-	pub fn less_equal<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+	pub fn less_equal(self, v2 : Vector4) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_castps_si128(_mm_cmple_ps(self.data, v2.into().data))}
+			Vector4Bool{data : _mm_castps_si128(_mm_cmple_ps(self.data, v2.data))}
 		}
 	}
+	/// Less than, computed component-wise.  This compares bits, and is exact.
 	#[inline(always)]
-	pub fn less<T : Into<Vector4>>(self, v2 : T) -> Vector4Bool{	
+	pub fn less(self, v2 : Vector4) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_castps_si128(_mm_cmplt_ps(self.data, v2.into().data))}
+			Vector4Bool{data : _mm_castps_si128(_mm_cmplt_ps(self.data, v2.data))}
 		}
 	}
 
-
+	/// The absolute value of each component of the vector.
 	#[inline(always)]
 	pub fn abs(self) -> Vector4{	
 		unsafe{
 			Vector4{data :  _ico_abs_ps(self.data)}
 		}
 	}
+
+	/// Take the magnitude of the first argument (self), and use the sign of the second argument to produce a new vector
 	#[inline(always)]
 	pub fn copysign(self, v2 : Vector4) -> Vector4{	
 		unsafe{
@@ -250,28 +270,26 @@ impl Vector4{
 		}
 	}
 
-	#[inline(always)]
 	/// Floor function.  Returns signed 0 when applicable.
+	#[inline(always)]
 	pub fn floor(self) -> Vector4{	
 		unsafe{
 			Vector4{data :  
 				_mm_floor_ps(self.data)}
-				//_ico_floor_ps(v1.data)}
 		}
 	}
 
-	#[inline(always)]
 	/// Ceil function.  Returns signed 0 when applicable.
+	#[inline(always)]
 	pub fn ceil(self) -> Vector4{	
 		unsafe{
 			Vector4{data :  
 				_mm_ceil_ps(self.data)}
-				//_ico_ceil_ps(v1.data)}
 		}
 	}
 
-	#[inline(always)]
 	/// Round to nearest even function. Returns signed 0 when applicable.
+	#[inline(always)]
 	pub fn round(self) -> Vector4{	
 		unsafe{
 			Vector4{data : 
@@ -279,34 +297,54 @@ impl Vector4{
 		}
 	}
 
-	#[inline(always)]
-	pub fn floor_to_int(self) -> Vector4Int{	
-		unsafe{
-			Vector4Int{data :  _mm_cvttps_epi32(_mm_floor_ps(self.data))}
-		}
-	}
-
-	#[inline(always)]
-	pub fn ceil_to_int(self) -> Vector4Int{	
-		unsafe{
-			Vector4Int{data :  _mm_cvttps_epi32(_mm_ceil_ps(self.data))}
-		}
-	}
-
+	/// Truncate function.
 	#[inline(always)]
 	pub fn truncate(self) -> Vector4{	
 		unsafe{
 			Vector4{data :  
 				_mm_round_ps(self.data, _MM_FROUND_TO_ZERO |_MM_FROUND_NO_EXC)}
-				//_ico_truncate_ps(v1.data)}
 		}
 	}
 
+	/// Convert to an integer vector using the floor function.
+	#[inline(always)]
+	pub fn floor_to_int(self) -> Vector4Int{	
+		unsafe{
+			Vector4Int{data :  _mm_cvttps_epi32(self.floor().data)}
+		}
+	}
+
+	/// Convert to an integer vector using the ceil function.
+	#[inline(always)]
+	pub fn ceil_to_int(self) -> Vector4Int{	
+		unsafe{
+			Vector4Int{data :  _mm_cvttps_epi32(self.ceil().data)}
+		}
+	}
+	/// Convert to an integer vector using the round function.
+	#[inline(always)]
+	pub fn round_to_int(self) -> Vector4Int{	
+		unsafe{
+			Vector4Int{data :  _mm_cvttps_epi32(self.round().data)}
+		}
+	}
+
+	/// Convert to an integer vector using the truncate function.
+	#[inline(always)]
+	pub fn truncate_to_int(self) -> Vector4Int{	
+		unsafe{
+			Vector4Int{data :  _mm_cvttps_epi32(self.truncate().data)}
+		}
+	}
+	
+	/// Compute the fractional component of each component
+	/// Result = X - Floor(x)
 	#[inline(always)]
 	pub fn frac(self) -> Vector4{	
 		return Vector4::sub(self, Vector4::floor(self));
 	}
 
+	/// Compute the square root of each component
 	#[inline(always)]
 	pub fn sqrt(self) -> Vector4{	
 		unsafe{
@@ -314,38 +352,67 @@ impl Vector4{
 		}
 	}
 
+	/// Compute the approximate sin of each component
 	#[inline(always)]
-	pub fn max<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
+	pub fn sin(self) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_max_ps(self.data, v2.into().data)}
+			Vector4{data :  _ico_sin_ps(self.data)}
 		}
 	}
 
+	/// Compute the approximate cos of each component
 	#[inline(always)]
-	pub fn min<T : Into<Vector4>>(self, v2 : T) -> Vector4{	
+	pub fn cos(self) -> Vector4{	
 		unsafe{
-			Vector4{data : _mm_min_ps(self.data, v2.into().data)}
+			Vector4{data :  _ico_cos_ps(self.data)}
 		}
 	}
+
+	/// Compute the approximate acos of each component
 	#[inline(always)]
-	pub fn dot<T : Into<Vector4>>(self, v2 : T) -> FloatVector{	
+	pub fn acos(self) -> Vector4{	
 		unsafe{
-			return  FloatVector{data : _ico_dp4_ps(self.data,v2.into().data)};
+			Vector4{data :  _ico_acos_ps(self.data)}
 		}
 	}
+
+	/// Compute the component-wise max.
 	#[inline(always)]
-	pub fn lerp<T : Into<Vector4>, R : Into<FloatVector>>(self, v2 : T, t : R) -> Vector4{	
+	pub fn max(self, v2 : Vector4) -> Vector4{	
+		unsafe{
+			Vector4{data : _mm_max_ps(self.data, v2.data)}
+		}
+	}
+
+	/// Compute the component-wise min.
+	#[inline(always)]
+	pub fn min(self, v2 : Vector4) -> Vector4{	
+		unsafe{
+			Vector4{data : _mm_min_ps(self.data, v2.data)}
+		}
+	}
+	/// Choose component wise between A and B based on the mask.  False = A, True = B.
+	#[inline(always)]
+	pub fn select(self, v2 : Vector4, mask : Vector4Bool) -> Vector4{	
+		unsafe{
+			Vector4{data : _ico_select_ps(self.data, v2.data, _mm_castsi128_ps(mask.data))}
+		}
+	}
+	/// Linear interpolate from a to b based on a float.
+	#[inline(always)]
+	pub fn lerp<T : Into<FloatVector>>(self, v2 : Vector4, t : T) -> Vector4{	
 		unsafe{
 			let t_val = t.into().data;
 			let tmp = _mm_fnmadd_ps(self.data, t_val, self.data); //a - (a*t)
-			Vector4{data : _mm_fmadd_ps(v2.into().data, t_val, tmp)} //b * t + a
+			Vector4{data : _mm_fmadd_ps(v2.data, t_val, tmp)} //b * t + a
 		}
 	}
 
+	/// Normalize the vector.  Returns a zero vector if the result would be infinity or NAN.
 	#[inline(always)]
 	pub fn normalize(self) -> Vector4{	
 		let length = FloatVector::sqrt(Vector4::dot(self,self));
-		let norm = Vector4::div(self, length);
+		let norm = Vector4::div(self, Vector4::from(length));
 		
 		unsafe{
 			// This catches infinity, NAN.  Zero vectors are possible - but that is fine - we failed
@@ -355,10 +422,12 @@ impl Vector4{
 		}
 	}
 
+	/// Normalize the vector.  Returns a zero vector if the result would be infinity or NAN.
+	/// Also returns the length of the vector prior to normalization.
 	#[inline(always)]
 	pub fn normalize_length(self) -> (Vector4, FloatVector){	
 		let length = FloatVector::sqrt(Vector4::dot(self,self));
-		let norm = Vector4::div(self, length);
+		let norm = Vector4::div(self, Vector4::from(length));
 		
 		unsafe{
 
@@ -368,13 +437,14 @@ impl Vector4{
 			return (Vector4::and(norm, mask_less), length);
 		}
 	}
-
 	
-
+	/// The square magnitude of the vector.  Equal to Dot(self, self).
 	#[inline(always)]
 	pub fn sqr_magnitude(self) -> FloatVector {
 		return Vector4::dot(self, self);	
 	}
+
+	/// The magnitude of the vector.  Equal to Sqrt(Dot(self, self)).
 	#[inline(always)]
 	pub fn magnitude(self) -> FloatVector {
 		return FloatVector::sqrt(Vector4::dot(self, self));	
@@ -643,9 +713,7 @@ impl Vector4{
 impl From<f32> for Vector4 {
 	#[inline(always)]
     fn from(v : f32) -> Vector4 {
-    	unsafe{
-        return Vector4 { data :_mm_set1_ps(v)};	
-    	}
+    	return Vector4::set(v);
     }
 }
 impl From<FloatVector> for Vector4 {
@@ -679,30 +747,30 @@ impl From<Vector4Int> for Vector4 {
     }
 }
 
-impl<T : Into<Vector4>> core::ops::Add<T> for Vector4{
+impl core::ops::Add for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
-	fn add(self, _rhs: T) -> Vector4{
-		Vector4::add(self, _rhs.into())
+	fn add(self, _rhs: Vector4) -> Vector4{
+		Vector4::add(self, _rhs)
 	}
 }
-impl<T : Into<Vector4>> core::ops::AddAssign<T> for Vector4 {
+impl core::ops::AddAssign for Vector4 {
 	#[inline(always)]
-    fn add_assign(&mut self, other: T) {
-        *self = Vector4::add(*self, other.into())
+    fn add_assign(&mut self, other: Vector4) {
+        *self = Vector4::add(*self, other)
     }
 }
-impl<T : Into<Vector4>> core::ops::Sub<T> for Vector4{
+impl core::ops::Sub for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
-	fn sub(self, _rhs: T) -> Vector4{
-		Vector4::sub(self, _rhs.into())
+	fn sub(self, _rhs: Vector4) -> Vector4{
+		Vector4::sub(self, _rhs)
 	}
 }
-impl<T : Into<Vector4>> core::ops::SubAssign<T> for Vector4 {
+impl core::ops::SubAssign for Vector4 {
 	#[inline(always)]
-    fn sub_assign(&mut self, other: T) {
-        *self = Vector4::sub(*self, other.into())
+    fn sub_assign(&mut self, other: Vector4) {
+        *self = Vector4::sub(*self, other)
     }
 }
 impl core::ops::Neg for Vector4 {
@@ -718,20 +786,20 @@ impl<T : Into<FloatVector>> core::ops::Mul<T> for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
 	fn mul(self, _rhs: T) -> Vector4{
-		Vector4::mul(self, _rhs.into())
+		return Vector4::mul(self, Vector4::from(_rhs.into()));
 	}
 }
 impl<T : Into<FloatVector>> core::ops::MulAssign<T> for Vector4{
 	#[inline(always)]
 	fn mul_assign(&mut self, _rhs: T){
-		*self = Vector4::mul(*self, _rhs.into())
+		*self = Vector4::mul(*self,Vector4::from(_rhs.into()));
 	}
 }
 impl core::ops::Mul<Vector4> for FloatVector{
 	type Output = Vector4;
 	#[inline(always)]
 	fn mul(self : FloatVector, _rhs: Vector4) -> Vector4{
-		Vector4::mul(_rhs, self)
+		return Vector4::mul(_rhs, Vector4::from(self));
 	}
 }
 
@@ -739,7 +807,7 @@ impl<T : Into<FloatVector>> core::ops::Div<T> for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
 	fn div(self, _rhs: T) -> Vector4{
-		Vector4::div(self, _rhs.into())
+		return Vector4::div(self, Vector4::from(_rhs.into()));
 	}
 }
 impl core::ops::Div<Vector4> for FloatVector{
@@ -752,7 +820,7 @@ impl core::ops::Div<Vector4> for FloatVector{
 impl<T : Into<FloatVector>> core::ops::DivAssign<T> for Vector4{
 	#[inline(always)]
 	fn div_assign(&mut self, _rhs: T){
-		*self = Vector4::div(*self, _rhs.into())
+		*self = Vector4::div(*self, Vector4::from(_rhs.into()));
 	}
 }	
 	
@@ -763,23 +831,17 @@ impl PartialEq for Vector4 {
     }
 }
 
-// knuth approx equal or essentially equal 
-// two values that compare equal MUST hash to the same value 
-//k1 == k2 -> hash(k1) == hash(k2)
+impl SIMDVector4 for Vector4{
+#[inline(always)]
+  fn data(self)->__m128{
+  	return self.data;
+  }
+  fn data_i(self)->__m128i{
+  	return unsafe{ _mm_castps_si128 (self.data)};
+  }
+}
 
-// for floats, check value != value (catch NaN)
-// check isZero or negative zero, and slam those together
-// round
-// impl Hash for Vector4 {
-//     fn hash<H: Hasher>(&self, state: &mut H) {
-//     	let mut dst = RawFloatVector{data:[0.0;4]};
-//     	unsafe{
-//     		let x : *mut f32 = &mut (dst.data[0]) as *mut f32;
-//     		_mm_store_ps(x, self.data);
-//     	}
-//         dst.data.hash(state);
-//     }
-// }
+
 
 #[cfg(test)]
 mod test;

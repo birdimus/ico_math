@@ -31,7 +31,7 @@ impl Quaternion{
 		
 			// v' = v + q.w * t + cross(q.xyz, t)
 			let w = Vector3{data:_mm_shuffle_ps(quat.data, quat.data, _ico_shuffle(3, 3, 3, 3))};
-			let tmp = Vector3::fmadd(w, t2, vec);
+			let tmp = Vector3::mul_add(w, t2, vec);
 	        
 			return Vector3::add(tmp, Vector3::cross(qv, t2));
 		}

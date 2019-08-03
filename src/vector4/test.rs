@@ -252,7 +252,7 @@ mod test {
     	let a = Vector4::new(1.0,2.0,3.0,4.0);
 		let b = 4.0;
 
-		let c = Vector4::div(a,b);
+		let c = a/b;
         assert_eq!(c.x(), 0.25);
         assert_eq!(c.y(), 0.5);
         assert_eq!(c.z(), 0.75);
