@@ -1,5 +1,5 @@
 [package]
-name = "math"
+name = "vecmath"
 version = "0.1.0"
 authors = ["Brian Kehrer <brian.kehrer@gmail.com>"]
 edition = "2018"
@@ -7,5 +7,5 @@ edition = "2018"
 [dependencies]
 
 [lib]
-name = "ico_script"
+name = "ico_math"
 crate-type = ["staticlib", "cdylib"]
