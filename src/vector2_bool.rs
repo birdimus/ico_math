@@ -3,8 +3,8 @@ use core::hash::Hasher;
 use core::hash::Hash;
 use crate::raw::RawVector_i32;
 use crate::structure::SIMDVector2;
-
-
+use crate::vector3_bool::Vector3Bool;
+use crate::vector4_bool::Vector4Bool;
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector2Bool{
@@ -25,6 +25,15 @@ impl Vector2Bool{
         core::mem::transmute::<u32, i32>(x_val))};
     }
   }
+  /// Set all values of the vector to the same f32 value.
+  #[inline(always)]
+  pub fn set(value : bool) -> Vector2Bool {
+    let val : u32 = if value {0xFFFFFFFF} else{0};
+    unsafe{
+    return Vector2Bool{data : _mm_set1_epi32(core::mem::transmute::<u32, i32>(val))};
+    }
+  }
+
   #[inline(always)]
   pub fn x(self) -> bool {
     unsafe{//1 2 4 8
@@ -109,6 +118,24 @@ impl Vector2Bool{
     }
   }
 
+}
+impl From<bool> for Vector2Bool {
+  #[inline(always)]
+    fn from(v : bool) -> Vector2Bool {
+      return Vector2Bool::set(v);
+    }
+}
+impl From<Vector3Bool> for Vector2Bool {
+  #[inline(always)]
+    fn from(v : Vector3Bool) -> Vector2Bool {
+        Vector2Bool { data : v.data }
+    }
+}
+impl From<Vector4Bool> for Vector2Bool {
+  #[inline(always)]
+    fn from(v : Vector4Bool) -> Vector2Bool {
+        Vector2Bool { data : v.data }
+    }
 }
 impl PartialEq for Vector2Bool {
   #[inline(always)]

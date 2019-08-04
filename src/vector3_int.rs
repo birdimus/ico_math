@@ -27,6 +27,12 @@ impl Vector3Int{
 		}
 	}
 	#[inline(always)]
+	pub fn set<T : Into<IntVector>>(value : T) -> Vector3Int {
+		unsafe{
+		return Vector3Int{data : value.into().data};
+		}
+	}
+	#[inline(always)]
 	pub fn zero() -> Vector3Int {
 		unsafe{
 			Vector3Int { data : _mm_setzero_si128() }
