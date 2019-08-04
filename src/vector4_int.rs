@@ -16,15 +16,7 @@ pub struct Vector4Int{
 	pub data : __m128i,
 }
 
-impl SIMDVector4 for Vector4Int{
-#[inline(always)]
-  fn data(self)->__m128{
-  	return unsafe{_mm_castsi128_ps (self.data)};
-  }
-  fn data_i(self)->__m128i{
-  	return unsafe{ self.data};
-  }
-}
+
 impl Vector4Int{
 	/// Returns a new Vector4
 	#[inline(always)]
@@ -86,36 +78,43 @@ impl Vector4Int{
 	}
 	
 	#[inline(always)]
-	pub fn max<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Int{	
+	pub fn max(self, v2 : Vector4Int) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data : _mm_max_epi32(self.data, v2.into().data)}
+			Vector4Int{data : _mm_max_epi32(self.data, v2.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn min<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Int{	
+	pub fn min(self, v2 : Vector4Int) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data : _mm_min_epi32(self.data, v2.into().data)}
+			Vector4Int{data : _mm_min_epi32(self.data, v2.data)}
+		}
+	}
+	/// Choose component wise between A and B based on the mask.  False = A, True = B.
+	#[inline(always)]
+	pub fn select(self, v2 : Vector4Int, mask : Vector4Bool) -> Vector4Int{	
+		unsafe{
+			Vector4Int{data : _ico_select_si128(self.data, v2.data, mask.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn add<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Int{	
+	pub fn add(self, v2 : Vector4Int) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data : _mm_add_epi32(self.data, v2.into().data)}
+			Vector4Int{data : _mm_add_epi32(self.data, v2.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn sub<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Int{	
+	pub fn sub(self, v2 : Vector4Int) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data : _mm_sub_epi32(self.data, v2.into().data)}
+			Vector4Int{data : _mm_sub_epi32(self.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn mul<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Int{	
+	pub fn mul(self, v2 : Vector4Int) -> Vector4Int{	
 		unsafe{
-			Vector4Int{data : _mm_mullo_epi32(self.data, v2.into().data)}
+			Vector4Int{data : _mm_mullo_epi32(self.data, v2.data)}
 		}
 	}
 	#[inline(always)]
@@ -160,37 +159,35 @@ impl Vector4Int{
 	}
 
 	#[inline(always)]
-	pub fn equal<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Bool{	
+	pub fn equal(self, v2 : Vector4Int) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_cmpeq_epi32(self.data, v2.into().data)}
+			Vector4Bool{data : _mm_cmpeq_epi32(self.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn not_equal<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Bool{	
-		return Vector4Bool::xor(self.equal(self), self.equal(v2.into()));
+	pub fn not_equal(self, v2 : Vector4Int) -> Vector4Bool{	
+		return Vector4Bool::xor(self.equal(self), self.equal(v2));
 	}
 
 	#[inline(always)]
-	pub fn greater_equal<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Bool{	
-		let v = v2.into();
-		return Vector4Bool::or(self.equal(v), self.greater(v));
+	pub fn greater_equal(self, v2 : Vector4Int) -> Vector4Bool{	
+		return Vector4Bool::or(self.equal(v2), self.greater(v2));
 	}
 	#[inline(always)]
-	pub fn greater<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Bool{	
+	pub fn greater(self, v2 : Vector4Int) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_cmpgt_epi32(self.data, v2.into().data)}
+			Vector4Bool{data : _mm_cmpgt_epi32(self.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn less_equal<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Bool{	
-		let v = v2.into();
-		return Vector4Bool::or(self.equal(v), self.less(v));
+	pub fn less_equal(self, v2 : Vector4Int) -> Vector4Bool{	
+		return Vector4Bool::or(self.equal(v2), self.less(v2));
 	}
 
 	#[inline(always)]
-	pub fn less<T : Into<Vector4Int>>(self, v2 : T) -> Vector4Bool{	
+	pub fn less(self, v2 : Vector4Int) -> Vector4Bool{	
 		unsafe{
-			Vector4Bool{data : _mm_cmplt_epi32(self.data, v2.into().data)}
+			Vector4Bool{data : _mm_cmplt_epi32(self.data, v2.data)}
 		}
 	}
 
@@ -472,7 +469,22 @@ impl From<IntVector> for Vector4Int {
 		}
     }
 }
-
+impl From<Vector2Int> for Vector4Int {
+	#[inline(always)]
+    fn from(v : Vector2Int) -> Vector4Int {
+    	unsafe{
+        return Vector4Int { data : _mm_castps_si128(_mm_movelh_ps(_mm_castsi128_ps(v.data), _mm_setzero_ps() )) };
+    	}
+    }
+}
+impl From<Vector3Int> for Vector4Int {
+	#[inline(always)]
+    fn from(v : Vector3Int) -> Vector4Int {
+    	unsafe{
+       	 return Vector4Int { data : _mm_srli_si128 (_mm_slli_si128 (v.data, 4), 4) };
+    	}
+    }
+}
 impl From<Vector4> for Vector4Int {
 	#[inline(always)]
     fn from(v : Vector4) -> Vector4Int {
@@ -483,30 +495,30 @@ impl From<Vector4> for Vector4Int {
 }
 
 
-impl<T : Into<Vector4Int>> core::ops::Add<T> for Vector4Int{
+impl core::ops::Add for Vector4Int{
 	type Output = Vector4Int;
 	#[inline(always)]
-	fn add(self, _rhs: T) -> Vector4Int{
-		return Vector4Int::add(self, _rhs.into());
+	fn add(self, _rhs: Vector4Int) -> Vector4Int{
+		return Vector4Int::add(self, _rhs);
 	}
 }
-impl<T : Into<Vector4Int>> core::ops::AddAssign<T> for Vector4Int {
+impl core::ops::AddAssign for Vector4Int {
 	#[inline(always)]
-    fn add_assign(&mut self, other: T) {
-        *self = Vector4Int::add(*self, other.into());
+    fn add_assign(&mut self, other: Vector4Int) {
+        *self = Vector4Int::add(*self, other);
     }
 }
-impl<T : Into<Vector4Int>> core::ops::Sub<T> for Vector4Int{
+impl core::ops::Sub for Vector4Int{
 	type Output = Vector4Int;
 	#[inline(always)]
-	fn sub(self, _rhs: T) -> Vector4Int{
-		return Vector4Int::sub(self, _rhs.into());
+	fn sub(self, _rhs: Vector4Int) -> Vector4Int{
+		return Vector4Int::sub(self, _rhs);
 	}
 }
-impl<T : Into<Vector4Int>> core::ops::SubAssign<T> for Vector4Int {
+impl core::ops::SubAssign for Vector4Int {
 	#[inline(always)]
-    fn sub_assign(&mut self, other: T) {
-        *self = Vector4Int::sub(*self, other.into());
+    fn sub_assign(&mut self, other: Vector4Int) {
+        *self = Vector4Int::sub(*self, other);
     }
 }
 impl core::ops::Neg for Vector4Int {
@@ -523,20 +535,20 @@ impl<T : Into<IntVector>> core::ops::Mul<T> for Vector4Int{
 	type Output = Vector4Int;
 	#[inline(always)]
 	fn mul(self, _rhs: T) -> Vector4Int{
-		Vector4Int::mul(self, _rhs.into())
+		return Vector4Int::mul(self,Vector4Int::from( _rhs.into()) );
 	}
 }
-impl<T : Into<IntVector>> core::ops::MulAssign<T> for Vector4Int{
+impl<T : Into<IntVector>> core::ops::MulAssign<T>  for Vector4Int{
 	#[inline(always)]
 	fn mul_assign(&mut self, _rhs: T){
-		*self = Vector4Int::mul(*self, _rhs.into())
+		*self = Vector4Int::mul(*self, Vector4Int::from(_rhs.into()));
 	}
 }
 impl core::ops::Mul<Vector4Int> for IntVector{
 	type Output = Vector4Int;
 	#[inline(always)]
 	fn mul(self : IntVector, _rhs: Vector4Int) -> Vector4Int{
-		Vector4Int::mul(_rhs, self)
+		return Vector4Int::mul(_rhs, Vector4Int::from(self));
 	}
 }
 
@@ -546,6 +558,7 @@ impl PartialEq for Vector4Int {
     	return Vector4Int::equal(*self, *other).all();
     }
 }
+
 impl Hash for Vector4Int {
     fn hash<H: Hasher>(&self, state: &mut H) {
     	let mut dst = RawVector_i32{data:[0;4]};
@@ -555,4 +568,13 @@ impl Hash for Vector4Int {
     	}
         dst.data.hash(state);
     }
+}
+impl SIMDVector4 for Vector4Int{
+#[inline(always)]
+  fn data(self)->__m128{
+  	return unsafe{_mm_castsi128_ps (self.data)};
+  }
+  fn data_i(self)->__m128i{
+  	return unsafe{ self.data};
+  }
 }

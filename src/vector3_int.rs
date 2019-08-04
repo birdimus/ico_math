@@ -1,7 +1,9 @@
 use core::arch::x86_64::*;
 use core::hash::Hasher;
 use core::hash::Hash;
+use crate::structure::SIMDVector3;
 use crate::vector3::Vector3;
+use crate::vector3_bool::Vector3Bool;
 use crate::raw::RawVector_i32;
 use crate::int_vector::IntVector;
 use crate::vector2_int::Vector2Int;
@@ -68,138 +70,116 @@ impl Vector3Int{
 
 
 	#[inline(always)]
-	pub fn max(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn max(self, v2 : Vector3Int) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_max_epi32(v1.data, v2.data)}
+			Vector3Int{data : _mm_max_epi32(self.data, v2.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn min(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn min(self, v2 : Vector3Int) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_min_epi32(v1.data, v2.data)}
+			Vector3Int{data : _mm_min_epi32(self.data, v2.data)}
 		}
 	}
+	/// Choose component wise between A and B based on the mask.  False = A, True = B.
 	#[inline(always)]
-	pub fn abs(v1 : Vector3Int) -> Vector3Int{	
+	pub fn select(self, v2 : Vector3Int, mask : Vector3Bool) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_abs_epi32(v1.data)}
-		}
-	}
-	#[inline(always)]
-	pub fn copysign(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
-		unsafe{
-			Vector3Int{data : _mm_sign_epi32(v1.data, v2.data)}
-		}
-	}
-
-	/*
-	// TODO: Requires the shifts to be constant - waiting on const generics, or const arguments
-	// https://github.com/rust-lang/rfcs/pull/2000
-	// could also switch on the shift var. 0-32
-	#[inline(always)]
-	pub fn shift_right(v1 : Vector3Int, shift : i32) -> Vector3Int{	
-		unsafe{
-			Vector3Int{data : _mm_srli_epi32(v1.data, shift)}
+			Vector3Int{data : _ico_select_si128(self.data, v2.data, mask.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn shift_left(v1 : Vector3Int, shift : i32) -> Vector3Int{	
+	pub fn add(self, v2 : Vector3Int) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_slli_epi32(v1.data, shift)}
-		}
-	}
-	*/
-	#[inline(always)]
-	pub fn add(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
-		unsafe{
-			Vector3Int{data : _mm_add_epi32(v1.data, v2.data)}
+			Vector3Int{data : _mm_add_epi32(self.data, v2.data)}
 		}
 	}
 
 	#[inline(always)]
-	pub fn sub(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn sub(self, v2 : Vector3Int) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_sub_epi32(v1.data, v2.data)}
+			Vector3Int{data : _mm_sub_epi32(self.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn component_mul(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn mul(self, v2 : Vector3Int) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_mullo_epi32(v1.data, v2.data)}
+			Vector3Int{data : _mm_mullo_epi32(self.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn scale<T : Into<IntVector>>(v1 : Vector3Int, scalar : T) -> Vector3Int{	
+	pub fn abs(self) -> Vector3Int{	
 		unsafe{
-			return Vector3Int{data : _mm_mullo_epi32(v1.data, scalar.into().data)};
+			return Vector3Int{data : _mm_abs_epi32(self.data)};
 		}
 	}
-
 	#[inline(always)]
-	pub fn and(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn copysign(self, v2 : Vector3Int) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_and_si128(v1.data, v2.data)}
-		}
-	}
-
-	#[inline(always)]
-	pub fn or(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
-		unsafe{
-			Vector3Int{data : _mm_or_si128(v1.data, v2.data)}
+			return Vector3Int{data : _mm_sign_epi32(self.data, v2.data)};
 		}
 	}
 
 	#[inline(always)]
-	pub fn andnot(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn and<T : SIMDVector3>(self, v2 : T) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_andnot_si128(v1.data, v2.data)}
+			Vector3Int{data : _mm_and_si128(self.data, v2.data_i())}
 		}
 	}
 
 	#[inline(always)]
-	pub fn xor(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn or<T : SIMDVector3>(self, v2 : T) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_xor_si128(v1.data, v2.data)}
+			Vector3Int{data : _mm_or_si128(self.data, v2.data_i())}
 		}
 	}
 
 	#[inline(always)]
-	pub fn component_equal(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn andnot<T : SIMDVector3>(self, v2 : T) -> Vector3Int{	
 		unsafe{
-			Vector3Int{data : _mm_cmpeq_epi32(v1.data, v2.data)}
+			Vector3Int{data : _mm_andnot_si128(self.data, v2.data_i())}
+		}
+	}
+
+	#[inline(always)]
+	pub fn xor<T : SIMDVector3>(self, v2 : T) -> Vector3Int{	
+		unsafe{
+			Vector3Int{data : _mm_xor_si128(self.data, v2.data_i())}
+		}
+	}
+
+	#[inline(always)]
+	pub fn equal(self, v2 : Vector3Int) -> Vector3Bool{	
+		unsafe{
+			Vector3Bool{data : _mm_cmpeq_epi32(self.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn component_greater(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
+	pub fn not_equal(self, v2 : Vector3Int) -> Vector3Bool{	
+		return Vector3Bool::xor(self.equal(self), self.equal(v2));
+	}
+
+	#[inline(always)]
+	pub fn greater_equal(self, v2 : Vector3Int) -> Vector3Bool{	
+		return Vector3Bool::or(self.equal(v2), self.greater(v2));
+	}
+	#[inline(always)]
+	pub fn greater(self, v2 : Vector3Int) -> Vector3Bool{	
 		unsafe{
-			Vector3Int{data : _mm_cmpgt_epi32(v1.data, v2.data)}
+			Vector3Bool{data : _mm_cmpgt_epi32(self.data, v2.data)}
 		}
 	}
 	#[inline(always)]
-	pub fn component_less(v1 : Vector3Int, v2 : Vector3Int) -> Vector3Int{	
-		unsafe{
-			Vector3Int{data : _mm_cmplt_epi32(v1.data, v2.data)}
-		}
+	pub fn less_equal(self, v2 : Vector3Int) -> Vector3Bool{	
+		return Vector3Bool::or(self.equal(v2), self.less(v2));
 	}
+
 	#[inline(always)]
-	pub fn all(v1 : Vector3Int) -> bool{	
+	pub fn less(self, v2 : Vector3Int) -> Vector3Bool{	
 		unsafe{
-			return (_mm_movemask_epi8 (v1.data) & 4095 ) == 4095;
-		}
-	}
-	#[inline(always)]
-	pub fn any(v1 : Vector3Int) -> bool{	
-		unsafe{
-			return (_mm_movemask_epi8 (v1.data) & 4095 ) != 0;
-		}
-	}
-	#[inline(always)]
-	pub fn equals(v1 : Vector3Int, v2 : Vector3Int) -> bool{	
-		unsafe{
-			let d = _mm_cmpeq_epi32(v1.data, v2.data);
-			return (_mm_movemask_epi8(d) & 4095) == 4095;
+			Vector3Bool{data : _mm_cmplt_epi32(self.data, v2.data)}
 		}
 	}
 
@@ -240,6 +220,14 @@ impl Vector3Int{
 	
 }
 
+impl From<i32> for Vector3Int {
+	#[inline(always)]
+    fn from(v : i32) -> Vector3Int {
+    	unsafe{
+        return Vector3Int { data :_mm_set1_epi32(v)};	
+    	}
+    }
+}
 impl From<IntVector> for Vector3Int {
 	#[inline(always)]
     fn from(val : IntVector) -> Vector3Int {
@@ -248,7 +236,20 @@ impl From<IntVector> for Vector3Int {
 		}
     }
 }
-
+impl From<Vector2Int> for Vector3Int {
+	#[inline(always)]
+    fn from(v : Vector2Int) -> Vector3Int {
+    	unsafe{
+        return Vector3Int { data : _mm_castps_si128(_mm_movelh_ps(_mm_castsi128_ps(v.data), _mm_setzero_ps() )) };
+    	}
+    }
+}
+impl From<Vector4Int> for Vector3Int {
+	#[inline(always)]
+    fn from(v : Vector4Int) -> Vector3Int {
+        Vector3Int { data : v.data }
+    }
+}
 impl From<Vector3> for Vector3Int {
 	#[inline(always)]
     fn from(v : Vector3) -> Vector3Int {
@@ -259,31 +260,30 @@ impl From<Vector3> for Vector3Int {
 }
 
 
-
 impl core::ops::Add for Vector3Int{
 	type Output = Vector3Int;
 	#[inline(always)]
 	fn add(self, _rhs: Vector3Int) -> Vector3Int{
-		Vector3Int::add(self, _rhs)
+		return Vector3Int::add(self, _rhs);
 	}
 }
 impl core::ops::AddAssign for Vector3Int {
 	#[inline(always)]
     fn add_assign(&mut self, other: Vector3Int) {
-        *self = Vector3Int::add(*self, other)
+        *self = Vector3Int::add(*self, other);
     }
 }
 impl core::ops::Sub for Vector3Int{
 	type Output = Vector3Int;
 	#[inline(always)]
 	fn sub(self, _rhs: Vector3Int) -> Vector3Int{
-		Vector3Int::sub(self, _rhs)
+		return Vector3Int::sub(self, _rhs);
 	}
 }
 impl core::ops::SubAssign for Vector3Int {
 	#[inline(always)]
     fn sub_assign(&mut self, other: Vector3Int) {
-        *self = Vector3Int::sub(*self, other)
+        *self = Vector3Int::sub(*self, other);
     }
 }
 impl core::ops::Neg for Vector3Int {
@@ -300,27 +300,27 @@ impl<T : Into<IntVector>> core::ops::Mul<T> for Vector3Int{
 	type Output = Vector3Int;
 	#[inline(always)]
 	fn mul(self, _rhs: T) -> Vector3Int{
-		Vector3Int::scale(self, _rhs.into())
+		return Vector3Int::mul(self,Vector3Int::from( _rhs.into()) );
 	}
 }
-impl<T : Into<IntVector>> core::ops::MulAssign<T> for Vector3Int{
+impl<T : Into<IntVector>> core::ops::MulAssign<T>  for Vector3Int{
 	#[inline(always)]
 	fn mul_assign(&mut self, _rhs: T){
-		*self = Vector3Int::scale(*self, _rhs.into())
+		*self = Vector3Int::mul(*self, Vector3Int::from(_rhs.into()));
 	}
 }
 impl core::ops::Mul<Vector3Int> for IntVector{
 	type Output = Vector3Int;
 	#[inline(always)]
 	fn mul(self : IntVector, _rhs: Vector3Int) -> Vector3Int{
-		Vector3Int::scale(_rhs, self)
+		return Vector3Int::mul(_rhs, Vector3Int::from(self));
 	}
 }
 
 impl PartialEq for Vector3Int {
 	#[inline(always)]
     fn eq(&self, other: &Vector3Int) -> bool {
-    	return Vector3Int::equals(*self, *other);
+    	return Vector3Int::equal(*self, *other).all();
     }
 }
 impl Hash for Vector3Int {
@@ -333,4 +333,13 @@ impl Hash for Vector3Int {
     	dst.data[3] = 0;
         dst.data.hash(state);
     }
+}
+impl SIMDVector3 for Vector3Int{
+#[inline(always)]
+  fn data(self)->__m128{
+  	return unsafe{_mm_castsi128_ps (self.data)};
+  }
+  fn data_i(self)->__m128i{
+  	return unsafe{ self.data};
+  }
 }

@@ -1,4 +1,7 @@
 use core::arch::x86_64::*;
+use core::hash::Hasher;
+use core::hash::Hash;
+use crate::raw::RawVector_i32;
 use crate::structure::SIMDVector4;
 
 
@@ -6,16 +9,6 @@ use crate::structure::SIMDVector4;
 #[repr(C, align(16))]
 pub struct Vector4Bool{
   pub data : __m128i,
-}
-
-impl SIMDVector4 for Vector4Bool{
-#[inline(always)]
-  fn data(self)->__m128{
-    return unsafe{_mm_castsi128_ps (self.data)};
-  }
-  fn data_i(self)->__m128i{
-    return unsafe{ self.data};
-  }
 }
 
 impl Vector4Bool{
@@ -117,6 +110,16 @@ impl Vector4Bool{
       return Vector4Bool{data : _mm_xor_si128(self.data, v2.data)};
     }
   }
+  #[inline(always)]
+  pub fn equal(self, v2 : Vector4Bool) -> Vector4Bool{ 
+    unsafe{
+      Vector4Bool{data : _mm_cmpeq_epi32(self.data, v2.data)}
+    }
+  }
+  #[inline(always)]
+  pub fn not_equal(self, v2 : Vector4Bool) -> Vector4Bool{ 
+    return Vector4Bool::xor(self.equal(self), self.equal(v2));
+  }
 
   #[inline(always)]
   pub fn all(self : Vector4Bool) -> bool{  
@@ -132,4 +135,28 @@ impl Vector4Bool{
   }
 
 }
-
+impl PartialEq for Vector4Bool {
+  #[inline(always)]
+    fn eq(&self, other: &Vector4Bool) -> bool {
+      return Vector4Bool::equal(*self, *other).all();
+    }
+}
+impl Hash for Vector4Bool {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+      let mut dst = RawVector_i32{data:[0;4]};
+      unsafe{
+        let x : *mut __m128i = &mut (dst.data[0]) as *mut i32 as *mut __m128i;
+        _mm_store_si128(x, self.data);
+      }
+        dst.data.hash(state);
+    }
+}
+impl SIMDVector4 for Vector4Bool{
+#[inline(always)]
+  fn data(self)->__m128{
+    return unsafe{_mm_castsi128_ps (self.data)};
+  }
+  fn data_i(self)->__m128i{
+    return unsafe{ self.data};
+  }
+}

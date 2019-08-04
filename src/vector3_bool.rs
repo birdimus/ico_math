@@ -1,20 +1,14 @@
 use core::arch::x86_64::*;
+use core::hash::Hasher;
+use core::hash::Hash;
+use crate::raw::RawVector_i32;
 use crate::structure::SIMDVector3;
+
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
 pub struct Vector3Bool{
   pub data : __m128i,
-}
-
-impl SIMDVector3 for Vector3Bool{
-#[inline(always)]
-  fn data(self)->__m128{
-    return unsafe{_mm_castsi128_ps (self.data)};
-  }
-  fn data_i(self)->__m128i{
-    return unsafe{ self.data};
-  }
 }
 
 impl Vector3Bool{
@@ -75,7 +69,46 @@ impl Vector3Bool{
     } 
   }
 
+
   
+  #[inline(always)]
+  pub fn and(self, v2 : Vector3Bool) -> Vector3Bool{  
+    unsafe{
+      return Vector3Bool{data : _mm_and_si128(self.data, v2.data)};
+    }
+  }
+
+  #[inline(always)]
+  pub fn or(self, v2 : Vector3Bool) -> Vector3Bool{ 
+    unsafe{
+      return Vector3Bool{data : _mm_or_si128(self.data, v2.data)};
+    }
+  }
+
+  #[inline(always)]
+  pub fn andnot(self, v2 : Vector3Bool) -> Vector3Bool{ 
+    unsafe{
+      return Vector3Bool{data : _mm_andnot_si128(self.data, v2.data)};
+    }
+  }
+
+  #[inline(always)]
+  pub fn xor(self, v2 : Vector3Bool) -> Vector3Bool{  
+    unsafe{
+      return Vector3Bool{data : _mm_xor_si128(self.data, v2.data)};
+    }
+  }
+  #[inline(always)]
+  pub fn equal(self, v2 : Vector3Bool) -> Vector3Bool{ 
+    unsafe{
+      Vector3Bool{data : _mm_cmpeq_epi32(self.data, v2.data)}
+    }
+  }
+  #[inline(always)]
+  pub fn not_equal(self, v2 : Vector3Bool) -> Vector3Bool{ 
+    return Vector3Bool::xor(self.equal(self), self.equal(v2));
+  }
+
   #[inline(always)]
   pub fn all(self : Vector3Bool) -> bool{  
     unsafe{
@@ -90,4 +123,29 @@ impl Vector3Bool{
   }
 
 }
-
+impl PartialEq for Vector3Bool {
+  #[inline(always)]
+    fn eq(&self, other: &Vector3Bool) -> bool {
+      return Vector3Bool::equal(*self, *other).all();
+    }
+}
+impl Hash for Vector3Bool {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+      let mut dst = RawVector_i32{data:[0;4]};
+      unsafe{
+        let x : *mut __m128i = &mut (dst.data[0]) as *mut i32 as *mut __m128i;
+        _mm_store_si128(x, self.data);
+      }
+      dst.data[3] = 0;
+      dst.data.hash(state);
+    }
+}
+impl SIMDVector3 for Vector3Bool{
+#[inline(always)]
+  fn data(self)->__m128{
+    return unsafe{_mm_castsi128_ps (self.data)};
+  }
+  fn data_i(self)->__m128i{
+    return unsafe{ self.data};
+  }
+}
