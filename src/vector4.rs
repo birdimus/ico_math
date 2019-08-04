@@ -746,7 +746,12 @@ impl From<Vector4Int> for Vector4 {
         }
     }
 }
-
+impl From<Quaternion> for Vector4 {
+	#[inline(always)]
+    fn from(v : Quaternion) -> Vector4 {
+        Vector4 { data : v.data }
+    }
+}
 impl core::ops::Add for Vector4{
 	type Output = Vector4;
 	#[inline(always)]
