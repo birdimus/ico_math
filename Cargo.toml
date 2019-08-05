@@ -20,7 +20,7 @@ panic = "abort"
 
 [profile.test]
 opt-level = 3
-panic = "abort"
+
 
 
 [profile.release]
