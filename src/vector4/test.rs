@@ -22,7 +22,6 @@ mod test {
     }
     #[test]
     fn set() {
-        
         let a = Vector4::set(-5.0);
 
         assert_eq!(a.x(), -5.0);
