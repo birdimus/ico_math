@@ -1,5 +1,5 @@
 # ico_math
-An opinionated Rust SIMD Math Library for games and graphics.
+An opinionated SIMD Math Library for games and graphics in Rust.
 
 The goal of this library is to facilitate the development of low-level game engine functionality, as well as provide a user-friendly interface to common math operations without sacrificing performance.
 
