@@ -23,3 +23,9 @@ pub mod vector3_int;
 pub mod vector4;
 pub mod vector4_bool;
 pub mod vector4_int;
+
+#[panic_handler]
+fn my_panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
+#[lang = "eh_personality"] extern fn eh_personality() {}
