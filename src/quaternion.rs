@@ -329,26 +329,28 @@ impl Quaternion {
     /// Spherical linear interpolation.  This one in particular is probably slow.  
     /// It uses SIMD approximations for acos and sin, however, it could almost certainly be improved.
     #[inline(always)]
-    pub fn slerp<T: Into<f32>>(self, to: Quaternion, t: T) -> Quaternion {
+    pub fn slerp<T: Into<FloatVector>>(self, to: Quaternion, t: T) -> Quaternion {
         let t_tmp = t.into();
-        let t_negative = Vector4Bool::from(t_tmp < 0.0f32);
+        let t_negative = Vector4::from(t_tmp).less(Vector4::zero());
         let sign_flipped_to = Quaternion::select(to, to.inverse(), t_negative);
         let t_vec = t_tmp.abs();
 
-        let inv_t_vec = 1.0f32 - t_vec;
+        let inv_t_vec = FloatVector::from(1.0f32) - t_vec;
         let cos_theta = Quaternion::dot(self, sign_flipped_to);
         let sign_flip = FloatVector::and(FloatVector::new(SIGN_BIT), cos_theta);
         let abs_cos_theta = FloatVector::xor(sign_flip, cos_theta);
 
+        let lerp = t_vec == 0.0 || t_vec == 1.0 || abs_cos_theta.greater(FloatVector::new(SLERP_EPSILON));
+
         // If we are too close to parallel, switch to lerp.  Also if 1 is 0 or 1 so we can get an exact result.
-        if abs_cos_theta.value() > SLERP_EPSILON || t_vec == 0.0 || t_vec == 1.0 {
+        if lerp {
             let dest = Vector4::from(sign_flipped_to) * t_vec;
             let f_vec = Vector4::xor(Vector4::from(inv_t_vec), sign_flip);
             let result = Quaternion::from(Vector4::mul_add(Vector4::from(self), f_vec, dest));
             return Quaternion::normalize(result);
         }
         let theta = cos_theta.acos();
-        let theta_scale = theta * Vector4::new(1.0f32, t_vec, inv_t_vec, 1.0f32);
+        let theta_scale = theta * Vector4::new(1.0f32, t_vec.value(), inv_t_vec.value(), 1.0f32);
         let sins = theta_scale.sin();
         let sin_div = sins / sins.x();
 
