@@ -28,4 +28,3 @@ pub mod vector4_int;
 fn my_panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
-#[lang = "eh_personality"] extern fn eh_personality() {}
