@@ -712,7 +712,7 @@ mod test {
                 data: _mm_set_ps(100.0, -3.0, 1.0, 0.0),
             };
 
-            let c = Vector2::rotate(a, 0.5 * core::f64::consts::PI);
+            let c = Vector2::rotate(a, 0.5 * core::f32::consts::PI);
 
             assert_eq!(c.x(), -1.0);
             assert_eq!(c.y(), 0.0);
@@ -723,7 +723,7 @@ mod test {
                 data: _mm_set_ps(100.0, -3.0, 0.0, 1.0),
             };
 
-            let c = Vector2::rotate(a, 0.5 * core::f64::consts::PI);
+            let c = Vector2::rotate(a, 0.5 * core::f32::consts::PI);
 
             assert_eq!(c.x(), 0.0);
             assert_eq!(c.y(), 1.0);
@@ -734,7 +734,7 @@ mod test {
                 data: _mm_set_ps(100.0, -3.0, 0.0, -1.0),
             };
 
-            let c = Vector2::rotate(a, 0.5 * core::f64::consts::PI);
+            let c = Vector2::rotate(a, 0.5 * core::f32::consts::PI);
 
             assert_eq!(c.x(), 0.0);
             assert_eq!(c.y(), -1.0);
@@ -745,7 +745,7 @@ mod test {
                 data: _mm_set_ps(100.0, -3.0, 1.0, 0.0),
             };
 
-            let c = Vector2::rotate(a, core::f64::consts::PI);
+            let c = Vector2::rotate(a, core::f32::consts::PI);
 
             assert_eq!(c.x(), 0.0);
             assert_eq!(c.y(), -1.0);

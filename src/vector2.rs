@@ -120,19 +120,23 @@ impl Vector2 {
     /// Rotate the vector by radians
     /// Right handed system, positive rotation is counterclockwise about the axis of rotation.
     #[inline(always)]
-    pub fn rotate(v1: Vector2, radians: f64) -> Vector2 {
-        let f = radians.sin_cos();
+    pub fn rotate<T: Into<FloatVector>>(v1: Vector2, radians: T) -> Vector2 {
+        let tmp = radians.into();
+        //let f = radians.sin_cos();
 
-        let sn: f32 = f.0 as f32;
-        let cs: f32 = f.1 as f32;
-
+        //let sn: f32 = f.0 as f32;
+        //let cs: f32 = f.1 as f32;
+        let sn = tmp.sin().value();
+        let mut sncs = Vector4::from(tmp.cos());
+        sncs.set_z(sn);
+        sncs.set_w(-sn);
         unsafe {
             // Any values below the epsilon get clamped to zero.  This fixes precision issues around zero.
             let epsilon = _mm_set1_ps(ABSOLUTE_COMPARISON_EPSILON);
-            let sncs = _mm_set_ps(-sn, sn, cs, cs);
-            let mask = _mm_cmpgt_ps(_ico_abs_ps(sncs), epsilon);
+            //let sncs = _mm_set_ps(-sn, sn, cs, cs);
+            let mask = _mm_cmpgt_ps(_ico_abs_ps(sncs.data), epsilon);
 
-            let masked_sncs = _mm_and_ps(sncs, mask);
+            let masked_sncs = _mm_and_ps(sncs.data, mask);
 
             //x1y1x2y2
             let xyxy = _mm_movelh_ps(v1.data, v1.data);
