@@ -19,11 +19,26 @@ Additionally, the library provides a complete set of CG style swizzle operators,
 - #![no_std]
 - Requires FMA and SSE 4.1
 
+## conventions
+
+- Right Handed Coordinate System
+- Column Major
+- Radians unless specified
+- Equality is bitwise unless specified (for instance. Vector3.approx_equals() is approximate).
+
+This library takes a middle-ground approach to type safety.  Vector2, Vector3, Vector4, and Quaternion are concrete types.  For perfomance reasons there are separate integer based Vector2Int, Vector3Int and Vector4Int types.  However, there are no 'point' types, nor are there 'radian' or 'degree' types.
+
+Most methods require explicit casts to the correct type, from conversions between most types are provided.  The only exception are bitwise operators, which allow operations between any same sized Vector type (int, bool, float).  Vector3Int XOR Vector3 is allowed, but Vector2 XOR Vector3 is not allowed.
+
+Casts upward (from Vector2 to Vector4) always zero-initialize the additional channels (zw, in this case). Casts downward (Vector4 to Vector2) do not zero channels.  Those 
+
 ## future work
 
 - Encoded load / store operations (16 uint, etc).
 - Additional matrix methods and types.
+- Methods for shifts which take const arguments (without const generics).
 - More unit test coverage (specifically bool, int, and matrix).
+- Set of Euler conversions (and test coverage).
 - More documentation.
 - Perfomance tests.
 - Basic physics.
@@ -31,8 +46,16 @@ Additionally, the library provides a complete set of CG style swizzle operators,
 
 ## feedback
 
-This is an opinionated library (as close to c as possible), but I'm also new to Rust, and there are probably things I can do better.
-I'm open to suggestions, bug reports, or feature requests.
+I'm new to Rust, and there are certainly things I can do better.
+I'm open to feedback, and love bug reports.  
+
+There is presently a lot of code duplication I intend to remove once I can validate inlining perfomance.  I've resisted macros in favor of readability.
 
 ## ico?
 Short for Icosahedra, the plural form of icosahedron, a 20 sided polyhedron.  Also the name of my LLC.
+
+Copyright 2019 Icosahedra, LLC
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
