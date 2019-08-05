@@ -1,3 +1,10 @@
+// Copyright 2019 Icosahedra, LLC
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+//
+
 use core::arch::x86_64::*;
 
 pub const ABSOLUTE_COMPARISON_EPSILON: f32 = 1.00000011920928955078125 - 1.0;

@@ -1,3 +1,10 @@
+// Copyright 2019 Icosahedra, LLC
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+//
+
 use crate::float_vector::FloatVector;
 use crate::vector2::Vector2;
 use crate::vector3::Vector3;
