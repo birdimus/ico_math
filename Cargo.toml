@@ -3,12 +3,19 @@ name = "ico_math"
 version = "0.1.0"
 authors = ["Brian Kehrer <brian.kehrer@gmail.com>"]
 edition = "2018"
+license = "MPL-2.0"
+repository = "https://github.com/birdimus/ico_math"
+description = "An opinionated SIMD Math Library for games and graphics in Rust."
+keywords = ["math", "SIMD", "vector", "game", "quaternion"]
 
 [dependencies]
 
 [lib]
 name = "ico_math"
 crate-type = ["staticlib", "cdylib"]
+
+[profile.dev]
+opt-level = 3
 
 [profile.test]
 opt-level = 3
