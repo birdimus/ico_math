@@ -979,6 +979,7 @@ impl SIMDVector3 for Vector3 {
     fn data(self) -> __m128 {
         return self.data;
     }
+    #[inline(always)]
     fn data_i(self) -> __m128i {
         return unsafe { _mm_castps_si128(self.data) };
     }

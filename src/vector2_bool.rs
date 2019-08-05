@@ -178,6 +178,7 @@ impl SIMDVector2 for Vector2Bool {
     fn data(self) -> __m128 {
         return unsafe { _mm_castsi128_ps(self.data) };
     }
+    #[inline(always)]
     fn data_i(self) -> __m128i {
         return self.data;
     }

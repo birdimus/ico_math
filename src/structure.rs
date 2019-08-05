@@ -8,18 +8,26 @@
 use core::arch::x86_64::*;
 
 pub trait SIMDVector1 {
+	#[inline(always)]
     fn data(self) -> __m128;
+    #[inline(always)]
     fn data_i(self) -> __m128i;
 }
 pub trait SIMDVector2 {
+	#[inline(always)]
     fn data(self) -> __m128;
+    #[inline(always)]
     fn data_i(self) -> __m128i;
 }
 pub trait SIMDVector3 {
+	#[inline(always)]
     fn data(self) -> __m128;
+    #[inline(always)]
     fn data_i(self) -> __m128i;
 }
 pub trait SIMDVector4 {
+	#[inline(always)]
     fn data(self) -> __m128;
+    #[inline(always)]
     fn data_i(self) -> __m128i;
 }
