@@ -6,6 +6,7 @@
 //
 
 use crate::float_vector::FloatVector;
+use crate::raw::RawVector_f32;
 use crate::sse_extensions::*;
 use crate::structure::SIMDVector3;
 use crate::vector2::Vector2;
@@ -13,7 +14,6 @@ use crate::vector3_bool::Vector3Bool;
 use crate::vector3_int::Vector3Int;
 use crate::vector4::Vector4;
 use core::arch::x86_64::*;
-use crate::raw::RawVector_f32;
 
 /// A vector of 3 floats (x,y,z).
 #[derive(Copy, Clone, Debug)]
@@ -77,21 +77,22 @@ impl Vector3 {
 
     /// Load a value from aligned memory.
     #[inline(always)]
-    pub fn load(raw : &RawVector_f32) -> Vector3{
-      unsafe{
-        // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
-        return Vector3{data:_mm_load_ps(core::mem::transmute(raw))};
-        
-      }
+    pub fn load(raw: &RawVector_f32) -> Vector3 {
+        unsafe {
+            // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+            return Vector3 {
+                data: _mm_load_ps(core::mem::transmute(raw)),
+            };
+        }
     }
 
     /// Store a value to aligned memory.
     #[inline(always)]
-    pub fn store(self,dst : &mut RawVector_f32){
-      unsafe{
-        // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
-        _mm_store_ps(core::mem::transmute(dst), self.data);
-      }
+    pub fn store(self, dst: &mut RawVector_f32) {
+        unsafe {
+            // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+            _mm_store_ps(core::mem::transmute(dst), self.data);
+        }
     }
 
     /// Set the x value of this vector, leaving the other components unchanged.

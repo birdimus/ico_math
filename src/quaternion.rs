@@ -6,12 +6,12 @@
 //
 
 use crate::float_vector::FloatVector;
+use crate::raw::RawVector_f32;
 use crate::sse_extensions::*;
 use crate::vector3::Vector3;
 use crate::vector4::Vector4;
 use crate::vector4_bool::Vector4Bool;
 use core::arch::x86_64::*;
-use crate::raw::RawVector_f32;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
@@ -45,21 +45,22 @@ impl Quaternion {
     }
     /// Load a value from aligned memory.
     #[inline(always)]
-    pub fn load(raw : &RawVector_f32) -> Quaternion{
-    	unsafe{
-    		// Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
-    		return Quaternion{data:_mm_load_ps(core::mem::transmute(raw))};
-    		
-    	}
+    pub fn load(raw: &RawVector_f32) -> Quaternion {
+        unsafe {
+            // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+            return Quaternion {
+                data: _mm_load_ps(core::mem::transmute(raw)),
+            };
+        }
     }
 
     /// Store a value to aligned memory.
     #[inline(always)]
-    pub fn store(self,dst : &mut RawVector_f32){
-    	unsafe{
-    		// Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
-    		_mm_store_ps(core::mem::transmute(dst), self.data);
-    	}
+    pub fn store(self, dst: &mut RawVector_f32) {
+        unsafe {
+            // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+            _mm_store_ps(core::mem::transmute(dst), self.data);
+        }
     }
 
     /// Construct a new quaternion from axis-angle format.

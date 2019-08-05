@@ -23,5 +23,3 @@ pub mod vector3_int;
 pub mod vector4;
 pub mod vector4_bool;
 pub mod vector4_int;
-
-

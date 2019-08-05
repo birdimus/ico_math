@@ -8,9 +8,9 @@
 #[cfg(test)]
 mod test {
     use crate::float_vector::FloatVector;
+    use crate::raw::RawVector_f32;
     use crate::vector2::Vector2;
     use crate::vector2_bool::Vector2Bool;
-    use crate::raw::RawVector_f32;
     #[test]
     fn new() {
         let a = Vector2::new(1.0, 2.0);
@@ -35,7 +35,7 @@ mod test {
     #[test]
     fn store() {
         let a = Vector2::new(1.0, 2.0);
-        let mut b = RawVector_f32{data:[0.0;4]};
+        let mut b = RawVector_f32 { data: [0.0; 4] };
         a.store(&mut b);
         assert_eq!(b.data[0], 1.0);
         assert_eq!(b.data[1], 2.0);

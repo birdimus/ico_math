@@ -11,11 +11,11 @@ use crate::vector3::Vector3;
 use core::arch::x86_64::*;
 
 use crate::quaternion::Quaternion;
+use crate::raw::RawVector_f32;
 use crate::sse_extensions::*;
 use crate::structure::SIMDVector4;
 use crate::vector4_bool::Vector4Bool;
 use crate::vector4_int::Vector4Int;
-use crate::raw::RawVector_f32;
 
 /// A vector of 4 floats (x,y,z,w).
 #[derive(Copy, Clone, Debug)]
@@ -87,21 +87,22 @@ impl Vector4 {
 
     /// Load a value from aligned memory.
     #[inline(always)]
-    pub fn load(raw : &RawVector_f32) -> Vector4{
-    	unsafe{
-    		// Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
-    		return Vector4{data:_mm_load_ps(core::mem::transmute(raw))};
-    		
-    	}
+    pub fn load(raw: &RawVector_f32) -> Vector4 {
+        unsafe {
+            // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+            return Vector4 {
+                data: _mm_load_ps(core::mem::transmute(raw)),
+            };
+        }
     }
 
     /// Store a value to aligned memory.
     #[inline(always)]
-    pub fn store(self,dst : &mut RawVector_f32){
-    	unsafe{
-    		// Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
-    		_mm_store_ps(core::mem::transmute(dst), self.data);
-    	}
+    pub fn store(self, dst: &mut RawVector_f32) {
+        unsafe {
+            // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+            _mm_store_ps(core::mem::transmute(dst), self.data);
+        }
     }
 
     /// Set the x value of this vector, leaving the other components unchanged.
@@ -138,8 +139,6 @@ impl Vector4 {
             self.data = _mm_shuffle_ps(self.data, v1, _ico_shuffle(0, 2, 1, 0));
         }
     }
-
-
 
     /// Compute the 4 element dot-product, and return it as a broadcast FloatVector.
     #[inline(always)]
