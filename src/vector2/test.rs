@@ -1,5 +1,3 @@
-use super::*;
-
 #[cfg(test)]
 mod test {
     use crate::float_vector::FloatVector;
@@ -415,8 +413,8 @@ mod test {
         }
         {
             let a = Vector2::floor(Vector2::new(2.0 * 2147483647.0, -2.0 * 2147483648.0));
-            let b = Vector2::new(0.0, 0.0);
-            let c = Vector2::copysign(b, a);
+            // let b = Vector2::new(0.0, 0.0);
+            // let c = Vector2::copysign(b, a);
             assert_eq!(a.x(), 2.0 * 2147483647.0);
             assert_eq!(a.y(), -2.0 * 2147483648.0);
         }
@@ -433,8 +431,8 @@ mod test {
         }
         {
             let a = Vector2::ceil(Vector2::new(2.0 * 2147483647.0, -2.0 * 2147483648.0));
-            let b = Vector2::new(0.0, 0.0);
-            let c = Vector2::copysign(b, a);
+            // let b = Vector2::new(0.0, 0.0);
+            // let c = Vector2::copysign(b, a);
             assert_eq!(a.x(), 2.0 * 2147483647.0);
             assert_eq!(a.y(), -2.0 * 2147483648.0);
         }
@@ -451,8 +449,8 @@ mod test {
         }
         {
             let a = Vector2::round(Vector2::new(2.0 * 2147483647.0, -2.0 * 2147483648.0));
-            let b = Vector2::new(0.0, 0.0);
-            let c = Vector2::copysign(b, a);
+            // let b = Vector2::new(0.0, 0.0);
+            // let c = Vector2::copysign(b, a);
             assert_eq!(a.x(), 2.0 * 2147483647.0);
             assert_eq!(a.y(), -2.0 * 2147483648.0);
         }
@@ -485,7 +483,7 @@ mod test {
             assert_eq!(c.y(), 1);
         }
         {
-            let a = Vector2::ceil_to_int(Vector2::new(2.0 * 2147483647.0, -2.0 * 2147483648.0));
+            // let a = Vector2::ceil_to_int(Vector2::new(2.0 * 2147483647.0, -2.0 * 2147483648.0));
 
             //assert_eq!(a.x(), 2.0 * 2147483647.0);
             //assert_eq!(a.y(), -2.0 * 2147483648.0);
@@ -505,8 +503,8 @@ mod test {
         }
         {
             let a = Vector2::truncate(Vector2::new(2.0 * 2147483647.0, -2.0 * 2147483648.0));
-            let b = Vector2::new(0.0, 0.0);
-            let c = Vector2::copysign(b, a);
+            // let b = Vector2::new(0.0, 0.0);
+            // let c = Vector2::copysign(b, a);
             assert_eq!(a.x(), 2.0 * 2147483647.0);
             assert_eq!(a.y(), -2.0 * 2147483648.0);
         }

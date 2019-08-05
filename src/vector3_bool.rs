@@ -190,6 +190,6 @@ impl SIMDVector3 for Vector3Bool {
         return unsafe { _mm_castsi128_ps(self.data) };
     }
     fn data_i(self) -> __m128i {
-        return unsafe { self.data };
+        return self.data;
     }
 }

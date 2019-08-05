@@ -1,5 +1,4 @@
 use crate::float_vector::FloatVector;
-use crate::raw::RawVector_f32;
 use crate::sse_extensions::*;
 use crate::vector3::Vector3;
 use crate::vector4::Vector4;
@@ -369,8 +368,7 @@ impl Quaternion {
         let abs_cos_theta = FloatVector::xor(sign_flip, cos_theta);
 
         // If we are too close to parallel, switch to lerp.  Also if 1 is 0 or 1 so we can get an exact result.
-        if (abs_cos_theta.value() > SLERP_EPSILON || t_vec == 0.0 || t_vec == 1.0 || t_vec == -1.0)
-        {
+        if abs_cos_theta.value() > SLERP_EPSILON || t_vec == 0.0 || t_vec == 1.0 || t_vec == -1.0 {
             let dest = Vector4::from(to) * t_vec;
             let f_vec = Vector4::xor(Vector4::from(inv_t_vec), sign_flip);
             let result = Quaternion::from(Vector4::mul_add(Vector4::from(from), f_vec, dest));

@@ -172,6 +172,6 @@ impl SIMDVector2 for Vector2Bool {
         return unsafe { _mm_castsi128_ps(self.data) };
     }
     fn data_i(self) -> __m128i {
-        return unsafe { self.data };
+        return self.data;
     }
 }

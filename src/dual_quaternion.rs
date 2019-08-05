@@ -1,7 +1,6 @@
 use crate::quaternion::Quaternion;
 use crate::sse_extensions::*;
 use crate::vector3::Vector3;
-use crate::vector4::Vector4;
 use core::arch::x86_64::*;
 
 #[derive(Copy, Clone, Debug)]
@@ -83,20 +82,20 @@ impl DualQuaternion {
             };
         }
     }
-
-    #[inline(always)]
-    pub fn equals(v1: DualQuaternion, v2: DualQuaternion) -> bool {
-        unsafe {
-            let d = _mm_cmpeq_ps(v1.real, v2.real);
-            let d2 = _mm_cmpeq_ps(v1.dual, v2.dual);
-            let d3 = _mm_and_ps(d, d2);
-            return (_mm_movemask_ps(d)) == 15;
-        }
-    }
 }
 
 impl PartialEq for DualQuaternion {
+    #[inline(always)]
     fn eq(&self, other: &DualQuaternion) -> bool {
-        return DualQuaternion::equals(*self, *other);
+        let real_equal = Quaternion::equal(
+            Quaternion { data: self.real },
+            Quaternion { data: other.real },
+        );
+        let dual_equal = Quaternion::equal(
+            Quaternion { data: self.dual },
+            Quaternion { data: other.dual },
+        );
+        let both_equal = real_equal.and(dual_equal);
+        return both_equal.all();
     }
 }

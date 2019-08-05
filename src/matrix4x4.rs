@@ -227,7 +227,7 @@ impl Matrix4x4 {
             let wzyx = _wzyx(q.data);
             let zwxy = _zwxy(q.data);
             let yxwz = _yxwz(q.data);
-            let xyzw = (q.data);
+            let xyzw = q.data;
 
             let m1 = Matrix4x4 {
                 m: [
@@ -271,16 +271,6 @@ impl Matrix4x4 {
         }
         return mat;
     }
-
-    #[inline(always)]
-    pub fn equals(a: Matrix4x4, b: Matrix4x4) -> bool {
-        unsafe {
-            return _mm_movemask_ps(_mm_cmpeq_ps(a.m[0], b.m[0])) == 15
-                && _mm_movemask_ps(_mm_cmpeq_ps(a.m[1], b.m[1])) == 15
-                && _mm_movemask_ps(_mm_cmpeq_ps(a.m[2], b.m[2])) == 15
-                && _mm_movemask_ps(_mm_cmpeq_ps(a.m[3], b.m[3])) == 15;
-        }
-    }
 }
 impl core::ops::Mul<Matrix4x4> for Matrix4x4 {
     type Output = Matrix4x4;
@@ -291,6 +281,11 @@ impl core::ops::Mul<Matrix4x4> for Matrix4x4 {
 }
 impl PartialEq for Matrix4x4 {
     fn eq(&self, other: &Matrix4x4) -> bool {
-        return Matrix4x4::equals(*self, *other);
+        unsafe {
+            return _mm_movemask_ps(_mm_cmpeq_ps(self.m[0], other.m[0])) == 15
+                && _mm_movemask_ps(_mm_cmpeq_ps(self.m[1], other.m[1])) == 15
+                && _mm_movemask_ps(_mm_cmpeq_ps(self.m[2], other.m[2])) == 15
+                && _mm_movemask_ps(_mm_cmpeq_ps(self.m[3], other.m[3])) == 15;
+        }
     }
 }

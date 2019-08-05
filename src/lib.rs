@@ -1,21 +1,21 @@
 #![no_std]
-mod dual_quaternion;
-mod float_vector;
-mod int_vector;
-mod matrix4x4;
-mod quaternion;
-mod raw;
-mod sse_extensions;
+pub mod dual_quaternion;
+pub mod float_vector;
+pub mod int_vector;
+pub mod matrix4x4;
+pub mod quaternion;
+pub mod raw;
+pub mod sse_extensions;
 mod structure;
-mod vector2;
-mod vector2_bool;
-mod vector2_int;
-mod vector3;
-mod vector3_bool;
-mod vector3_int;
-mod vector4;
-mod vector4_bool;
-mod vector4_int;
+pub mod vector2;
+pub mod vector2_bool;
+pub mod vector2_int;
+pub mod vector3;
+pub mod vector3_bool;
+pub mod vector3_int;
+pub mod vector4;
+pub mod vector4_bool;
+pub mod vector4_int;
 
 /*
 

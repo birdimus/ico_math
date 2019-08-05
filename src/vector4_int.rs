@@ -28,11 +28,9 @@ impl Vector4Int {
     }
     #[inline(always)]
     pub fn set<T: Into<IntVector>>(value: T) -> Vector4Int {
-        unsafe {
-            return Vector4Int {
-                data: value.into().data,
-            };
-        }
+        return Vector4Int {
+            data: value.into().data,
+        };
     }
     #[inline(always)]
     pub fn zero() -> Vector4Int {
@@ -2303,9 +2301,7 @@ impl From<i32> for Vector4Int {
 impl From<IntVector> for Vector4Int {
     #[inline(always)]
     fn from(val: IntVector) -> Vector4Int {
-        unsafe {
-            return Vector4Int { data: val.data };
-        }
+        return Vector4Int { data: val.data };
     }
 }
 impl From<Vector2Int> for Vector4Int {
@@ -2421,6 +2417,6 @@ impl SIMDVector4 for Vector4Int {
         return unsafe { _mm_castsi128_ps(self.data) };
     }
     fn data_i(self) -> __m128i {
-        return unsafe { self.data };
+        return self.data;
     }
 }

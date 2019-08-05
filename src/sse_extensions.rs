@@ -8,6 +8,7 @@ pub const HALF_PI: f32 = 1.57079632679;
 pub const PI: f32 = 3.14159265359;
 
 /// A replacement for the _MM_SHUFFLE macro.
+#[inline(always)]
 pub const fn _ico_shuffle(z: i32, y: i32, x: i32, w: i32) -> i32 {
     (((z) << 6) | ((y) << 4) | ((x) << 2) | (w))
 }
@@ -19,7 +20,7 @@ pub const fn _ico_shuffle(z: i32, y: i32, x: i32, w: i32) -> i32 {
 pub unsafe fn _ico_one_epi32() -> __m128i {
     let mut a = _mm_setzero_si128();
     a = _mm_cmpeq_epi32(a, a);
-    return (_mm_srli_epi32(a, 31));
+    return _mm_srli_epi32(a, 31);
 }
 
 #[inline(always)]
@@ -108,10 +109,10 @@ pub unsafe fn _ico_select_si128(a: __m128i, b: __m128i, mask: __m128i) -> __m128
 /// Otherwise we cast to int
 #[inline(always)]
 pub unsafe fn _ico_truncate_ps(a: __m128) -> __m128 {
-    /// Largest float < integer only is  < 8388608
-    /// NaN and int-only floats fail this test.
+    // Largest float < integer only is  < 8388608
+    // NaN and int-only floats fail this test.
     let mask = _mm_cmplt_ps(_ico_abs_ps(a), _mm_castsi128_ps(_mm_set1_epi32(0x4b000000)));
-    /// is the float entirely integer?
+    // is the float entirely integer?
     let trunc = _mm_cvtepi32_ps(_mm_cvttps_epi32(a));
     //if Abs(a) > 8388608
     // select a if greater then 8388608.0f, otherwise select the result of FuncT
@@ -122,7 +123,7 @@ pub unsafe fn _ico_truncate_ps(a: __m128) -> __m128 {
 #[inline(always)]
 /// Returns unsigned 0.
 pub unsafe fn _ico_floor_ps(a: __m128) -> __m128 {
-    ///convert to int using truncate
+    //convert to int using truncate
     let t = _ico_truncate_ps(a); //_mm_cvtepi32_ps(_mm_cvttps_epi32(a));
                                  // if the truncated value is greater than the old value (negative, non integral) subtract 1.
     return _mm_sub_ps(t, _mm_and_ps(_mm_cmpgt_ps(t, a), _ico_one_ps()));
@@ -131,7 +132,7 @@ pub unsafe fn _ico_floor_ps(a: __m128) -> __m128 {
 #[inline(always)]
 /// Returns unsigned 0.
 pub unsafe fn _ico_ceil_ps(a: __m128) -> __m128 {
-    ///convert to int using truncate
+    //convert to int using truncate
     let t = _ico_truncate_ps(a); //_mm_cvtepi32_ps(_mm_cvttps_epi32(a));
                                  // if the truncated value is less than the old value (positive) add 1.
     return _mm_add_ps(t, _mm_and_ps(_mm_cmplt_ps(t, a), _ico_one_ps()));
@@ -143,10 +144,10 @@ pub unsafe fn _ico_ceil_ps(a: __m128) -> __m128 {
 #[inline(always)]
 /// Returns unsigned 0.
 pub unsafe fn _ico_round_ps(a: __m128) -> __m128 {
-    ///convert to int using truncate
+    //convert to int using truncate
     let trunc = _ico_truncate_ps(a); //_mm_cvtepi32_ps(_mm_cvttps_epi32(a));
     let remainder = _mm_sub_ps(a, trunc);
-    /// If we want to round toward zero, use _ico_nearesttwo_ps()
+    // If we want to round toward zero, use _ico_nearesttwo_ps()
     let rmd2 = _mm_mul_ps(remainder, _ico_two_ps());
     let rmd2i = _mm_cvttps_epi32(rmd2); // after being truncated of course
 
@@ -196,27 +197,28 @@ pub unsafe fn _ico_ping_pong(vec: __m128) -> __m128 {
     return _mm_add_ps(internal, internal); // multiply by 2
 }
 
+/// This is a series approximation of cos.  Error < 0.01% in the domain
+///  2 approximations were used to compute this result
+///  A = 4x^3 - 6x^2 + 1
+///  B = -2x^5 + 5x^4 - 5x^2 + 1
+/// The range was cut in half
+///  A = 2x^3 - 3x^2 + 1
+///  B = -x^5 + 2.5x^4 - 2.5x^2 + 1
+///  These were weighted (1-t)*A + (t)*B to minimize error and ensure 0,1,0.25, 0.75, and 0.5 provided exact solutions
+/// Max absolute error on domain [0,1], range [-1,1] is 0.000192f at ~0.25 +- 0.125
+/// Max relative error on domain [0,1]. range [-1,1] approaches 0.00069f at 0.5
+
+/// 1.115408f Was found empirically as T.
+//// coeff for {x^5, x^4, x^3, x^2}
+
+//// Next, coefficients had to be shifted to account for limitations in floating point representation
+//// COMPUTED SCALARS: (-2.230816f,5.57704f, -0.461632f, -4.884592f );
+///  x^4, x^3 coefficients were adjusted
 #[inline(always)]
 pub unsafe fn _ico_approx_cos01(vec: __m128) -> __m128 {
-    ///  2 approximations were used to compute this result
-    ///  A = 4x^3 - 6x^2 + 1
-    ///  B = -2x^5 + 5x^4 - 5x^2 + 1
-    /// The range was cut in half
-    ///  A = 2x^3 - 3x^2 + 1
-    ///  B = -x^5 + 2.5x^4 - 2.5x^2 + 1
-    ///  These were weighted (1-t)*A + (t)*B to minimize error and ensure 0,1,0.25, 0.75, and 0.5 provided exact solutions
-    /// Max absolute error on domain [0,1], range [-1,1] is 0.000192f at ~0.25 +- 0.125
-    /// Max relative error on domain [0,1]. range [-1,1] approaches 0.00069f at 0.5
-
-    /// 1.115408f Was found empirically as T.
-    //// coeff for {x^5, x^4, x^3, x^2}
-
-    //// Next, coefficients had to be shifted to account for limitations in floating point representation
-    //// COMPUTED SCALARS: (-2.230816f,5.57704f, -0.461632f, -4.884592f );
-    ///  x^4, x^3 coefficients were adjusted
     let scalars = _mm_set_ps(-2.230816, 5.5770397, -0.4616319, -4.884592);
     //let scalars = _mm_castsi128_ps(_mm_set_epi32( 0xc00ec5b0, 0x40b2771c, 0xbeec5b04, 0xc09c4e94));
-    /// This is a series approximation of cos.  Error < 0.01% in the domain
+
     let vec2 = _mm_mul_ps(vec, vec);
     let mut result = _mm_fmadd_ps(vec2, _xxxx(scalars), _ico_one_ps());
 

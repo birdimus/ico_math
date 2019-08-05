@@ -1,5 +1,5 @@
 [package]
-name = "vecmath"
+name = "icomath"
 version = "0.1.0"
 authors = ["Brian Kehrer <brian.kehrer@gmail.com>"]
 edition = "2018"
@@ -9,3 +9,6 @@ edition = "2018"
 [lib]
 name = "ico_math"
 crate-type = ["staticlib", "cdylib"]
+
+[profile.test]
+opt-level = 3

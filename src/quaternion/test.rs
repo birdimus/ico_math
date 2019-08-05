@@ -1,8 +1,5 @@
-use super::*;
-
 #[cfg(test)]
 mod test {
-    use crate::float_vector::FloatVector;
     use crate::quaternion::Quaternion;
     use crate::vector3::Vector3;
     #[test]

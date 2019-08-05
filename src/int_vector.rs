@@ -1,7 +1,4 @@
 use crate::float_vector::FloatVector;
-use crate::sse_extensions::*;
-use crate::vector3_int::Vector3Int;
-use crate::vector4_int::Vector4Int;
 use core::arch::x86_64::*;
 use core::hash::Hash;
 use core::hash::Hasher;

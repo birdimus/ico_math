@@ -112,7 +112,7 @@ impl Vector2 {
             //x * cs, y * cs, x*sn, y*-sn
             let v2 = _mm_mul_ps(xyxy, masked_sncs);
 
-            ///x1 + y2, y1 + x2,
+            //x1 + y2, y1 + x2,
             //x = x * cs - y * sn;
             //y = x * sn + y * cs;
             return Vector2 {

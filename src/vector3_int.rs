@@ -28,11 +28,9 @@ impl Vector3Int {
     }
     #[inline(always)]
     pub fn set<T: Into<IntVector>>(value: T) -> Vector3Int {
-        unsafe {
-            return Vector3Int {
-                data: value.into().data,
-            };
-        }
+        return Vector3Int {
+            data: value.into().data,
+        };
     }
     #[inline(always)]
     pub fn zero() -> Vector3Int {
@@ -486,9 +484,7 @@ impl From<i32> for Vector3Int {
 impl From<IntVector> for Vector3Int {
     #[inline(always)]
     fn from(val: IntVector) -> Vector3Int {
-        unsafe {
-            return Vector3Int { data: val.data };
-        }
+        return Vector3Int { data: val.data };
     }
 }
 impl From<Vector2Int> for Vector3Int {
@@ -600,6 +596,6 @@ impl SIMDVector3 for Vector3Int {
         return unsafe { _mm_castsi128_ps(self.data) };
     }
     fn data_i(self) -> __m128i {
-        return unsafe { self.data };
+        return self.data;
     }
 }

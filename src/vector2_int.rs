@@ -28,11 +28,9 @@ impl Vector2Int {
     }
     #[inline(always)]
     pub fn set<T: Into<IntVector>>(value: T) -> Vector2Int {
-        unsafe {
-            return Vector2Int {
-                data: value.into().data,
-            };
-        }
+        return Vector2Int {
+            data: value.into().data,
+        };
     }
     #[inline(always)]
     pub fn zero() -> Vector2Int {
@@ -278,9 +276,7 @@ impl From<i32> for Vector2Int {
 impl From<IntVector> for Vector2Int {
     #[inline(always)]
     fn from(val: IntVector) -> Vector2Int {
-        unsafe {
-            return Vector2Int { data: val.data };
-        }
+        return Vector2Int { data: val.data };
     }
 }
 impl From<Vector3Int> for Vector2Int {
@@ -390,6 +386,6 @@ impl SIMDVector2 for Vector2Int {
         return unsafe { _mm_castsi128_ps(self.data) };
     }
     fn data_i(self) -> __m128i {
-        return unsafe { self.data };
+        return self.data;
     }
 }
