@@ -4,6 +4,7 @@ mod test {
     use crate::vector3::Vector3;
     use crate::vector3_bool::Vector3Bool;
     use crate::vector4::Vector4;
+    use crate::raw::RawVector_f32;
     #[test]
     fn new() {
         let a = Vector3::new(1.0, 2.0, 3.0);
@@ -27,6 +28,23 @@ mod test {
         assert_eq!(a.x(), 0.0);
         assert_eq!(a.y(), 0.0);
         assert_eq!(a.z(), 0.0);
+    }
+    #[test]
+    fn store() {
+        let a = Vector3::new(1.0, 2.0, 3.0);
+        let mut b = RawVector_f32{data:[0.0;4]};
+        a.store(&mut b);
+        assert_eq!(b.data[0], 1.0);
+        assert_eq!(b.data[1], 2.0);
+        assert_eq!(b.data[2], 3.0);
+        b.data[0] += 1.0;
+        b.data[3] += 1.0;
+        let c = Vector3::load(&b);
+        let e = c + a;
+        e.store(&mut b);
+        assert_eq!(b.data[0], 3.0);
+        assert_eq!(b.data[1], 4.0);
+        assert_eq!(b.data[2], 6.0);
     }
     #[test]
     fn set_x() {
@@ -433,6 +451,87 @@ mod test {
         assert_eq!(d.x(), 0.0);
         assert_eq!(d.y(), 0.0);
         assert_eq!(d.z(), -1000.0);
+    }
+     #[test]
+    fn approx_equal() {
+        {
+        let a = Vector3::new(1.0, 1.0, 1.0);
+        let b = Vector3::new(1.0 + 4.0*core::f32::EPSILON, 1.0 - 4.0*core::f32::EPSILON, 1.0 + 5.0*core::f32::EPSILON);
+
+        let mask = Vector3::approx_equal(a, b);
+        let c = Vector3::new(-1000.0, -1000.0, -1000.0);
+        let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), -1000.0);
+        assert_eq!(d.y(), -1000.0);
+        assert_eq!(d.z(), 0.0);
+        }
+        {
+        let a = Vector3::new(0.0, 0.0, 0.0);
+        let b = Vector3::new(core::f32::EPSILON, -core::f32::EPSILON, 2.0 * core::f32::EPSILON);
+
+        let mask = Vector3::approx_equal(a, b);
+        let c = Vector3::new(-1000.0, -1000.0, -1000.0);
+        let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), -1000.0);
+        assert_eq!(d.y(), -1000.0);
+        assert_eq!(d.z(), 0.0);
+        }
+    }
+    #[test]
+    fn definitely_greater() {
+        {
+        let a = Vector3::new(1.0, 1.0, 1.0);
+        let b = Vector3::new(1.0 + 4.0*core::f32::EPSILON, 1.0 - 4.0*core::f32::EPSILON, 1.0 + 5.0*core::f32::EPSILON);
+
+        let mask = Vector3::definitely_greater(a, b);
+        let c = Vector3::new(-1000.0, -1000.0, -1000.0);
+        let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), 0.0);
+        assert_eq!(d.y(), 0.0);
+        assert_eq!(d.z(), 0.0);
+        }
+        {
+        let a = Vector3::new(0.0, 0.0, 0.0);
+        let b = Vector3::new(core::f32::EPSILON, -core::f32::EPSILON, 2.0 * core::f32::EPSILON);
+
+        let mask = Vector3::definitely_greater(a, b);
+        let c = Vector3::new(-1000.0, -1000.0, -1000.0);
+        let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), 0.0);
+        assert_eq!(d.y(), 0.0);
+        assert_eq!(d.z(), 0.0);
+        }
+    }
+    #[test]
+    fn definitely_less() {
+        {
+        let a = Vector3::new(1.0, 1.0, 1.0);
+        let b = Vector3::new(1.0 + 4.0*core::f32::EPSILON, 1.0 - 4.0*core::f32::EPSILON, 1.0 + 5.0*core::f32::EPSILON);
+
+        let mask = Vector3::definitely_less(a, b);
+        let c = Vector3::new(-1000.0, -1000.0, -1000.0);
+        let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), 0.0);
+        assert_eq!(d.y(), 0.0);
+        assert_eq!(d.z(), -1000.0);
+        }
+        {
+        let a = Vector3::new(0.0, 0.0, 0.0);
+        let b = Vector3::new(core::f32::EPSILON, -core::f32::EPSILON, 2.0 * core::f32::EPSILON);
+
+        let mask = Vector3::definitely_less(a, b);
+        let c = Vector3::new(-1000.0, -1000.0, -1000.0);
+        let d = Vector3::and(c, mask);
+
+        assert_eq!(d.x(), 0.0);
+        assert_eq!(d.y(), 0.0);
+        assert_eq!(d.z(), -1000.0);
+        }
     }
     #[test]
     fn cross() {

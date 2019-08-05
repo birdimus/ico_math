@@ -58,16 +58,48 @@ mod test {
         assert_eq!(a.z(), 3.0);
         assert_eq!(a.w(), -11.0);
     }
+
+    #[test]
+    fn normalize() {
+        let mut a = Quaternion::new(0.0, 0.0, 0.0, 0.0);
+        a = a.normalize();
+        assert_eq!(a.x(), 0.0);
+        assert_eq!(a.y(), 0.0);
+        assert_eq!(a.z(), 0.0);
+        assert_eq!(a.w(), 1.0);
+    }
     #[test]
     fn angle_axis() {
-        let a = Vector3::new(0.0, 1.0, 0.0);
-        let b = 90.0f32.to_radians();
+        {
+            let a = Vector3::new(0.0, 1.0, 0.0);
+            let b = 90.0f32.to_radians();
 
-        let c = Quaternion::angle_axis(b, a);
-        assert_eq!(c.x(), 0.0);
-        assert_eq!(c.y(), 0.70710677);
-        assert_eq!(c.z(), 0.0);
-        assert_eq!(c.w(), 0.70710677);
+            let c = Quaternion::angle_axis(b, a);
+            assert_eq!(c.x(), 0.0);
+            assert_eq!(c.y(), 0.70710677);
+            assert_eq!(c.z(), 0.0);
+            assert_eq!(c.w(), 0.70710677);
+        }
+        {
+            let a = Vector3::new(0.0, 1.0, 0.0);
+            let b = -90.0f32.to_radians();
+
+            let c = Quaternion::angle_axis(b, a);
+            assert_eq!(c.x(), 0.0);
+            assert_eq!(c.y(), -0.70710677);
+            assert_eq!(c.z(), 0.0);
+            assert_eq!(c.w(), 0.70710677);
+        }
+        {
+            let a = Vector3::new(0.0, 1.0, 0.0);
+            let b = -270.0f32.to_radians();
+
+            let c = Quaternion::angle_axis(b, a);
+            assert_eq!(c.x(), 0.0);
+            assert_eq!(c.y(), -0.70710677);
+            assert_eq!(c.z(), 0.0);
+            assert_eq!(c.w(), -0.70710677);
+        }
     }
 
     #[test]
@@ -82,12 +114,24 @@ mod test {
             let result = Quaternion::lerp(from, to, 0.5f32);
             let ideal = Quaternion::angle_axis(b * 0.5f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.value() > 0.999);
+            assert!(proximity.value() > 0.999, "{} ", proximity.value());
+        }
+        {
+            let result = Quaternion::lerp(from, to, -0.5f32);
+            let ideal = Quaternion::angle_axis(b * -0.5f32, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(proximity.value() > 0.999, "{} ", proximity.value());
         }
 
         {
             let result = Quaternion::lerp(from, to, 0.7f32);
             let ideal = Quaternion::angle_axis(b * 0.7f32, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(proximity.value() > 0.999, "{} ", proximity.value());
+        }
+        {
+            let result = Quaternion::lerp(from, to, -0.7f32);
+            let ideal = Quaternion::angle_axis(b * -0.7f32, a);
             let proximity = Quaternion::dot(result, ideal);
             assert!(proximity.value() > 0.999, "{} ", proximity.value());
         }
@@ -112,6 +156,12 @@ mod test {
             let proximity = Quaternion::dot(result, ideal);
             assert!(proximity.value() == 1.0, "{} ", proximity.value());
         }
+        {
+            let result = Quaternion::lerp(from, to, -1.0f32);
+            let ideal = Quaternion::angle_axis(b * -1.0f32, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(proximity.value() == 1.0, "{} ", proximity.value());
+        }
     }
     #[test]
     fn slerp() {
@@ -125,12 +175,23 @@ mod test {
             let result = Quaternion::slerp(from, to, 0.5f32);
             let ideal = Quaternion::angle_axis(b * 0.5f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.value() > 0.999);
+            assert!(proximity.value() > 0.999, "{} ", proximity.value());
         }
-
+        {
+            let result = Quaternion::slerp(from, to, -0.5f32);
+            let ideal = Quaternion::angle_axis(b * -0.5f32, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(proximity.value() > 0.999, "{} ", proximity.value());
+        }
         {
             let result = Quaternion::slerp(from, to, 0.7f32);
             let ideal = Quaternion::angle_axis(b * 0.7f32, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(proximity.value() > 0.999, "{} ", proximity.value());
+        }
+        {
+            let result = Quaternion::slerp(from, to, -0.7f32);
+            let ideal = Quaternion::angle_axis(b * -0.7f32, a);
             let proximity = Quaternion::dot(result, ideal);
             assert!(proximity.value() > 0.999, "{} ", proximity.value());
         }
@@ -154,6 +215,24 @@ mod test {
             let ideal = to;
             let proximity = Quaternion::dot(result, ideal);
             assert!(proximity.value() == 1.0, "{} ", proximity.value());
+        }
+        {
+            let result = Quaternion::slerp(from, to, -1.0f32);
+            let ideal = Quaternion::angle_axis(b * -1.0f32, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(proximity.value() == 1.0, "{} ", proximity.value());
+        }
+        {
+            let result = Quaternion::slerp(from, to, 3.0f32);
+            let ideal = Quaternion::angle_axis(b * 3.0f32, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(proximity.value() > 0.999, "{} ", proximity.value());
+        }
+        {
+            let result = Quaternion::slerp(from, to, -3.5f32);
+            let ideal = Quaternion::angle_axis(b * -3.5f32, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(proximity.value() > 0.999, "{} ", proximity.value());
         }
     }
 

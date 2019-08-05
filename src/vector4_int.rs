@@ -40,6 +40,24 @@ impl Vector4Int {
             }
         }
     }
+    /// Load a value from aligned memory.
+    #[inline(always)]
+    pub fn load(raw : &RawVector_i32) -> Vector4Int{
+        unsafe{
+            // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+            return Vector4Int{data:_mm_load_si128(core::mem::transmute(raw))};
+            
+        }
+    }
+
+    /// Store a value to aligned memory.
+    #[inline(always)]
+    pub fn store(self,dst : &mut RawVector_i32){
+        unsafe{
+            // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+            _mm_store_si128(core::mem::transmute(dst), self.data);
+        }
+    }
     #[inline(always)]
     pub fn x(self) -> IntVector {
         return IntVector {

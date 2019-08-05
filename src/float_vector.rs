@@ -206,7 +206,43 @@ impl FloatVector {
             return _mm_movemask_epi8(_mm_castps_si128(_mm_cmplt_ps(self.data, v2.data))) != 0;
         }
     }
+    /// Relative and absolute epsilon comparison.  
+    /// Uses machine epsilon as absolute, and 4*machine epsilon for relative.
+    /// return abs(a - b) <= max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    /// Adapted from Knuth.  
+    /// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+    #[inline(always)]
+    pub fn approx_equal(self, v2: FloatVector) -> bool {
+        let delta = (self - v2).abs();
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(FloatVector::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.less_equal(epsilon_bound);
+    }
 
+    /// Adapted from Knuth with an added absolute epsilon
+    /// return (a - b) > max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    #[inline(always)]
+    pub fn definitely_greater(self, v2: FloatVector) -> bool {
+        let delta = self.sub(v2);
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(FloatVector::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.greater(epsilon_bound);
+    }
+    /// Adapted from Knuth with an added absolute epsilon
+    /// return (a - b) > max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    #[inline(always)]
+    pub fn definitely_less(self, v2: FloatVector) -> bool {
+        let delta = v2.sub(self);
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(FloatVector::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.greater(epsilon_bound);
+    }
     /// The absolute value of each component of the vector.
     #[inline(always)]
     pub fn abs(self) -> FloatVector {

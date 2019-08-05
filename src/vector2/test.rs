@@ -3,7 +3,7 @@ mod test {
     use crate::float_vector::FloatVector;
     use crate::vector2::Vector2;
     use crate::vector2_bool::Vector2Bool;
-
+    use crate::raw::RawVector_f32;
     #[test]
     fn new() {
         let a = Vector2::new(1.0, 2.0);
@@ -24,6 +24,21 @@ mod test {
 
         assert_eq!(a.x(), 0.0);
         assert_eq!(a.y(), 0.0);
+    }
+    #[test]
+    fn store() {
+        let a = Vector2::new(1.0, 2.0);
+        let mut b = RawVector_f32{data:[0.0;4]};
+        a.store(&mut b);
+        assert_eq!(b.data[0], 1.0);
+        assert_eq!(b.data[1], 2.0);
+        b.data[0] += 1.0;
+        b.data[3] += 1.0;
+        let c = Vector2::load(&b);
+        let e = c + a;
+        e.store(&mut b);
+        assert_eq!(b.data[0], 3.0);
+        assert_eq!(b.data[1], 4.0);
     }
     #[test]
     fn set_x() {

@@ -8,6 +8,7 @@ use crate::sse_extensions::*;
 use crate::structure::SIMDVector4;
 use crate::vector4_bool::Vector4Bool;
 use crate::vector4_int::Vector4Int;
+use crate::raw::RawVector_f32;
 
 /// A vector of 4 floats (x,y,z,w).
 #[derive(Copy, Clone, Debug)]
@@ -77,6 +78,25 @@ impl Vector4 {
         };
     }
 
+    /// Load a value from aligned memory.
+    #[inline(always)]
+    pub fn load(raw : &RawVector_f32) -> Vector4{
+    	unsafe{
+    		// Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+    		return Vector4{data:_mm_load_ps(core::mem::transmute(raw))};
+    		
+    	}
+    }
+
+    /// Store a value to aligned memory.
+    #[inline(always)]
+    pub fn store(self,dst : &mut RawVector_f32){
+    	unsafe{
+    		// Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+    		_mm_store_ps(core::mem::transmute(dst), self.data);
+    	}
+    }
+
     /// Set the x value of this vector, leaving the other components unchanged.
     #[inline(always)]
     pub fn set_x<T: Into<FloatVector>>(&mut self, value: T) {
@@ -111,6 +131,8 @@ impl Vector4 {
             self.data = _mm_shuffle_ps(self.data, v1, _ico_shuffle(0, 2, 1, 0));
         }
     }
+
+
 
     /// Compute the 4 element dot-product, and return it as a broadcast FloatVector.
     #[inline(always)]
@@ -257,6 +279,7 @@ impl Vector4 {
             }
         }
     }
+
     /// NotEquals, computed component-wise.  This compares bits, and is exact.
     #[inline(always)]
     pub fn not_equal(self, v2: Vector4) -> Vector4Bool {
@@ -301,6 +324,44 @@ impl Vector4 {
                 data: _mm_castps_si128(_mm_cmplt_ps(self.data, v2.data)),
             }
         }
+    }
+
+    /// Relative and absolute epsilon comparison.  
+    /// Uses machine epsilon as absolute, and 4*machine epsilon for relative.
+    /// return abs(a - b) <= max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    /// Adapted from Knuth.  
+    /// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+    #[inline(always)]
+    pub fn approx_equal(self, v2: Vector4) -> Vector4Bool {
+        let delta = (self - v2).abs();
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(Vector4::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.less_equal(epsilon_bound);
+    }
+
+    /// Adapted from Knuth with an added absolute epsilon
+    /// return (a - b) > max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    #[inline(always)]
+    pub fn definitely_greater(self, v2: Vector4) -> Vector4Bool {
+        let delta = self.sub(v2);
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(Vector4::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.greater(epsilon_bound);
+    }
+    /// Adapted from Knuth with an added absolute epsilon
+    /// return (a - b) > max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    #[inline(always)]
+    pub fn definitely_less(self, v2: Vector4) -> Vector4Bool {
+        let delta = v2.sub(self);
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(Vector4::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.greater(epsilon_bound);
     }
 
     /// The absolute value of each component of the vector.

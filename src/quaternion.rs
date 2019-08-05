@@ -4,6 +4,7 @@ use crate::vector3::Vector3;
 use crate::vector4::Vector4;
 use crate::vector4_bool::Vector4Bool;
 use core::arch::x86_64::*;
+use crate::raw::RawVector_f32;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, align(16))]
@@ -11,7 +12,10 @@ pub struct Quaternion {
     pub data: __m128,
 }
 
+// The value at which slerp switches to lerp.
 const SLERP_EPSILON: f32 = 0.9995;
+const EQUALITY_EPSILON_LOWER_BOUND: f32 = 1.0 - 0.000001;
+const EQUALITY_EPSILON_UPPER_BOUND: f32 = 1.0 + 0.000001;
 impl Quaternion {
     /// Construct a new quaternion from f32 components.  This may result in an invalid quaternion.
     #[inline(always)]
@@ -31,6 +35,24 @@ impl Quaternion {
                 data: _mm_set_ps(1.0f32, 0.0f32, 0.0f32, 0.0f32),
             }
         }
+    }
+    /// Load a value from aligned memory.
+    #[inline(always)]
+    pub fn load(raw : &RawVector_f32) -> Quaternion{
+    	unsafe{
+    		// Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+    		return Quaternion{data:_mm_load_ps(core::mem::transmute(raw))};
+    		
+    	}
+    }
+
+    /// Store a value to aligned memory.
+    #[inline(always)]
+    pub fn store(self,dst : &mut RawVector_f32){
+    	unsafe{
+    		// Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+    		_mm_store_ps(core::mem::transmute(dst), self.data);
+    	}
     }
 
     /// Construct a new quaternion from axis-angle format.
@@ -192,26 +214,11 @@ impl Quaternion {
         }
     }
 
-    // #[inline(always)]
-    // pub fn store(self,  dst : &mut RawVector_f32){
-    // 	let x : *mut f32 = &mut (dst.data[0]) as *mut f32;
-    // 	unsafe{
-    // 		_mm_store_ps(x, self.data);
-    // 	}
-    // }
-
-    // #[inline(always)]
-    // pub fn equals(v1 : Quaternion, v2 : Quaternion) -> bool{
-    // 	unsafe{
-    // 		let d = _mm_cmpeq_ps(v1.data, v2.data);
-    // 		return (_mm_movemask_ps(d) ) == 15;
-    // 	}
-    // }
     #[inline(always)]
-    pub fn dot(q1: Quaternion, q2: Quaternion) -> FloatVector {
+    pub fn dot(self, q2: Quaternion) -> FloatVector {
         unsafe {
             return FloatVector {
-                data: _ico_dp4_ps(q1.data, q2.data),
+                data: _ico_dp4_ps(self.data, q2.data),
             };
         }
     }
@@ -244,134 +251,92 @@ impl Quaternion {
     }
 
     #[inline(always)]
-    pub fn shortest_delta(from: Quaternion, to: Quaternion) -> Quaternion {
-        let dp = Quaternion::dot(from, to);
+    pub fn shortest_delta(self, to: Quaternion) -> Quaternion {
+        let dp = Quaternion::dot(self, to);
         let negative = Vector4::less(Vector4::from(dp), Vector4::zero());
         let sign_flip = Vector4::and(Vector4::set(SIGN_BIT), negative);
-        let shortest_from = Vector4::xor(Vector4::from(from), sign_flip);
+        let shortest_from = Vector4::xor(Vector4::from(self), sign_flip);
         let inv = Quaternion::inverse(Quaternion::from(shortest_from));
         return Quaternion::from(Vector4::mul(Vector4::from(inv), Vector4::from(to)));
-        // unsafe{
-        // 	let dp = _ico_dp4_ps(from.data, to.data);
-        // 	let negative = _mm_cmplt_ps(dp, _mm_setzero_ps());
-
-        // 	let flip_sign = _mm_and_ps(negative, _ico_signbit_ps());
-        // 	let shortest_from = _mm_xor_ps(from.data, flip_sign);
-        // 	return Quaternion{data : _mm_mul_ps(_mm_xor_ps(shortest_from, _mm_set_ps(0f32,SIGN_BIT,SIGN_BIT,SIGN_BIT)),to.data)};
-        // }
     }
 
     #[inline(always)]
-    pub fn angle(a: Quaternion, b: Quaternion) -> FloatVector {
-        let dot = Quaternion::dot(a, b);
+    pub fn angle(self, b: Quaternion) -> FloatVector {
+        let dot = Quaternion::dot(self, b);
         let val = dot.acos();
         return val.add(val);
-        // unsafe{
-        // 	let w = _mm_cvtss_f32(_ico_dp4_ps(a.data, b.data));
-        // 	return 2.0f32 * w.acos();
-        // }
     }
 
     /// A fast normalize (q = q / q.magnitude).  When the length is 0, this will divide by 0 - and may produce infinity or NaN.
     /// Only should be used if the Quaternion is known to be non-zero.
     #[inline(always)]
-    pub fn renormalize(q: Quaternion) -> Quaternion {
-        let len = FloatVector::sqrt(Quaternion::dot(q, q));
-        return Quaternion::from(Vector4::from(q) / len);
-        // unsafe{
-        // 		let sqr_length = _ico_dp4_ps(q.data, q.data);
-        // 	return Quaternion{data : _mm_div_ps(q.data, _mm_sqrt_ps(sqr_length) )};
-        // }
+    pub fn renormalize(self) -> Quaternion {
+        let len = FloatVector::sqrt(Quaternion::dot(self, self));
+        return Quaternion::from(Vector4::from(self) / len);
     }
 
     /// A safe normalize.  If the quaternion is 0, returns Identity.
     #[inline(always)]
-    pub fn normalize(q: Quaternion) -> Quaternion {
-        let len = FloatVector::sqrt(Quaternion::dot(q, q));
-        let scaled = Vector4::from(q) / len;
+    pub fn normalize(self) -> Quaternion {
+        let len = FloatVector::sqrt(Quaternion::dot(self, self));
+        let scaled = Vector4::from(self) / len;
         let mask = Vector4::less(scaled.abs(), Vector4::set(core::f32::INFINITY));
         return Quaternion::from(Vector4::select(
             Vector4::from(Quaternion::identity()),
             scaled,
             mask,
         ));
-        // unsafe{
-        // 		let sqr_length = _ico_dp4_ps(q.data, q.data);
-        // 		//let mask = _mm_cmpgt_ps(sqr_length, _mm_set1_ps(NORMALIZATION_EPSILON));
-        // 		let scaled = _mm_div_ps(q.data, _mm_sqrt_ps(sqr_length) );
-        // 		// This will return false if the value is infinity, or NaN.
-        // 		let mask = _mm_cmplt_ps(_ico_abs_ps(scaled), _mm_set1_ps(core::f32::INFINITY));
-        // 	return Quaternion{data : _ico_select_ps(scaled,_mm_set_ps(1.0f32, 0.0f32, 0.0f32, 0.0f32), mask)};
-        // }
+    }
+    /// Choose component wise between A and B based on the mask.  False = A, True = B.
+    #[inline(always)]
+    pub fn select(self, v2: Quaternion, mask: Vector4Bool) -> Quaternion {
+        unsafe {
+            return Quaternion {
+                data: _ico_select_ps(self.data, v2.data, _mm_castsi128_ps(mask.data)),
+            };
+        }
     }
 
     #[inline(always)]
-    pub fn lerp<T: Into<FloatVector>>(from: Quaternion, to: Quaternion, t: T) -> Quaternion {
-        /*  Correct implementation
-        float cosT = q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;
-        ct = cosT;
-        q2.x = q2.x * t;
-        q2.y = q2.y * t;
-        q2.z = q2.z * t;
-        q2.w = q2.w * t;
-        float inv_t = 1.0f - t;
-        if(cosT < 0.0f){
-            inv_t = -inv_t;
-        }
-        Quaternion result = q1;
-        result.x = result.x * inv_t + q2.x;
-        result.y = result.y * inv_t + q2.y;
-        result.z = result.z * inv_t + q2.z;
-        result.w = result.w * inv_t + q2.w;
+    pub fn lerp<T: Into<FloatVector>>(self, to: Quaternion, t: T) -> Quaternion {
+        // If the sign of T is negative, flip this around.
+        let t_tmp = t.into();
+        let t_negative = Vector4::from(t_tmp).less(Vector4::zero());
 
-        float mag = Mathf.Sqrt(
-            result.x * result.x + result.y * result.y + result.z * result.z + result.w*result.w);
-        result.x /= mag;
-        result.y /= mag;
-        result.z /= mag;
-        result.w /= mag;
-        return result;
-        */
-        let cos_theta = Quaternion::dot(from, to);
+        let sign_flipped_to = Quaternion::select(to, to.inverse(), t_negative);
+        let t_vec = t_tmp.abs();
+
+        let cos_theta = Quaternion::dot(self, sign_flipped_to);
+        // Lerp in the shorter direction.  This maybe should be optional.
         let sign_flip = Vector4::and(Vector4::set(SIGN_BIT), Vector4::from(cos_theta));
 
-        let t_vec = t.into();
-        let dest = Vector4::from(to) * t_vec;
+        let dest = Vector4::from(sign_flipped_to) * t_vec;
         let inv_t_vec = FloatVector::from(1.0f32) - t_vec;
         let f_vec = Vector4::xor(sign_flip, Vector4::from(inv_t_vec));
-        let result = Quaternion::from(Vector4::mul_add(Vector4::from(from), f_vec, dest));
+        let result = Quaternion::from(Vector4::mul_add(Vector4::from(self), f_vec, dest));
+
         return Quaternion::normalize(result);
-        // unsafe{
-        // let cos_theta = _ico_dp4_ps(from.data, to.data);
-
-        // let t_vec = _mm_set1_ps(t);
-        // let dest = _mm_mul_ps(to.data, t_vec);
-
-        // 1-t
-        // let inv_t_vec = _mm_sub_ps(_ico_one_ps(), t_vec);
-
-        //flip sign based on shortest path
-        //if cos is negative, negate the invBlend
-        // let sign_flip = _mm_and_ps(_ico_signbit_ps(), cos_theta);
-        // let f_vec = _mm_xor_ps(sign_flip, inv_t_vec);
-
-        // let result =   Quaternion{data: _mm_fmadd_ps(from.data, f_vec, dest)};
-        // return Quaternion::normalize(result);
     }
 
+    /// Spherical linear interpolation.  This one in particular is probably slow.  
+    /// It uses SIMD approximations for acos and sin, however, it could almost certainly be improved.
     #[inline(always)]
-    pub fn slerp<T: Into<f32>>(from: Quaternion, to: Quaternion, t: T) -> Quaternion {
-        let t_vec = t.into();
+    pub fn slerp<T: Into<f32>>(self, to: Quaternion, t: T) -> Quaternion {
+        let t_tmp = t.into();
+        let t_negative = Vector4Bool::from(t_tmp < 0.0f32);
+        let sign_flipped_to = Quaternion::select(to, to.inverse(), t_negative);
+        let t_vec = t_tmp.abs();
+
         let inv_t_vec = 1.0f32 - t_vec;
-        let cos_theta = Quaternion::dot(from, to);
+        let cos_theta = Quaternion::dot(self, sign_flipped_to);
         let sign_flip = FloatVector::and(FloatVector::new(SIGN_BIT), cos_theta);
         let abs_cos_theta = FloatVector::xor(sign_flip, cos_theta);
 
         // If we are too close to parallel, switch to lerp.  Also if 1 is 0 or 1 so we can get an exact result.
-        if abs_cos_theta.value() > SLERP_EPSILON || t_vec == 0.0 || t_vec == 1.0 || t_vec == -1.0 {
-            let dest = Vector4::from(to) * t_vec;
+        if abs_cos_theta.value() > SLERP_EPSILON || t_vec == 0.0 || t_vec == 1.0 {
+            let dest = Vector4::from(sign_flipped_to) * t_vec;
             let f_vec = Vector4::xor(Vector4::from(inv_t_vec), sign_flip);
-            let result = Quaternion::from(Vector4::mul_add(Vector4::from(from), f_vec, dest));
+            let result = Quaternion::from(Vector4::mul_add(Vector4::from(self), f_vec, dest));
             return Quaternion::normalize(result);
         }
         let theta = cos_theta.acos();
@@ -380,38 +345,16 @@ impl Quaternion {
         let sin_div = sins / sins.x();
 
         let a_scale = FloatVector::xor(sign_flip, sin_div.z());
-        let dest = Vector4::from(to) * sin_div.y();
-        let result = Vector4::mul_add(Vector4::from(from), Vector4::from(a_scale), dest);
+        let dest = Vector4::from(sign_flipped_to) * sin_div.y();
+        let result = Vector4::mul_add(Vector4::from(self), Vector4::from(a_scale), dest);
         return Quaternion::from(result);
-        // unsafe{
-        //    	let cos_theta = _ico_dp4_ps(from.data, to.data);
-        //    	let sign_flip = _mm_and_ps(_ico_signbit_ps(), cos_theta);
-        //    	let abs_cos_theta = _mm_xor_ps(sign_flip, cos_theta);
+    }
 
-        //    	// If we are too close to parallel, switch to lerp
-        //    	if(_mm_cvtss_f32(abs_cos_theta) > SLERP_EPSILON){
-        //    		let t_vec = _mm_set1_ps(t);
-        //    		let inv_t_vec = _mm_sub_ps(_ico_one_ps(), t_vec);
-        //    		let f_vec = _mm_xor_ps(sign_flip, inv_t_vec);
-        // 		let dest = _mm_mul_ps(to.data, t_vec);
-        // 		let result =   Quaternion{data: _mm_fmadd_ps(from.data, f_vec, dest)};
-        // 		return Quaternion::normalize(result);
-        //    	}
-
-        //    	let cos_theta_f = _mm_cvtss_f32(cos_theta);
-        //    	let theta : f32 = cos_theta_f.acos();
-
-        //    	//TODO: use sse for fast sines all at once
-        // 	let sin_theta : f32 = (1.0 - cos_theta_f*cos_theta_f).sqrt();//theta.sin();
-        // 	let a = ((1.0f32-t) * theta).sin() / sin_theta;
-        // 	let b = _mm_set1_ps((t * theta).sin() / sin_theta);
-
-        // 	// again this uses the flipped sign.
-        // 	let a_scale = _mm_xor_ps(sign_flip, _mm_set1_ps(a));
-        // 	let dest = _mm_mul_ps(to.data, b);
-        // 	let result =   Quaternion{data: _mm_fmadd_ps(from.data, a_scale, dest)};
-        // 	return result;
-        // }
+    /// Are these quaternions approximately the same, within ~0.163 degrees
+    #[inline(always)]
+    pub fn approx_equal(self, to: Quaternion) -> bool {
+        let v = self.dot(to).abs().value();
+        return v > EQUALITY_EPSILON_LOWER_BOUND && v < EQUALITY_EPSILON_UPPER_BOUND;
     }
 }
 

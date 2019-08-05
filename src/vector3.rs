@@ -6,6 +6,7 @@ use crate::vector3_bool::Vector3Bool;
 use crate::vector3_int::Vector3Int;
 use crate::vector4::Vector4;
 use core::arch::x86_64::*;
+use crate::raw::RawVector_f32;
 
 /// A vector of 3 floats (x,y,z).
 #[derive(Copy, Clone, Debug)]
@@ -65,6 +66,25 @@ impl Vector3 {
         return FloatVector {
             data: self.zzzz().data,
         };
+    }
+
+    /// Load a value from aligned memory.
+    #[inline(always)]
+    pub fn load(raw : &RawVector_f32) -> Vector3{
+      unsafe{
+        // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+        return Vector3{data:_mm_load_ps(core::mem::transmute(raw))};
+        
+      }
+    }
+
+    /// Store a value to aligned memory.
+    #[inline(always)]
+    pub fn store(self,dst : &mut RawVector_f32){
+      unsafe{
+        // Use the sledgehammer cast here.  It's fine because RawVector is aligned and c-like.
+        _mm_store_ps(core::mem::transmute(dst), self.data);
+      }
     }
 
     /// Set the x value of this vector, leaving the other components unchanged.
@@ -298,6 +318,44 @@ impl Vector3 {
                 data: _mm_castps_si128(_mm_cmplt_ps(self.data, v2.data)),
             }
         }
+    }
+
+    /// Relative and absolute epsilon comparison.  
+    /// Uses machine epsilon as absolute, and 4*machine epsilon for relative.
+    /// return abs(a - b) <= max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    /// Adapted from Knuth.  
+    /// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+    #[inline(always)]
+    pub fn approx_equal(self, v2: Vector3) -> Vector3Bool {
+        let delta = (self - v2).abs();
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(Vector3::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.less_equal(epsilon_bound);
+    }
+
+    /// Adapted from Knuth with an added absolute epsilon
+    /// return (a - b) > max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    #[inline(always)]
+    pub fn definitely_greater(self, v2: Vector3) -> Vector3Bool {
+        let delta = self.sub(v2);
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(Vector3::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.greater(epsilon_bound);
+    }
+    /// Adapted from Knuth with an added absolute epsilon
+    /// return (a - b) > max(machine_epsilon, (max( abs(a), abs(b) ) * relative_epsilon);
+    #[inline(always)]
+    pub fn definitely_less(self, v2: Vector3) -> Vector3Bool {
+        let delta = v2.sub(self);
+        let abs_a = self.abs();
+        let abs_b = v2.abs();
+        let epsilon_bound = (abs_a.max(abs_b) * RELATIVE_COMPARISON_EPSILON)
+            .max(Vector3::from(ABSOLUTE_COMPARISON_EPSILON));
+        return delta.greater(epsilon_bound);
     }
 
     /// The absolute value of each component of the vector.
