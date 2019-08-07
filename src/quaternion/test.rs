@@ -243,4 +243,29 @@ mod test {
         }
     }
 
+    #[inline(always)]
+    pub fn euler_xyz() {
+
+        let a = Vector3::new(45.0f32.to_radians(), 90.0f32.to_radians(), 30.0f32.to_radians());
+        let q = Quaternion::euler_xyz(a);
+
+        let up = Vector3::new(0.0, 1.0, 0.0);
+        let b = 90.0f32.to_radians();
+        let mut c = Quaternion::angle_axis(b, up);
+
+        let right = Vector3::new(1.0, 0.0, 0.0);
+        let b2 = 45.0f32.to_radians();
+        c *= Quaternion::angle_axis(b2, right);
+
+        let back = Vector3::new(0.0, 0.0, 1.0);
+        let b3 = 45.0f32.to_radians();
+        c *= Quaternion::angle_axis(b3, back);
+
+        assert_eq!(c.x(), q.x());
+        assert_eq!(c.y(), q.y());
+        assert_eq!(c.z(), q.z());
+        assert_eq!(c.w(), q.w());
+
+    }   
+
 }

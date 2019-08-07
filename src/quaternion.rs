@@ -360,6 +360,40 @@ impl Quaternion {
         return Quaternion::from(result);
     }
 
+    #[inline(always)]
+    fn euler_xyz_normalized(sin_value: Vector3, cos_value : Vector3) -> Quaternion {
+
+    	unsafe{
+		    let sZcZ = _mm_unpackhi_ps(sin_value.data, cos_value.data);
+		    let sZcZ = _mm_movelh_ps(sZcZ, sZcZ);//scsc
+		    let ssccY = _mm_unpacklo_ps(sin_value.data, sin_value.data); //sxcxsycy
+		    let ssccY = _mm_unpackhi_ps(ssccY,ssccY); //sscc
+		    // let sX = _xxxx(sinRad.data);
+		    // let cX = _xxxx(cosRad.data);
+		    
+		    let combined = _mm_mul_ps(ssccY, sZcZ);
+		    //__m128 xyzw = _mm_mul_ps(combined, cX);
+		    let wzyx = _mm_mul_ps(combined, sin_value.x().data);
+		    
+		    let wzyx_2 = _mm_xor_ps(_mm_set_ps(0.0, SIGN_BIT, 0.0, SIGN_BIT),wzyx);
+		    
+		    let result = _mm_fmadd_ps(combined, cos_value.x().data, _wzyx(wzyx_2));
+		    return Quaternion{data: result};
+		}
+	    
+	}
+
+	#[inline(always)]
+    pub fn euler_xyz(radians: Vector3) -> Quaternion {
+    	
+    	let sin = radians.sin();
+    	let cos = radians.cos();
+    	return Quaternion::euler_xyz_normalized(sin, cos);
+    }
+
+
+
+
     /// Are these quaternions approximately the same, within ~0.163 degrees
     #[inline(always)]
     pub fn approx_equal(self, to: Quaternion) -> bool {
@@ -382,7 +416,12 @@ impl core::ops::Mul<Quaternion> for Quaternion {
         return Quaternion::mul(self, _rhs);
     }
 }
-
+impl core::ops::MulAssign<Quaternion> for Quaternion {
+    #[inline(always)]
+    fn mul_assign(&mut self, _rhs: Quaternion) {
+        *self = Quaternion::mul(*self, _rhs);
+    }
+}
 impl core::ops::Mul<Vector3> for Quaternion {
     type Output = Vector3;
     #[inline]
