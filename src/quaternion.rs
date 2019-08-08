@@ -364,14 +364,14 @@ impl Quaternion {
     fn euler_xyz_normalized(sin_value: Vector3, cos_value : Vector3) -> Quaternion {
 
     	unsafe{
-		    let sZcZ = _mm_unpackhi_ps(sin_value.data, cos_value.data);
-		    let sZcZ = _mm_movelh_ps(sZcZ, sZcZ);//scsc
-		    let ssccY = _mm_unpacklo_ps(sin_value.data, sin_value.data); //sxcxsycy
-		    let ssccY = _mm_unpackhi_ps(ssccY,ssccY); //sscc
+		    let sz_cz_0 = _mm_unpackhi_ps(sin_value.data, cos_value.data);
+		    let sz_cz = _mm_movelh_ps(sz_cz_0, sz_cz_0);//scsc
+		    let sscc_y_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data); //sxcxsycy
+		    let sscc_y = _mm_unpackhi_ps(sscc_y_0,sscc_y_0); //sscc
 		    // let sX = _xxxx(sinRad.data);
 		    // let cX = _xxxx(cosRad.data);
 		    
-		    let combined = _mm_mul_ps(ssccY, sZcZ);
+		    let combined = _mm_mul_ps(sscc_y, sz_cz);
 		    //__m128 xyzw = _mm_mul_ps(combined, cX);
 		    let wzyx = _mm_mul_ps(combined, sin_value.x().data);
 		    
@@ -379,15 +379,14 @@ impl Quaternion {
 		    
 		    let result = _mm_fmadd_ps(combined, cos_value.x().data, _wzyx(wzyx_2));
 		    return Quaternion{data: result};
-		}
-	    
+		} 
 	}
 
 	#[inline(always)]
     pub fn euler_xyz(radians: Vector3) -> Quaternion {
-    	
-    	let sin = radians.sin();
-    	let cos = radians.cos();
+    	let half_angle = radians * 0.5;
+    	let sin = half_angle.sin();
+    	let cos = half_angle.cos();
     	return Quaternion::euler_xyz_normalized(sin, cos);
     }
 
