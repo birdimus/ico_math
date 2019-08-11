@@ -7,7 +7,7 @@ license = "MPL-2.0"
 repository = "https://github.com/birdimus/ico_math"
 description = "An opinionated SIMD Math Library for games and graphics in Rust."
 keywords = ["math", "SIMD", "vector", "game", "quaternion"]
-
+readme = "README.md"
 [dependencies]
 
 [lib]
