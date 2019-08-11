@@ -8,6 +8,7 @@
 #[cfg(test)]
 mod test {
     use crate::quaternion::Quaternion;
+    use crate::quaternion::RotationOrder;
     use crate::vector3::Vector3;
     #[test]
     fn new() {
@@ -245,11 +246,13 @@ mod test {
 
     #[test]
     fn euler_xyz() {
-
-        let a = Vector3::new(45.0f32.to_radians(), 90.0f32.to_radians(), 30.0f32.to_radians());
+        let a = Vector3::new(
+            45.0f32.to_radians(),
+            90.0f32.to_radians(),
+            30.0f32.to_radians(),
+        );
         //let a = Vector3::new(45.0f32.to_radians(), 0.0,0.0);
-        let q = Quaternion::euler_xyz(a);
-
+        let q = Quaternion::euler(a, RotationOrder::XYZ);
 
         let right = Vector3::new(1.0, 0.0, 0.0);
         let b2 = 45.0f32.to_radians();
@@ -259,16 +262,137 @@ mod test {
         let b = 90.0f32.to_radians();
         c *= Quaternion::angle_axis(b, up);
 
+        let back = Vector3::new(0.0, 0.0, 1.0);
+        let b3 = 30.0f32.to_radians();
+        c *= Quaternion::angle_axis(b3, back);
+
+        let cmp = c.dot(q).value();
+        assert!(cmp > 0.999 && cmp < 1.001, "{} ", cmp);
+    }
+    #[test]
+    fn euler_xzy() {
+        let a = Vector3::new(
+            45.0f32.to_radians(),
+            90.0f32.to_radians(),
+            30.0f32.to_radians(),
+        );
+        //let a = Vector3::new(45.0f32.to_radians(), 0.0,0.0);
+        let q = Quaternion::euler(a, RotationOrder::XZY);
+
+        let right = Vector3::new(1.0, 0.0, 0.0);
+        let b2 = 45.0f32.to_radians();
+        let mut c = Quaternion::angle_axis(b2, right);
 
         let back = Vector3::new(0.0, 0.0, 1.0);
         let b3 = 30.0f32.to_radians();
         c *= Quaternion::angle_axis(b3, back);
 
-        assert_eq!(c.x(), q.x());
-        assert_eq!(c.y(), q.y());
-        assert_eq!(c.z(), q.z());
-        assert_eq!(c.w(), q.w());
+        let up = Vector3::new(0.0, 1.0, 0.0);
+        let b = 90.0f32.to_radians();
+        c *= Quaternion::angle_axis(b, up);
 
-    }   
+        let cmp = c.dot(q).value();
+        assert!(cmp > 0.999 && cmp < 1.001, "{} ", cmp);
+    }
+    #[test]
+    fn euler_yxz() {
+        let a = Vector3::new(
+            45.0f32.to_radians(),
+            90.0f32.to_radians(),
+            30.0f32.to_radians(),
+        );
+        //let a = Vector3::new(45.0f32.to_radians(), 0.0,0.0);
+        let q = Quaternion::euler(a, RotationOrder::YXZ);
+
+        let up = Vector3::new(0.0, 1.0, 0.0);
+        let b = 90.0f32.to_radians();
+        let mut c = Quaternion::angle_axis(b, up);
+
+        let right = Vector3::new(1.0, 0.0, 0.0);
+        let b2 = 45.0f32.to_radians();
+        c *= Quaternion::angle_axis(b2, right);
+
+        let back = Vector3::new(0.0, 0.0, 1.0);
+        let b3 = 30.0f32.to_radians();
+        c *= Quaternion::angle_axis(b3, back);
+
+        let cmp = c.dot(q).value();
+        assert!(cmp > 0.999 && cmp < 1.001, "{} ", cmp);
+    }
+    #[test]
+    fn euler_yzx() {
+        let a = Vector3::new(
+            45.0f32.to_radians(),
+            90.0f32.to_radians(),
+            30.0f32.to_radians(),
+        );
+        //let a = Vector3::new(45.0f32.to_radians(), 0.0,0.0);
+        let q = Quaternion::euler(a, RotationOrder::YZX);
+
+        let up = Vector3::new(0.0, 1.0, 0.0);
+        let b = 90.0f32.to_radians();
+        let mut c = Quaternion::angle_axis(b, up);
+
+        let back = Vector3::new(0.0, 0.0, 1.0);
+        let b3 = 30.0f32.to_radians();
+        c *= Quaternion::angle_axis(b3, back);
+
+        let right = Vector3::new(1.0, 0.0, 0.0);
+        let b2 = 45.0f32.to_radians();
+        c *= Quaternion::angle_axis(b2, right);
+
+        let cmp = c.dot(q).value();
+        assert!(cmp > 0.999 && cmp < 1.001, "{} ", cmp);
+    }
+    #[test]
+    fn euler_zxy() {
+        let a = Vector3::new(
+            45.0f32.to_radians(),
+            90.0f32.to_radians(),
+            30.0f32.to_radians(),
+        );
+        //let a = Vector3::new(45.0f32.to_radians(), 0.0,0.0);
+        let q = Quaternion::euler(a, RotationOrder::ZXY);
+
+        let back = Vector3::new(0.0, 0.0, 1.0);
+        let b3 = 30.0f32.to_radians();
+        let mut c = Quaternion::angle_axis(b3, back);
+
+        let right = Vector3::new(1.0, 0.0, 0.0);
+        let b2 = 45.0f32.to_radians();
+        c *= Quaternion::angle_axis(b2, right);
+
+        let up = Vector3::new(0.0, 1.0, 0.0);
+        let b = 90.0f32.to_radians();
+        c *= Quaternion::angle_axis(b, up);
+
+        let cmp = c.dot(q).value();
+        assert!(cmp > 0.999 && cmp < 1.001, "{} ", cmp);
+    }
+    #[test]
+    fn euler_zyx() {
+        let a = Vector3::new(
+            45.0f32.to_radians(),
+            90.0f32.to_radians(),
+            30.0f32.to_radians(),
+        );
+        //let a = Vector3::new(45.0f32.to_radians(), 0.0,0.0);
+        let q = Quaternion::euler(a, RotationOrder::ZYX);
+
+        let back = Vector3::new(0.0, 0.0, 1.0);
+        let b3 = 30.0f32.to_radians();
+        let mut c = Quaternion::angle_axis(b3, back);
+
+        let up = Vector3::new(0.0, 1.0, 0.0);
+        let b = 90.0f32.to_radians();
+        c *= Quaternion::angle_axis(b, up);
+
+        let right = Vector3::new(1.0, 0.0, 0.0);
+        let b2 = 45.0f32.to_radians();
+        c *= Quaternion::angle_axis(b2, right);
+
+        let cmp = c.dot(q).value();
+        assert!(cmp > 0.999 && cmp < 1.001, "{} ", cmp);
+    }
 
 }

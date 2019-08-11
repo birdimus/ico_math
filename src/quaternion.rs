@@ -19,6 +19,15 @@ pub struct Quaternion {
     pub data: __m128,
 }
 
+pub enum RotationOrder {
+    XYZ,
+    XZY,
+    YXZ,
+    YZX,
+    ZXY,
+    ZYX,
+}
+
 // The value at which slerp switches to lerp.
 const SLERP_EPSILON: f32 = 0.9995;
 const EQUALITY_EPSILON_LOWER_BOUND: f32 = 1.0 - 0.000001;
@@ -340,7 +349,8 @@ impl Quaternion {
         let sign_flip = FloatVector::and(FloatVector::new(SIGN_BIT), cos_theta);
         let abs_cos_theta = FloatVector::xor(sign_flip, cos_theta);
 
-        let lerp = t_vec == 0.0 || t_vec == 1.0 || abs_cos_theta.greater(FloatVector::new(SLERP_EPSILON));
+        let lerp =
+            t_vec == 0.0 || t_vec == 1.0 || abs_cos_theta.greater(FloatVector::new(SLERP_EPSILON));
 
         // If we are too close to parallel, switch to lerp.  Also if 1 is 0 or 1 so we can get an exact result.
         if lerp {
@@ -361,37 +371,120 @@ impl Quaternion {
     }
 
     #[inline(always)]
-    fn euler_xyz_normalized(sin_value: Vector3, cos_value : Vector3) -> Quaternion {
+    fn euler_xyz_normalized(sin_value: Vector3, cos_value: Vector3) -> Quaternion {
+        unsafe {
+            let sz_cz_0 = _mm_unpackhi_ps(sin_value.data, cos_value.data);
+            let sz_cz = _mm_movelh_ps(sz_cz_0, sz_cz_0); //scsc
+            let sscc_y_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data); //sxcxsycy
+            let sscc_y = _mm_unpackhi_ps(sscc_y_0, sscc_y_0); //sscc
 
-    	unsafe{
-		    let sz_cz_0 = _mm_unpackhi_ps(sin_value.data, cos_value.data);
-		    let sz_cz = _mm_movelh_ps(sz_cz_0, sz_cz_0);//scsc
-		    let sscc_y_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data); //sxcxsycy
-		    let sscc_y = _mm_unpackhi_ps(sscc_y_0,sscc_y_0); //sscc
-		    // let sX = _xxxx(sinRad.data);
-		    // let cX = _xxxx(cosRad.data);
-		    
-		    let combined = _mm_mul_ps(sscc_y, sz_cz);
-		    //__m128 xyzw = _mm_mul_ps(combined, cX);
-		    let wzyx = _mm_mul_ps(combined, sin_value.x().data);
-		    
-		    let wzyx_2 = _mm_xor_ps(_mm_set_ps(0.0, SIGN_BIT, 0.0, SIGN_BIT),wzyx);
-		    
-		    let result = _mm_fmadd_ps(combined, cos_value.x().data, _wzyx(wzyx_2));
-		    return Quaternion{data: result};
-		} 
-	}
+            let combined = _mm_mul_ps(sscc_y, sz_cz);
+            let wzyx = _mm_mul_ps(combined, sin_value.x().data);
+            let wzyx_2 = _mm_xor_ps(_mm_set_ps(0.0, SIGN_BIT, 0.0, SIGN_BIT), wzyx);
 
-	#[inline(always)]
-    pub fn euler_xyz(radians: Vector3) -> Quaternion {
-    	let half_angle = radians * 0.5;
-    	let sin = half_angle.sin();
-    	let cos = half_angle.cos();
-    	return Quaternion::euler_xyz_normalized(sin, cos);
+            let result = _mm_fmadd_ps(combined, cos_value.x().data, _wzyx(wzyx_2));
+            return Quaternion { data: result };
+        }
     }
 
+    #[inline(always)]
+    fn euler_xzy_normalized(sin_value: Vector3, cos_value: Vector3) -> Quaternion {
+        unsafe {
+            let sz_cz_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data);
+            let sz_cz = _mm_movelh_ps(sz_cz_0, sz_cz_0); //scsc
+            let sscc_y_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data); //sxcxsycy
+            let sscc_y = _mm_unpackhi_ps(sscc_y_0, sscc_y_0); //sscc
 
+            let combined = _mm_mul_ps(sscc_y, sz_cz);
+            let wzyx = _mm_mul_ps(combined, sin_value.z().data);
+            let wzyx_2 = _mm_xor_ps(_mm_set_ps(0.0, SIGN_BIT, SIGN_BIT, 0.0), wzyx);
 
+            let result = _mm_fmadd_ps(_zyxw(combined), cos_value.z().data, _yzwx(wzyx_2));
+            return Quaternion { data: result };
+        }
+    }
+
+    #[inline(always)]
+    fn euler_yxz_normalized(sin_value: Vector3, cos_value: Vector3) -> Quaternion {
+        unsafe {
+            let sz_cz_0 = _mm_unpackhi_ps(sin_value.data, cos_value.data);
+            let sz_cz = _mm_movelh_ps(sz_cz_0, sz_cz_0); //scsc
+            let sscc_y_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data); //sxcxsycy
+            let sscc_y = _mm_unpackhi_ps(sscc_y_0, sscc_y_0); //sscc
+
+            let combined = _mm_mul_ps(sscc_y, sz_cz);
+            let wzyx = _mm_mul_ps(combined, sin_value.x().data);
+            let wzyx_2 = _mm_xor_ps(_mm_set_ps(0.0, SIGN_BIT, SIGN_BIT, 0.0), wzyx);
+
+            let result = _mm_fmadd_ps(combined, cos_value.x().data, _wzyx(wzyx_2));
+            return Quaternion { data: result };
+        }
+    }
+
+    #[inline(always)]
+    fn euler_yzx_normalized(sin_value: Vector3, cos_value: Vector3) -> Quaternion {
+        unsafe {
+            let sz_cz_0 = _mm_unpackhi_ps(sin_value.data, cos_value.data);
+            let sz_cz = _mm_movelh_ps(sz_cz_0, sz_cz_0); //scsc
+            let sscc_y_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data); //sxcxsycy
+            let sscc_y = _mm_unpackhi_ps(sscc_y_0, sscc_y_0); //sscc
+
+            let combined = _mm_mul_ps(sscc_y, sz_cz);
+            let wzyx = _mm_mul_ps(combined, sin_value.x().data);
+            let wzyx_2 = _mm_xor_ps(_mm_set_ps(0.0, 0.0, SIGN_BIT, SIGN_BIT), wzyx);
+
+            let result = _mm_fmadd_ps(combined, cos_value.x().data, _wzyx(wzyx_2));
+            return Quaternion { data: result };
+        }
+    }
+    #[inline(always)]
+    fn euler_zxy_normalized(sin_value: Vector3, cos_value: Vector3) -> Quaternion {
+        unsafe {
+            let sz_cz_0 = _mm_unpackhi_ps(sin_value.data, cos_value.data);
+            let sz_cz = _mm_movelh_ps(sz_cz_0, sz_cz_0); //scsc
+            let sz_cz_b = _mm_xor_ps(_mm_set_ps(0.0, 0.0, 0.0, SIGN_BIT), sz_cz);
+            let sscc_y_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data); //sxcxsycy
+            let sscc_y = _mm_unpackhi_ps(sscc_y_0, sscc_y_0); //sscc
+
+            let combined = _mm_mul_ps(sscc_y, sz_cz_b);
+            let wzyx = _mm_mul_ps(combined, sin_value.x().data);
+
+            let result = _mm_fmadd_ps(combined, cos_value.x().data, _wzyx(wzyx));
+            return Quaternion { data: result };
+        }
+    }
+    #[inline(always)]
+    fn euler_zyx_normalized(sin_value: Vector3, cos_value: Vector3) -> Quaternion {
+        unsafe {
+            let sz_cz_0 = _mm_unpackhi_ps(sin_value.data, cos_value.data);
+            let sz_cz = _mm_movelh_ps(sz_cz_0, sz_cz_0); //scsc
+            let sscc_y_0 = _mm_unpacklo_ps(sin_value.data, cos_value.data); //sxcxsycy
+            let sscc_y = _mm_unpacklo_ps(sscc_y_0, sscc_y_0); //sscc
+
+            let combined = _mm_mul_ps(sscc_y, sz_cz);
+            let wzyx = _mm_mul_ps(combined, sin_value.y().data);
+            let wzyx_2 = _mm_xor_ps(_mm_set_ps(0.0, SIGN_BIT, SIGN_BIT, 0.0), wzyx);
+
+            let result = _mm_fmadd_ps(_yxzw(combined), cos_value.y().data, _zwyx(wzyx_2));
+            return Quaternion { data: result };
+        }
+    }
+
+    #[inline(always)]
+    pub fn euler(radians: Vector3, rotation_order: RotationOrder) -> Quaternion {
+        let half_angle = radians * 0.5;
+        let sin = half_angle.sin();
+        let cos = half_angle.cos();
+
+        match rotation_order {
+            RotationOrder::XYZ => return Quaternion::euler_xyz_normalized(sin, cos),
+            RotationOrder::XZY => return Quaternion::euler_xzy_normalized(sin, cos),
+            RotationOrder::YXZ => return Quaternion::euler_yxz_normalized(sin, cos),
+            RotationOrder::YZX => return Quaternion::euler_yzx_normalized(sin, cos),
+            RotationOrder::ZXY => return Quaternion::euler_zxy_normalized(sin, cos),
+            RotationOrder::ZYX => return Quaternion::euler_zyx_normalized(sin, cos),
+        }
+    }
 
     /// Are these quaternions approximately the same, within ~0.163 degrees
     #[inline(always)]
