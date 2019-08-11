@@ -30,7 +30,7 @@ This library takes a middle-ground approach to type safety.  Vector2, Vector3, V
 
 Most methods require explicit casts to the correct type, from conversions between most types are provided.  The only exception are bitwise operators, which allow operations between any same sized Vector type (int, bool, float).  Vector3Int XOR Vector3 is allowed, but Vector2 XOR Vector3 is not allowed.
 
-Casts upward (from Vector2 to Vector4) always zero-initialize the additional channels (zw, in this case). Casts downward (Vector4 to Vector2) do not zero channels.  Those 
+Casts upward (from Vector2 to Vector4) always zero-initialize the additional channels (zw, in this case). Casts downward (Vector4 to Vector2) do not zero channels. 
 
 ## future work
 

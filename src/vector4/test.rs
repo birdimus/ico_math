@@ -954,7 +954,7 @@ mod test {
 
     #[test]
     fn swizzle() {
-        //OMG total swizzle coverage sux
+        //OMG total swizzle coverage sux this should be a macro.  TODO: investigate a better way.
         let a = Vector4::new(1.0, 2.0, 3.0, 4.0);
         {
             let c = a.xxxx();

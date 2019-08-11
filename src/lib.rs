@@ -10,6 +10,7 @@ pub mod dual_quaternion;
 pub mod float_vector;
 pub mod int_vector;
 pub mod matrix4x4;
+pub mod physics;
 pub mod quaternion;
 pub mod raw;
 pub mod sse_extensions;

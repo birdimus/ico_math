@@ -105,9 +105,9 @@ impl Vector2 {
 
     /// Compute the 2 element dot-product, and return it as a broadcast FloatVector.
     #[inline(always)]
-    pub fn dot(v0: Vector2, v1: Vector2) -> FloatVector {
+    pub fn dot(self, v1: Vector2) -> FloatVector {
         unsafe {
-            let tmp0 = _mm_mul_ps(v0.data, v1.data);
+            let tmp0 = _mm_mul_ps(self.data, v1.data);
             let mut tmp1 = _yxzw(tmp0); // _mm_shuffle_ps(tmp0,tmp0, _ico_shuffle(3, 2, 0, 1)); //yxzw
 
             tmp1 = _mm_add_ps(tmp0, tmp1); //xy,xy,qq,qq
@@ -120,7 +120,7 @@ impl Vector2 {
     /// Rotate the vector by radians
     /// Right handed system, positive rotation is counterclockwise about the axis of rotation.
     #[inline(always)]
-    pub fn rotate<T: Into<FloatVector>>(v1: Vector2, radians: T) -> Vector2 {
+    pub fn rotate<T: Into<FloatVector>>(self, radians: T) -> Vector2 {
         let tmp = radians.into();
         //let f = radians.sin_cos();
 
@@ -139,7 +139,7 @@ impl Vector2 {
             let masked_sncs = _mm_and_ps(sncs.data, mask);
 
             //x1y1x2y2
-            let xyxy = _mm_movelh_ps(v1.data, v1.data);
+            let xyxy = _mm_movelh_ps(self.data, self.data);
             //x * cs, y * cs, x*sn, y*-sn
             let v2 = _mm_mul_ps(xyxy, masked_sncs);
 

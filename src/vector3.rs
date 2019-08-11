@@ -125,9 +125,9 @@ impl Vector3 {
 
     /// Compute the 3 element dot-product, and return it as a broadcast FloatVector.
     #[inline(always)]
-    pub fn dot(v1: Vector3, v2: Vector3) -> FloatVector {
+    pub fn dot(self, v2: Vector3) -> FloatVector {
         unsafe {
-            let tmp0 = _mm_mul_ps(v1.data, v2.data); //xyzw
+            let tmp0 = _mm_mul_ps(self.data, v2.data); //xyzw
             let tmp1 = _mm_castsi128_ps(_mm_slli_si128(_mm_castps_si128(tmp0), 4)); //0xyz
             let tmp2 = _mm_add_ps(tmp0, tmp1); //x xy, yz, wz
             let tmp3 = _mm_moveldup_ps(tmp2); // x x yz yz
@@ -139,10 +139,10 @@ impl Vector3 {
 
     /// Right handed cross product.
     #[inline(always)]
-    pub fn cross(lhs: Vector3, rhs: Vector3) -> Vector3 {
+    pub fn cross(self, rhs: Vector3) -> Vector3 {
         unsafe {
             return Vector3 {
-                data: _ico_cross_ps(lhs.data, rhs.data),
+                data: _ico_cross_ps(self.data, rhs.data),
             };
         }
     }
