@@ -8,6 +8,8 @@ repository = "https://github.com/birdimus/ico_math"
 description = "An opinionated SIMD Math Library for games and graphics in Rust."
 keywords = ["math", "SIMD", "vector", "game", "quaternion"]
 readme = "README.md"
+categories = ["no-std", "science", "game-engines"]
+
 [dependencies]
 
 [lib]
@@ -21,7 +23,8 @@ panic = "abort"
 [profile.test]
 opt-level = 3
 
-
-
 [profile.release]
 panic = "abort"
+
+[features]
+use-std = []

@@ -5,7 +5,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 
-#![cfg_attr(not(test), no_std)]
+#![cfg_attr(not(any(test, feature = "use-std")), no_std)]
 pub mod dual_quaternion;
 pub mod float_vector;
 pub mod int_vector;
@@ -25,7 +25,8 @@ pub mod vector4;
 pub mod vector4_bool;
 pub mod vector4_int;
 
-#[cfg(not(test))]
+
+#[cfg(not(any(test, feature = "use-std")))]
 #[panic_handler]
 fn my_panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
