@@ -6,24 +6,41 @@
 //
 
 #![cfg_attr(not(any(test, feature = "use-std")), no_std)]
-pub mod dual_quaternion;
-pub mod float_vector;
-pub mod int_vector;
-pub mod matrix4x4;
+
+mod dual_quaternion;
+mod float_vector;
+mod int_vector;
+mod matrix4x4;
 pub mod physics;
-pub mod quaternion;
+mod quaternion;
 pub mod raw;
 pub mod sse_extensions;
 pub mod structure;
-pub mod vector2;
-pub mod vector2_bool;
-pub mod vector2_int;
-pub mod vector3;
-pub mod vector3_bool;
-pub mod vector3_int;
-pub mod vector4;
-pub mod vector4_bool;
-pub mod vector4_int;
+mod vector2;
+mod vector2_bool;
+mod vector2_int;
+mod vector3;
+mod vector3_bool;
+mod vector3_int;
+mod vector4;
+mod vector4_bool;
+mod vector4_int;
+
+pub use dual_quaternion::DualQuaternion;
+pub use float_vector::FloatVector;
+pub use int_vector::IntVector;
+pub use matrix4x4::Matrix4x4;
+pub use quaternion::Quaternion;
+pub use quaternion::RotationOrder;
+pub use vector2::Vector2;
+pub use vector2_bool::Vector2Bool;
+pub use vector2_int::Vector2Int;
+pub use vector3::Vector3;
+pub use vector3_bool::Vector3Bool;
+pub use vector3_int::Vector3Int;
+pub use vector4::Vector4;
+pub use vector4_bool::Vector4Bool;
+pub use vector4_int::Vector4Int;
 
 #[cfg(not(any(test, feature = "use-std")))]
 #[panic_handler]

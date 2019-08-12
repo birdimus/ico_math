@@ -1,6 +1,6 @@
 [package]
 name = "ico_math"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Brian Kehrer <brian.kehrer@gmail.com>"]
 edition = "2018"
 license = "MPL-2.0"
@@ -14,7 +14,7 @@ categories = ["no-std", "science", "game-engines"]
 
 [lib]
 name = "ico_math"
-crate-type = ["staticlib", "cdylib"]
+crate-type = ["lib"]
 
 [profile.dev]
 opt-level = 3
