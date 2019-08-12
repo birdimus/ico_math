@@ -25,7 +25,6 @@ pub mod vector4;
 pub mod vector4_bool;
 pub mod vector4_int;
 
-
 #[cfg(not(any(test, feature = "use-std")))]
 #[panic_handler]
 fn my_panic(_info: &core::panic::PanicInfo) -> ! {
