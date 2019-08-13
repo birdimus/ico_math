@@ -155,7 +155,7 @@ impl Vector2Int {
         }
     }
     #[inline(always)]
-    pub fn copysign(self, v2: Vector2Int) -> Vector2Int {
+    pub fn sign(self, v2: Vector2Int) -> Vector2Int {
         unsafe {
             return Vector2Int {
                 data: _mm_sign_epi32(self.data, v2.data),

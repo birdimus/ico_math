@@ -169,7 +169,7 @@ impl Vector3Int {
         }
     }
     #[inline(always)]
-    pub fn copysign(self, v2: Vector3Int) -> Vector3Int {
+    pub fn sign(self, v2: Vector3Int) -> Vector3Int {
         unsafe {
             return Vector3Int {
                 data: _mm_sign_epi32(self.data, v2.data),

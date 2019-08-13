@@ -181,7 +181,7 @@ impl Vector4Int {
         }
     }
     #[inline(always)]
-    pub fn copysign(self, v2: Vector4Int) -> Vector4Int {
+    pub fn sign(self, v2: Vector4Int) -> Vector4Int {
         unsafe {
             return Vector4Int {
                 data: _mm_sign_epi32(self.data, v2.data),
@@ -2447,3 +2447,6 @@ impl SIMDVector4 for Vector4Int {
         return self.data;
     }
 }
+
+#[cfg(test)]
+mod test;

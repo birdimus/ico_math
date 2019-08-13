@@ -67,7 +67,7 @@ impl IntVector {
         }
     }
     #[inline(always)]
-    pub fn copysign(v1: IntVector, v2: IntVector) -> IntVector {
+    pub fn sign(v1: IntVector, v2: IntVector) -> IntVector {
         unsafe {
             IntVector {
                 data: _mm_sign_epi32(v1.data, v2.data),
