@@ -276,6 +276,25 @@ pub unsafe fn _ico_sin_ps(vec: __m128) -> __m128 {
     let looped = _ico_ping_pong(sin_shift);
     return _ico_approx_cos01(looped);
 }
+
+//TODO: this is untested
+#[inline(always)]
+pub unsafe fn _ico_tan_ps(vec: __m128) -> __m128 {
+    //let scaled = _mm_div_ps(vec, _mm_set1_ps(TWO_PI));
+    let scaled = _mm_mul_ps(vec, _mm_set1_ps(INV_TWO_PI));
+
+    let shifted = _mm_add_ps(scaled, _ico_half_ps());
+    let internal = _mm_sub_ps(scaled, _mm_floor_ps(shifted));
+    let sin_shift = _mm_sub_ps(internal, _mm_set1_ps(0.25));
+
+    let looped_sin = _ico_ping_pong(sin_shift);
+    let looped_cos = _ico_ping_pong(scaled);
+    let sin = _ico_approx_cos01(looped_sin);
+    let cos = _ico_approx_cos01(looped_cos);
+    return _mm_div_ps(sin, cos);
+}
+
+
 #[inline(always)]
 pub unsafe fn _ico_sin_deg_ps(vec: __m128) -> __m128 {
     let scaled = _mm_div_ps(vec, _mm_set1_ps(360.0));
@@ -288,10 +307,7 @@ pub unsafe fn _ico_sin_deg_ps(vec: __m128) -> __m128 {
     return _ico_approx_cos01(looped);
 }
 
-#[inline(always)]
-pub unsafe fn _ico_tan_ps(vec: __m128) -> __m128 {
-    return _mm_div_ps(_ico_sin_ps(vec), _ico_cos_ps(vec));
-}
+
 
 #[inline(always)]
 /// max error 0.000001 radians

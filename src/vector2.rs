@@ -515,6 +515,16 @@ impl Vector2 {
         }
     }
 
+    /// Compute the approximate asin of each component
+    #[inline(always)]
+    pub fn asin(self) -> Vector2 {
+        unsafe {
+            Vector2 {
+                data: _ico_asin_ps(self.data),
+            }
+        }
+    }
+
     /// Compute the component-wise max.
     #[inline(always)]
     pub fn max(self, v2: Vector2) -> Vector2 {

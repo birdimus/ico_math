@@ -856,6 +856,17 @@ mod test {
         }*/
     }
     #[test]
+    fn asin() {
+        {
+            let a = Vector3::asin(Vector3::new(-1.0, 0.0, 1.0));
+
+            assert_eq!(a.x(), -0.5 * core::f32::consts::PI);
+            assert_eq!(a.y(), 0.0);
+            assert_eq!(a.z(), 0.5 * core::f32::consts::PI);
+        }
+        
+    }
+    #[test]
     fn max() {
         {
             let a = Vector3::new(-1.75, 0.1, 0.0);

@@ -626,3 +626,5 @@ impl SIMDVector3 for Vector3Int {
         return self.data;
     }
 }
+#[cfg(test)]
+mod test;

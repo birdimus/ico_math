@@ -516,6 +516,16 @@ impl Vector4 {
         }
     }
 
+    /// Compute the approximate asin of each component
+    #[inline(always)]
+    pub fn asin(self) -> Vector4 {
+        unsafe {
+            Vector4 {
+                data: _ico_asin_ps(self.data),
+            }
+        }
+    }
+
     /// Compute the component-wise max.
     #[inline(always)]
     pub fn max(self, v2: Vector4) -> Vector4 {
