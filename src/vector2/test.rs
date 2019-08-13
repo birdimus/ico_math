@@ -11,6 +11,7 @@ mod test {
     use crate::raw::RawVector_f32;
     use crate::vector2::Vector2;
     use crate::vector2_bool::Vector2Bool;
+    use crate::vector4::Vector4;
     #[test]
     fn new() {
         let a = Vector2::new(1.0, 2.0);
@@ -571,6 +572,45 @@ mod test {
             let c = Vector2::min(a, b);
             assert_eq!(c.x(), -2.0);
             assert_eq!(c.y(), 0.1);
+        }
+    }
+    #[test]
+    fn horizontal_min() {
+        {
+            let a = Vector2::from(Vector4::new(-1.75, 0.1, -20.0, -20.0));
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+        {
+            let a = Vector2::from(Vector4::new(0.1, -1.75, -20.0, -20.0));
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+    }
+
+    #[test]
+    fn horizontal_max() {
+        {
+            let a = Vector2::from(Vector4::new(-1.75, 0.1, 20.0, 20.0));
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 0.1);
+            assert_eq!(c.y(), 0.1);
+            assert_eq!(c.z(), 0.1);
+            assert_eq!(c.w(), 0.1);
+        }
+        {
+            let a = Vector2::from(Vector4::new(0.1, -1.75, 20.0, 20.0));
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 0.1);
+            assert_eq!(c.y(), 0.1);
+            assert_eq!(c.z(), 0.1);
+            assert_eq!(c.w(), 0.1);
         }
     }
 

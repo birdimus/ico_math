@@ -26,52 +26,55 @@ pub const fn _ico_shuffle(z: i32, y: i32, x: i32, w: i32) -> i32 {
 // Generators for common vectors to avoid set.
 // https://www.agner.org/optimize/optimizing_assembly.pdf
 
-#[inline(always)]
-pub unsafe fn _ico_one_epi32() -> __m128i {
-    let mut a = _mm_setzero_si128();
-    a = _mm_cmpeq_epi32(a, a);
-    return _mm_srli_epi32(a, 31);
-}
+// #[inline(always)]
+// pub unsafe fn _ico_one_epi32() -> __m128i {
+//     let mut a = _mm_setzero_si128();
+//     a = _mm_cmpeq_epi32(a, a);
+//     return _mm_srli_epi32(a, 31);
+// }
 
 #[inline(always)]
 pub unsafe fn _ico_half_ps() -> __m128 {
-    let mut a = _mm_setzero_si128();
-    a = _mm_cmpeq_epi32(a, a);
-    a = _mm_slli_epi32(a, 26);
-    return _mm_castsi128_ps(_mm_srli_epi32(a, 2));
+    return _mm_set1_ps(0.5f32);
+    // let mut a = _mm_setzero_si128();
+    // a = _mm_cmpeq_epi32(a, a);
+    // a = _mm_slli_epi32(a, 26);
+    // return _mm_castsi128_ps(_mm_srli_epi32(a, 2));
 }
 #[inline(always)]
 pub unsafe fn _ico_one_ps() -> __m128 {
-    //return  _mm_set1_epi32(0x3f800000);
-    let mut a = _mm_setzero_si128();
-    a = _mm_cmpeq_epi32(a, a);
-    a = _mm_slli_epi32(a, 25);
-    return _mm_castsi128_ps(_mm_srli_epi32(a, 2));
+    return _mm_set1_ps(1.0f32);
+    // let mut a = _mm_setzero_si128();
+    // a = _mm_cmpeq_epi32(a, a);
+    // a = _mm_slli_epi32(a, 25);
+    // return _mm_castsi128_ps(_mm_srli_epi32(a, 2));
 }
 #[inline(always)]
 pub unsafe fn _ico_two_ps() -> __m128 {
-    let mut a = _mm_setzero_si128();
-    a = _mm_cmpeq_epi32(a, a);
-    a = _mm_slli_epi32(a, 31);
-    return _mm_castsi128_ps(_mm_srli_epi32(a, 1));
+    return _mm_set1_ps(2.0f32);
+    // let mut a = _mm_setzero_si128();
+    // a = _mm_cmpeq_epi32(a, a);
+    // a = _mm_slli_epi32(a, 31);
+    // return _mm_castsi128_ps(_mm_srli_epi32(a, 1));
 }
-#[inline(always)]
-pub unsafe fn _ico_nearesttwo_ps() -> __m128 {
-    let mut a = _mm_setzero_si128();
-    a = _mm_cmpeq_epi32(a, a);
-    return _mm_castsi128_ps(_mm_srli_epi32(a, 2));
-}
-#[inline(always)]
-pub unsafe fn _ico_negtwo_ps() -> __m128 {
-    let mut a = _mm_setzero_si128();
-    a = _mm_cmpeq_epi32(a, a);
-    return _mm_castsi128_ps(_mm_slli_epi32(a, 30));
-}
+// #[inline(always)]
+// pub unsafe fn _ico_nearesttwo_ps() -> __m128 {
+//     let mut a = _mm_setzero_si128();
+//     a = _mm_cmpeq_epi32(a, a);
+//     return _mm_castsi128_ps(_mm_srli_epi32(a, 2));
+// }
+// #[inline(always)]
+// pub unsafe fn _ico_negtwo_ps() -> __m128 {
+//     let mut a = _mm_setzero_si128();
+//     a = _mm_cmpeq_epi32(a, a);
+//     return _mm_castsi128_ps(_mm_slli_epi32(a, 30));
+// }
 #[inline(always)]
 pub unsafe fn _ico_signbit_ps() -> __m128 {
-    let mut a = _mm_setzero_si128();
-    a = _mm_cmpeq_epi32(a, a);
-    return _mm_castsi128_ps(_mm_slli_epi32(a, 31));
+    return _mm_set1_ps(SIGN_BIT);
+    // let mut a = _mm_setzero_si128();
+    // a = _mm_cmpeq_epi32(a, a);
+    // return _mm_castsi128_ps(_mm_slli_epi32(a, 31));
 }
 #[inline(always)]
 pub unsafe fn _ico_abs_ps(a: __m128) -> __m128 {

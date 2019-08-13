@@ -878,7 +878,61 @@ mod test {
             assert_eq!(c.z(), -0.1);
         }
     }
+    #[test]
+    fn horizontal_min() {
+        {
+            let a = Vector3::from(Vector4::new(-1.75, 0.1, 0.0, -20.0));
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+        {
+            let a = Vector3::from(Vector4::new(0.1, -1.75, 0.0, -20.0));
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+        {
+            let a = Vector3::from(Vector4::new(0.1, 0.0, -1.75, -20.0));
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+    }
 
+    #[test]
+    fn horizontal_max() {
+        {
+            let a = Vector3::from(Vector4::new(-1.75, 0.1, 0.0, 20.0));
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 0.1);
+            assert_eq!(c.y(), 0.1);
+            assert_eq!(c.z(), 0.1);
+            assert_eq!(c.w(), 0.1);
+        }
+        {
+            let a = Vector3::from(Vector4::new(0.1, -1.75, 0.0, 20.0));
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 0.1);
+            assert_eq!(c.y(), 0.1);
+            assert_eq!(c.z(), 0.1);
+            assert_eq!(c.w(), 0.1);
+        }
+        {
+            let a = Vector3::from(Vector4::new(0.0, -1.75, 0.1, 20.0));
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 0.1);
+            assert_eq!(c.y(), 0.1);
+            assert_eq!(c.z(), 0.1);
+            assert_eq!(c.w(), 0.1);
+        }
+    }
     #[test]
     fn dot() {
         use core::arch::x86_64::*;

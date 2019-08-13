@@ -24,6 +24,13 @@ pub struct Vector3 {
 
 impl Vector3 {
     /// Construct a new vector from f32 components.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let one_two_three = Vector3::new(1.0, 2.0, 3.0);
+    /// ```
     #[inline(always)]
     pub fn new(x: f32, y: f32, z: f32) -> Vector3 {
         unsafe {
@@ -34,6 +41,13 @@ impl Vector3 {
     }
 
     /// Set all values of the vector to the same f32 value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let ones = Vector3::set(1.0);
+    /// ```
     #[inline(always)]
     pub fn set<T: Into<FloatVector>>(value: T) -> Vector3 {
         return Vector3 {
@@ -42,6 +56,13 @@ impl Vector3 {
     }
 
     /// Construct a new vector of zeros.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let zeros = Vector3::zero();
+    /// ```
     #[inline(always)]
     pub fn zero() -> Vector3 {
         unsafe {
@@ -52,6 +73,13 @@ impl Vector3 {
     }
 
     /// Get the x value of the vector, broadcast to all components as a FloatVector (xxxx).
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let one_two_three = Vector3::new(1.0, 2.0, 3.0);
+    /// let one = one_two_three.x();
+    /// ```
     #[inline(always)]
     pub fn x(self) -> FloatVector {
         return FloatVector {
@@ -60,6 +88,13 @@ impl Vector3 {
     }
 
     /// Get the y value of the vector, broadcast to all components as a FloatVector (yyyy).
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let one_two_three = Vector3::new(1.0, 2.0, 3.0);
+    /// let two = one_two_three.y();
+    /// ```
     #[inline(always)]
     pub fn y(self) -> FloatVector {
         return FloatVector {
@@ -68,6 +103,13 @@ impl Vector3 {
     }
 
     /// Get the z value of the vector, broadcast to all components as a FloatVector (zzzz).
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let one_two_three = Vector3::new(1.0, 2.0, 3.0);
+    /// let three = one_two_three.z();
+    /// ```
     #[inline(always)]
     pub fn z(self) -> FloatVector {
         return FloatVector {
@@ -76,6 +118,14 @@ impl Vector3 {
     }
 
     /// Load a value from aligned memory.
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// use ico_math::raw::RawVector_f32;
+    /// let raw = RawVector_f32{data:[0.0,1.0,2.0,0.0]};
+    /// let one_two_three = Vector3::load(&raw);
+    /// ```
     #[inline(always)]
     pub fn load(raw: &RawVector_f32) -> Vector3 {
         unsafe {
@@ -87,6 +137,15 @@ impl Vector3 {
     }
 
     /// Store a value to aligned memory.
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// use ico_math::raw::RawVector_f32;
+    /// let mut raw = RawVector_f32{data:[0.0; 4]};
+    /// let one_two_three = Vector3::new(1.0, 2.0, 3.0);
+    /// one_two_three.store(&mut raw);
+    /// ```
     #[inline(always)]
     pub fn store(self, dst: &mut RawVector_f32) {
         unsafe {
@@ -96,6 +155,13 @@ impl Vector3 {
     }
 
     /// Set the x value of this vector, leaving the other components unchanged.
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let mut one_two_three = Vector3::new(1.0, 2.0, 3.0);
+    /// one_two_three.set_x(0.5);
+    /// ```
     #[inline(always)]
     pub fn set_x<T: Into<FloatVector>>(&mut self, value: T) {
         unsafe {
@@ -104,6 +170,13 @@ impl Vector3 {
     }
 
     /// Set the y value of this vector, leaving the other components unchanged.
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let mut one_two_three = Vector3::new(1.0, 2.0, 3.0);
+    /// one_two_three.set_y(0.5);
+    /// ```
     #[inline(always)]
     pub fn set_y<T: Into<FloatVector>>(&mut self, value: T) {
         unsafe {
@@ -114,7 +187,13 @@ impl Vector3 {
 
     /// Set the z value of this vector, leaving the other components unchanged.
     /// This doesn't modify W.
-    /// This could save an op, by doing: self.data = _mm_shuffle_ps(self.data, value.into().data, _ico_shuffle(3, 2, 1, 0));
+    /// # Examples
+    ///
+    /// ```
+    /// use ico_math::Vector3;
+    /// let mut one_two_three = Vector3::new(1.0, 2.0, 3.0);
+    /// one_two_three.set_z(0.5);
+    /// ```
     #[inline(always)]
     pub fn set_z<T: Into<FloatVector>>(&mut self, value: T) {
         unsafe {
@@ -531,6 +610,21 @@ impl Vector3 {
             }
         }
     }
+
+    #[inline(always)]
+    pub fn horizontal_min(self) -> FloatVector {
+        let x = self.x();
+        let xy = x.min(self.y());
+        return xy.min(self.z());
+    }
+
+    #[inline(always)]
+    pub fn horizontal_max(self) -> FloatVector {
+        let x = self.x();
+        let xy = x.max(self.y());
+        return xy.max(self.z());
+    }
+
     /// Choose component wise between A and B based on the mask.  False = A, True = B.
     #[inline(always)]
     pub fn select(self, v2: Vector3, mask: Vector3Bool) -> Vector3 {
@@ -854,6 +948,18 @@ impl From<f32> for Vector3 {
         return Vector3::set(v);
     }
 }
+
+// impl From<Vector3> for [f32;3] {
+//     #[inline(always)]
+//     fn from(v : Vector3) -> [f32;3] {
+//         unsafe{
+//         let mut raw= core::mem::MaybeUninit::<RawVector_f32>::uninit().assume_init();//RawVector_f32{data:core::mem::MaybeUninit::<[f32;4]>::uninit().assume_init()};// = RawVector_f32{data:[0.0;4]};
+//         v.store(& mut raw);
+//         return raw.data_3;
+//         }
+//     }
+// }
+
 impl From<FloatVector> for Vector3 {
     #[inline(always)]
     fn from(v: FloatVector) -> Vector3 {
@@ -871,12 +977,14 @@ impl From<Vector2> for Vector3 {
         }
     }
 }
+
 impl From<Vector4> for Vector3 {
     #[inline(always)]
     fn from(v: Vector4) -> Vector3 {
         Vector3 { data: v.data }
     }
 }
+
 impl From<Vector3Int> for Vector3 {
     #[inline(always)]
     fn from(v: Vector3Int) -> Vector3 {
@@ -895,12 +1003,14 @@ impl core::ops::Add for Vector3 {
         Vector3::add(self, _rhs)
     }
 }
+
 impl core::ops::AddAssign for Vector3 {
     #[inline(always)]
     fn add_assign(&mut self, other: Vector3) {
         *self = Vector3::add(*self, other)
     }
 }
+
 impl core::ops::Sub for Vector3 {
     type Output = Vector3;
     #[inline(always)]
@@ -908,12 +1018,14 @@ impl core::ops::Sub for Vector3 {
         Vector3::sub(self, _rhs)
     }
 }
+
 impl core::ops::SubAssign for Vector3 {
     #[inline(always)]
     fn sub_assign(&mut self, other: Vector3) {
         *self = Vector3::sub(*self, other)
     }
 }
+
 impl core::ops::Neg for Vector3 {
     type Output = Vector3;
     #[inline(always)]
@@ -925,6 +1037,7 @@ impl core::ops::Neg for Vector3 {
         }
     }
 }
+
 impl<T: Into<FloatVector>> core::ops::Mul<T> for Vector3 {
     type Output = Vector3;
     #[inline(always)]
@@ -932,12 +1045,14 @@ impl<T: Into<FloatVector>> core::ops::Mul<T> for Vector3 {
         return Vector3::mul(self, Vector3::from(_rhs.into()));
     }
 }
+
 impl<T: Into<FloatVector>> core::ops::MulAssign<T> for Vector3 {
     #[inline(always)]
     fn mul_assign(&mut self, _rhs: T) {
         *self = Vector3::mul(*self, Vector3::from(_rhs.into()));
     }
 }
+
 impl core::ops::Mul<Vector3> for FloatVector {
     type Output = Vector3;
     #[inline(always)]
@@ -953,6 +1068,7 @@ impl<T: Into<FloatVector>> core::ops::Div<T> for Vector3 {
         return Vector3::div(self, Vector3::from(_rhs.into()));
     }
 }
+
 impl core::ops::Div<Vector3> for FloatVector {
     type Output = Vector3;
     #[inline(always)]
@@ -960,6 +1076,7 @@ impl core::ops::Div<Vector3> for FloatVector {
         return Vector3::div(Vector3::from(self), _rhs);
     }
 }
+
 impl<T: Into<FloatVector>> core::ops::DivAssign<T> for Vector3 {
     #[inline(always)]
     fn div_assign(&mut self, _rhs: T) {

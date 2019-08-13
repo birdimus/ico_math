@@ -829,7 +829,77 @@ mod test {
             assert_eq!(c.z(), -0.1);
         }
     }
+    #[test]
+    fn horizontal_min() {
+        {
+            let a = Vector4::new(-1.75, 0.1, 0.0, -1.0);
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+        {
+            let a = Vector4::new(0.1, -1.75, 0.0, -1.0);
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+        {
+            let a = Vector4::new(0.1, 0.0, -1.75, -1.0);
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+        {
+            let a = Vector4::new(0.1, 0.0, -1.0, -1.75);
+            let c = Vector4::from(a.horizontal_min());
+            assert_eq!(c.x(), -1.75);
+            assert_eq!(c.y(), -1.75);
+            assert_eq!(c.z(), -1.75);
+            assert_eq!(c.w(), -1.75);
+        }
+    }
 
+    #[test]
+    fn horizontal_max() {
+        {
+            let a = Vector4::new(-1.75, 0.1, 0.0, 20.0);
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 20.0);
+            assert_eq!(c.y(), 20.0);
+            assert_eq!(c.z(), 20.0);
+            assert_eq!(c.w(), 20.0);
+        }
+        {
+            let a = Vector4::new(-1.75, 0.1, 20.0, 0.0);
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 20.0);
+            assert_eq!(c.y(), 20.0);
+            assert_eq!(c.z(), 20.0);
+            assert_eq!(c.w(), 20.0);
+        }
+        {
+            let a = Vector4::new(20.0, -1.75, 0.1, 0.0);
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 20.0);
+            assert_eq!(c.y(), 20.0);
+            assert_eq!(c.z(), 20.0);
+            assert_eq!(c.w(), 20.0);
+        }
+        {
+            let a = Vector4::new(-1.75, 20.0, 0.1, 0.0);
+            let c = Vector4::from(a.horizontal_max());
+            assert_eq!(c.x(), 20.0);
+            assert_eq!(c.y(), 20.0);
+            assert_eq!(c.z(), 20.0);
+            assert_eq!(c.w(), 20.0);
+        }
+    }
     #[test]
     fn dot() {
         {

@@ -47,3 +47,6 @@ pub use vector4_int::Vector4Int;
 fn my_panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
+
+//Is this required?
+//RUSTFLAGS='-C target-features=+avx2,+fma'

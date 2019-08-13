@@ -535,6 +535,25 @@ impl Vector4 {
             }
         }
     }
+
+    #[inline(always)]
+    pub fn horizontal_min(self) -> FloatVector {
+        let zwzw = self.zwzw();
+        let xz_yw = self.min(zwzw);
+        return FloatVector {
+            data: Vector4::min(xz_yw.xyxy(), xz_yw.yxyx()).data,
+        };
+    }
+
+    #[inline(always)]
+    pub fn horizontal_max(self) -> FloatVector {
+        let zwzw = self.zwzw();
+        let xz_yw = self.max(zwzw);
+        return FloatVector {
+            data: Vector4::max(xz_yw.xyxy(), xz_yw.yxyx()).data,
+        };
+    }
+
     /// Choose component wise between A and B based on the mask.  False = A, True = B.
     #[inline(always)]
     pub fn select(self, v2: Vector4, mask: Vector4Bool) -> Vector4 {

@@ -534,6 +534,23 @@ impl Vector2 {
             }
         }
     }
+
+    #[inline(always)]
+    pub fn horizontal_min(self) -> FloatVector {
+        let x = self.x();
+        return FloatVector {
+            data: x.min(self.y()).data,
+        };
+    }
+
+    #[inline(always)]
+    pub fn horizontal_max(self) -> FloatVector {
+        let x = self.x();
+        return FloatVector {
+            data: x.max(self.y()).data,
+        };
+    }
+
     /// Choose component wise between A and B based on the mask.  False = A, True = B.
     #[inline(always)]
     pub fn select(self, v2: Vector2, mask: Vector2Bool) -> Vector2 {
