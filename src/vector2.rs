@@ -504,7 +504,15 @@ impl Vector2 {
             }
         }
     }
-
+    /// Compute the approximate tan of each component
+    #[inline(always)]
+    pub fn tan(self) -> Vector2 {
+        unsafe {
+            Vector2 {
+                data: _ico_tan_ps(self.data),
+            }
+        }
+    }
     /// Compute the approximate acos of each component
     #[inline(always)]
     pub fn acos(self) -> Vector2 {

@@ -838,6 +838,43 @@ mod test {
         }
     }
     #[test]
+    fn tan() {
+        {
+            let a = Vector3::tan(Vector3::new(
+                0.0,
+                0.5 * core::f32::consts::PI,
+                -0.5 * core::f32::consts::PI,
+            ));
+
+            assert_eq!(a.x(), 0.0);
+            assert_eq!(a.y(), core::f32::INFINITY);
+            assert_eq!(a.z(), core::f32::NEG_INFINITY);
+        }
+        {
+            let a = Vector3::tan(Vector3::new(
+                core::f32::consts::PI,
+                0.5 * core::f32::consts::PI,
+                -0.5 * core::f32::consts::PI,
+            ));
+
+            assert_eq!(a.x(), 0.0);
+            // assert_eq!(a.y(), core::f32::NEG_INFINITY);
+            // assert_eq!(a.z(), core::f32::INFINITY);
+        }
+        {
+            let a = Vector3::tan(Vector3::new(
+                0.25 * core::f32::consts::PI,
+                -0.25 * core::f32::consts::PI,
+                0.0,
+            ));
+
+            assert_eq!(a.x(), 1.0);
+            assert_eq!(a.y(), -1.0);
+            assert_eq!(a.z(), 0.0);
+        }
+        
+    }
+    #[test]
     fn acos() {
         {
             let a = Vector3::acos(Vector3::new(-1.0, 0.0, 1.0));

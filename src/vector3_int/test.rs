@@ -11,7 +11,6 @@ mod test {
     use crate::raw::RawVector_i32;
     use crate::vector3_int::Vector3Int;
     use crate::vector3_bool::Vector3Bool;
-    use crate::vector3::Vector3;
     #[test]
     fn new() {
         let a = Vector3Int::new(1, 2, 3);

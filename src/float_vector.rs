@@ -385,7 +385,15 @@ impl FloatVector {
             }
         }
     }
-
+    /// Compute the approximate tan of each component
+    #[inline(always)]
+    pub fn tan(self) -> FloatVector {
+        unsafe {
+            FloatVector {
+                data: _ico_tan_ps(self.data),
+            }
+        }
+    }
     /// Compute the approximate acos of each component
     #[inline(always)]
     pub fn acos(self) -> FloatVector {
