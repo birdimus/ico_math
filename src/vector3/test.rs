@@ -765,7 +765,7 @@ mod test {
     }
     #[test]
     fn sin() {
-        for i in 0..1000 {
+        for i in 0..100000 {
             let x = i - 200;
             let y = i - 400;
             let z = i - 600;
@@ -794,7 +794,7 @@ mod test {
     }
     #[test]
     fn cos() {
-        for i in 0..1000 {
+        for i in 0..100000 {
             let x = i as f32 * 0.1;
             let y = (i - 400) as f32 * 0.01;
             let z = (i - 600) as f32 * 0.01;
