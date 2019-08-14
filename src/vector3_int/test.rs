@@ -9,8 +9,8 @@
 mod test {
     use crate::int_vector::IntVector;
     use crate::raw::RawVector_i32;
-    use crate::vector3_int::Vector3Int;
     use crate::vector3_bool::Vector3Bool;
+    use crate::vector3_int::Vector3Int;
     #[test]
     fn new() {
         let a = Vector3Int::new(1, 2, 3);
@@ -136,7 +136,6 @@ mod test {
         assert_eq!(c.z(), 18);
     }
 
-
     #[test]
     fn mul() {
         let a = Vector3Int::new(1, 2, 3);
@@ -205,103 +204,103 @@ mod test {
         assert_eq!(c.z(), 6);
     }
     #[test]
-fn all() {
-    {
-        let a = Vector3Int::new(1, 2, 3);
-        let b = Vector3Int::new(1, 2, 3);
+    fn all() {
+        {
+            let a = Vector3Int::new(1, 2, 3);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::all(c), true);
-    }
-    {
-        let a = Vector3Int::new(0, 2, 3);
-        let b = Vector3Int::new(1, 2, 3);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::all(c), true);
+        }
+        {
+            let a = Vector3Int::new(0, 2, 3);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::all(c), false);
-    }
-    {
-        let a = Vector3Int::new(1, 0, 3);
-        let b = Vector3Int::new(1, 2, 3);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::all(c), false);
+        }
+        {
+            let a = Vector3Int::new(1, 0, 3);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::all(c), false);
-    }
-    {
-        let a = Vector3Int::new(1, 2, 0);
-        let b = Vector3Int::new(1, 2, 3);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::all(c), false);
+        }
+        {
+            let a = Vector3Int::new(1, 2, 0);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::all(c), false);
-    }
-    {
-        let a = Vector3Int::new(0, 0, 0);
-        let b = Vector3Int::new(1, 2, 3);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::all(c), false);
+        }
+        {
+            let a = Vector3Int::new(0, 0, 0);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::all(c), false);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::all(c), false);
+        }
+        unsafe {
+            use core::arch::x86_64::*;
+            let a = Vector3Int {
+                data: _mm_set_epi32(0, 1, 2, 3),
+            };
+            let b = Vector3Int {
+                data: _mm_set_epi32(99, 1, 2, 3),
+            };
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::all(c), true);
+        }
     }
-    unsafe {
-        use core::arch::x86_64::*;
-        let a = Vector3Int {
-            data: _mm_set_epi32(0, 1, 2, 3),
-        };
-        let b = Vector3Int {
-            data: _mm_set_epi32(99, 1, 2, 3),
-        };
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::all(c), true);
-    }
-}
-#[test]
-fn any() {
-    {
-        let a = Vector3Int::new(1, 2, 3);
-        let b = Vector3Int::new(1, 2, 3);
+    #[test]
+    fn any() {
+        {
+            let a = Vector3Int::new(1, 2, 3);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::any(c), true);
-    }
-    {
-        let a = Vector3Int::new(0, 0, 3);
-        let b = Vector3Int::new(1, 2, 3);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::any(c), true);
+        }
+        {
+            let a = Vector3Int::new(0, 0, 3);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::any(c), true);
-    }
-    {
-        let a = Vector3Int::new(1, 0, 0);
-        let b = Vector3Int::new(1, 2, 3);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::any(c), true);
+        }
+        {
+            let a = Vector3Int::new(1, 0, 0);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::any(c), true);
-    }
-    {
-        let a = Vector3Int::new(0, 2, 0);
-        let b = Vector3Int::new(1, 2, 3);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::any(c), true);
+        }
+        {
+            let a = Vector3Int::new(0, 2, 0);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::any(c), true);
-    }
-    {
-        let a = Vector3Int::new(0, 0, 0);
-        let b = Vector3Int::new(1, 2, 3);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::any(c), true);
+        }
+        {
+            let a = Vector3Int::new(0, 0, 0);
+            let b = Vector3Int::new(1, 2, 3);
 
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::any(c), false);
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::any(c), false);
+        }
+        unsafe {
+            use core::arch::x86_64::*;
+            let a = Vector3Int {
+                data: _mm_set_epi32(0, 1, 2, 3),
+            };
+            let b = Vector3Int {
+                data: _mm_set_epi32(0, 99, 99, 99),
+            };
+            let c = Vector3Int::equal(a, b);
+            assert_eq!(Vector3Bool::any(c), false);
+        }
     }
-    unsafe {
-        use core::arch::x86_64::*;
-        let a = Vector3Int {
-            data: _mm_set_epi32(0, 1, 2, 3),
-        };
-        let b = Vector3Int {
-            data: _mm_set_epi32(0, 99, 99, 99),
-        };
-        let c = Vector3Int::equal(a, b);
-        assert_eq!(Vector3Bool::any(c), false);
-    }
-}
     #[test]
     fn equal() {
         let a = Vector3Int::new(1, 2, 3);
@@ -380,7 +379,7 @@ fn any() {
         assert_eq!(d.y(), 0);
         assert_eq!(d.z(), -1000);
     }
-    
+
     #[test]
     fn abs() {
         let a = Vector3Int::new(-1, 0, -0);
@@ -398,16 +397,13 @@ fn any() {
     fn sign() {
         let a = Vector3Int::new(10, -20, 5);
         let b = Vector3Int::new(-1, 1, -0);
-        
+
         let c = Vector3Int::sign(a, b);
 
         assert_eq!(c.x(), -10);
         assert_eq!(c.y(), -20);
         assert_eq!(c.z(), 0);
     }
-
-
-
 
     #[test]
     fn max() {

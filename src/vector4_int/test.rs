@@ -9,8 +9,8 @@
 mod test {
     use crate::int_vector::IntVector;
     use crate::raw::RawVector_i32;
-    use crate::vector4_int::Vector4Int;
     use crate::vector4_bool::Vector4Bool;
+    use crate::vector4_int::Vector4Int;
     #[test]
     fn new() {
         let a = Vector4Int::new(1, 2, 3, 4);
@@ -157,7 +157,6 @@ mod test {
         assert_eq!(c.z(), 18);
         assert_eq!(c.w(), 16);
     }
-
 
     #[test]
     fn mul() {
@@ -401,7 +400,7 @@ mod test {
         assert_eq!(d.y(), 0);
         assert_eq!(d.z(), -1000);
     }
-    
+
     #[test]
     fn abs() {
         let a = Vector4Int::new(-1, 0, -0, 4);
@@ -419,7 +418,7 @@ mod test {
     fn sign() {
         let a = Vector4Int::new(10, -20, 5, -4);
         let b = Vector4Int::new(-1, 1, -0, -4);
-        
+
         let c = Vector4Int::sign(a, b);
 
         assert_eq!(c.x(), -10);
@@ -427,9 +426,6 @@ mod test {
         assert_eq!(c.z(), 0);
         assert_eq!(c.w(), 4);
     }
-
-
-
 
     #[test]
     fn max() {
@@ -454,9 +450,6 @@ mod test {
             assert_eq!(c.z(), -10);
         }
     }
-
-
-
 
     #[test]
     fn swizzle() {

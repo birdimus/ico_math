@@ -611,7 +611,7 @@ impl Vector3 {
         }
     }
     #[inline(always)]
-    pub fn atan2(self ,x : Vector3 ) -> Vector3 {
+    pub fn atan2(self, x: Vector3) -> Vector3 {
         unsafe {
             Vector3 {
                 data: _ico_atan2_ps(self.data, x.data),

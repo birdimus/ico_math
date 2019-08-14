@@ -534,9 +534,6 @@ impl Vector4 {
         }
     }
 
-    
-    
-
     /// Compute the component-wise max.
     #[inline(always)]
     pub fn max(self, v2: Vector4) -> Vector4 {

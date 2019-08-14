@@ -13,11 +13,11 @@ pub const RELATIVE_COMPARISON_EPSILON: f32 = ABSOLUTE_COMPARISON_EPSILON * 4.0; 
 pub const SIGN_BIT: f32 = -0.0;
 // pub const EPSILON_AT_ONE: f32 = 0.00000012;
 pub const INV_TWO_PI: f32 = 0.159154943091895335768883763372514362034459645740456448747;
-pub const INV_PI: f32 = 1.0/core::f32::consts::PI;
+pub const INV_PI: f32 = 1.0 / core::f32::consts::PI;
 pub const TWO_PI: f32 = 6.283185307179586476925286766559005768394338798750211641949;
 pub const HALF_PI: f32 = 1.57079632679;
 pub const PI: f32 = 3.14159265359;
-pub const INV_360: f32 =1.0/360.0;
+pub const INV_360: f32 = 1.0 / 360.0;
 /// A replacement for the _MM_SHUFFLE macro.
 #[inline(always)]
 pub const fn _ico_shuffle(z: i32, y: i32, x: i32, w: i32) -> i32 {
@@ -211,39 +211,34 @@ pub unsafe fn _ico_ping_pong(vec: __m128) -> __m128 {
     return _mm_add_ps(internal, internal); // multiply by 2
 }
 
-
 /// 1/4 of a cosine curve
 /// Max absolute error is < 0.00002
 /// Both 0 and 1 should return exact values (1, and 0, respectively)
 #[inline(always)]
 pub unsafe fn _ico_approx_cos01(vec: __m128) -> __m128 {
-
-    let scalars = _mm_set_ps(-0.05104357, 0.300697,-0.01847417, -1.23117923841858);//-1.231179
-    let mut result = _mm_fmadd_ps(vec,  _wwww(scalars), _zzzz(scalars));
-    result = _mm_fmadd_ps(vec,  result, _yyyy(scalars));
-    result = _mm_fmadd_ps(vec,  result, _xxxx(scalars));
+    let scalars = _mm_set_ps(-0.05104357, 0.300697, -0.01847417, -1.23117923841858); //-1.231179
+    let mut result = _mm_fmadd_ps(vec, _wwww(scalars), _zzzz(scalars));
+    result = _mm_fmadd_ps(vec, result, _yyyy(scalars));
+    result = _mm_fmadd_ps(vec, result, _xxxx(scalars));
     result = _mm_mul_ps(result, vec);
-    result = _mm_fmadd_ps(vec,  result,  _ico_one_ps());
+    result = _mm_fmadd_ps(vec, result, _ico_one_ps());
     return result;
 }
 
 #[inline(always)]
 unsafe fn _ico_do_cos_ps(scaled: __m128) -> __m128 {
-
     let sign_offset = _mm_add_ps(scaled, _mm_set1_ps(0.5));
     let ping_pong = _ico_abs_ps(_mm_sub_ps(_mm_floor_ps(sign_offset), scaled));
 
     //this contains the sign
     let sign_driver = _mm_sub_ps(_mm_set1_ps(0.25), ping_pong);
     //convert the sign ping pong to a 0-1 driver.
-    let driver = _mm_fnmadd_ps(_ico_abs_ps(sign_driver), _mm_set1_ps(4.0),_mm_set1_ps(1.0));
+    let driver = _mm_fnmadd_ps(_ico_abs_ps(sign_driver), _mm_set1_ps(4.0), _mm_set1_ps(1.0));
 
     return _ico_copysign_ps(_ico_approx_cos01(driver), sign_driver);
-
 }
 #[inline(always)]
 pub unsafe fn _ico_cos_ps(vec: __m128) -> __m128 {
-
     let scaled = _mm_mul_ps(vec, _mm_set1_ps(INV_TWO_PI));
     return _ico_do_cos_ps(scaled);
 }
@@ -280,47 +275,51 @@ pub unsafe fn _ico_atan01_ps(value: __m128, offset: __m128) -> __m128 {
     //Ax7 + bx5 + cx3 +dx
     //x( x2( x2 (Ax2 + b) + c) +d)
     let x_sqr = _mm_mul_ps(value, value);
-    let mut result = _mm_fmadd_ps(x_sqr, _wwww(scalars),  _zzzz(scalars));
-    result = _mm_fmadd_ps(x_sqr, result,  _yyyy(scalars));
-    result = _mm_fmadd_ps(x_sqr, result,  _xxxx(scalars));
-    return _mm_fmadd_ps(value, result,  offset);
-}   
-
+    let mut result = _mm_fmadd_ps(x_sqr, _wwww(scalars), _zzzz(scalars));
+    result = _mm_fmadd_ps(x_sqr, result, _yyyy(scalars));
+    result = _mm_fmadd_ps(x_sqr, result, _xxxx(scalars));
+    return _mm_fmadd_ps(value, result, offset);
+}
 
 // loosely based on https://www.dsprelated.com/showarticle/1052.php
 #[inline(always)]
 pub unsafe fn _ico_atan2_ps(y: __m128, x: __m128) -> __m128 {
     let abs_x = _ico_abs_ps(x);
     let abs_y = _ico_abs_ps(y);
-    let x_div_y = _mm_div_ps(x,y);
-    let y_div_x = _mm_div_ps(y,x);
+    let x_div_y = _mm_div_ps(x, y);
+    let y_div_x = _mm_div_ps(y, x);
 
-    //if x >= y 
-    let x_greater_y = _mm_cmpge_ps(abs_x,abs_y);
+    //if x >= y
+    let x_greater_y = _mm_cmpge_ps(abs_x, abs_y);
 
-    let x_negative = _mm_cmplt_ps(x,_mm_setzero_ps());
-    let y_negative = _mm_cmplt_ps(y,_mm_setzero_ps());
+    let x_negative = _mm_cmplt_ps(x, _mm_setzero_ps());
+    let y_negative = _mm_cmplt_ps(y, _mm_setzero_ps());
 
     //5 cases
     // if x is positive, 0, otherwise either positive or negative pi offset
-    let case_01_offset = _mm_and_ps(x_negative, _ico_select_ps(_mm_set1_ps(core::f32::consts::PI), 
-        _mm_set1_ps(-core::f32::consts::PI), y_negative));
+    let case_01_offset = _mm_and_ps(
+        x_negative,
+        _ico_select_ps(
+            _mm_set1_ps(core::f32::consts::PI),
+            _mm_set1_ps(-core::f32::consts::PI),
+            y_negative,
+        ),
+    );
     // Use property atan(y/x) = PI/2 - atan(x/y) if |y/x| > 1.
-    let case_23_offset = _ico_select_ps(_mm_set1_ps(-0.5 * core::f32::consts::PI), 
-        _mm_set1_ps(0.5 * core::f32::consts::PI), y_negative);
+    let case_23_offset = _ico_select_ps(
+        _mm_set1_ps(-0.5 * core::f32::consts::PI),
+        _mm_set1_ps(0.5 * core::f32::consts::PI),
+        y_negative,
+    );
 
     let offset = _ico_select_ps(case_23_offset, case_01_offset, x_greater_y);
     let atan_val = _ico_select_ps(x_div_y, y_div_x, x_greater_y);
-    let sign_flip = _mm_andnot_ps(x_greater_y,  _ico_signbit_ps());
-    
+    let sign_flip = _mm_andnot_ps(x_greater_y, _ico_signbit_ps());
+
     let atan = _mm_xor_ps(sign_flip, _ico_atan01_ps(atan_val, offset));
 
     return atan;
-}   
-
-
-
-
+}
 
 #[inline(always)]
 /// max error 0.000001 radians

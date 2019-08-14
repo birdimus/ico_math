@@ -119,37 +119,50 @@ mod test {
         let to = Quaternion::angle_axis(b, a);
         let from = Quaternion::identity();
 
-
-        for i in 0..1000{
-            let lerp_val = (i-500) as f32 / 500.0f32;
+        for i in 0..1000 {
+            let lerp_val = (i - 500) as f32 / 500.0f32;
             let result = Quaternion::lerp(from, to, lerp_val);
             let ideal = Quaternion::angle_axis(b * lerp_val, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.value() > 0.999 && proximity.value() < 1.001, "{} ", proximity.value());
+            assert!(
+                proximity.value() > 0.999 && proximity.value() < 1.001,
+                "{} ",
+                proximity.value()
+            );
         }
 
         {
             let result = Quaternion::lerp(from, to, 0.0f32);
             let ideal = from;
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
 
         {
             let result = Quaternion::lerp(from, to, 1.0f32);
             let ideal = to;
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} {}", proximity.value(), to.sqr_magnitude().value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} {}",
+                proximity.value(),
+                to.sqr_magnitude().value()
+            );
         }
         {
             let result = Quaternion::lerp(from, to, -1.0f32);
             let ideal = Quaternion::angle_axis(b * -1.0f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
-
-
-        
     }
     #[test]
     fn slerp() {
@@ -163,64 +176,104 @@ mod test {
             let result = Quaternion::slerp(from, to, 0.5f32);
             let ideal = Quaternion::angle_axis(b * 0.5f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
         {
             let result = Quaternion::slerp(from, to, -0.5f32);
             let ideal = Quaternion::angle_axis(b * -0.5f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
         {
             let result = Quaternion::slerp(from, to, 0.7f32);
             let ideal = Quaternion::angle_axis(b * 0.7f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
         {
             let result = Quaternion::slerp(from, to, -0.7f32);
             let ideal = Quaternion::angle_axis(b * -0.7f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
 
         {
             let result = Quaternion::slerp(from, to, 0.2f32);
             let ideal = Quaternion::angle_axis(b * 0.2f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
 
         {
             let result = Quaternion::slerp(from, to, 0.0f32);
             let ideal = from;
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
 
         {
             let result = Quaternion::slerp(from, to, 1.0f32);
             let ideal = to;
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
         {
             let result = Quaternion::slerp(from, to, -1.0f32);
             let ideal = Quaternion::angle_axis(b * -1.0f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
         {
             let result = Quaternion::slerp(from, to, 3.0f32);
             let ideal = Quaternion::angle_axis(b * 3.0f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
         {
             let result = Quaternion::slerp(from, to, -3.5f32);
             let ideal = Quaternion::angle_axis(b * -3.5f32, a);
             let proximity = Quaternion::dot(result, ideal);
-            assert!(proximity.approx_equal(FloatVector::from(1.0)), "{} ", proximity.value());
+            assert!(
+                proximity.approx_equal(FloatVector::from(1.0)),
+                "{} ",
+                proximity.value()
+            );
         }
     }
 

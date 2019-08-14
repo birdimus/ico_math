@@ -290,8 +290,8 @@ impl Quaternion {
     pub fn renormalize(self) -> Quaternion {
         // unsafe{
 
-            // let inv_len = _mm_rsqrt_ps (self.sqr_magnitude().data);
-             // return Quaternion{data:_mm_mul_ps(inv_len, self.data)};
+        // let inv_len = _mm_rsqrt_ps (self.sqr_magnitude().data);
+        // return Quaternion{data:_mm_mul_ps(inv_len, self.data)};
         // }
         let len = FloatVector::sqrt(Quaternion::dot(self, self));
         return Quaternion::from(Vector4::from(self) / len);
@@ -372,7 +372,7 @@ impl Quaternion {
         let a_scale = FloatVector::xor(sign_flip, sin_div.z());
         let dest = Vector4::from(sign_flipped_to) * sin_div.y();
         let result = Vector4::mul_add(Vector4::from(self), Vector4::from(a_scale), dest);
-        return Quaternion::from(result).renormalize();  //only required because of the sin/cos approximations
+        return Quaternion::from(result).renormalize(); //only required because of the sin/cos approximations
     }
 
     #[inline(always)]
