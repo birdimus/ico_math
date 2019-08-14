@@ -211,24 +211,10 @@ pub unsafe fn _ico_ping_pong(vec: __m128) -> __m128 {
     return _mm_add_ps(internal, internal); // multiply by 2
 }
 
-/// This is a series approximation of cos.  Error < 0.01% in the domain
-///  2 approximations were used to compute this result
-///  A = 4x^3 - 6x^2 + 1
-///  B = -2x^5 + 5x^4 - 5x^2 + 1
-/// The range was cut in half
-///  A = 2x^3 - 3x^2 + 1
-///  B = -x^5 + 2.5x^4 - 2.5x^2 + 1
-///  These were weighted (1-t)*A + (t)*B to minimize error and ensure 0,1,0.25, 0.75, and 0.5 provided exact solutions
-/// Max absolute error on domain [0,1], range [-1,1] is 0.000192f at ~0.25 +- 0.125
-/// Max relative error on domain [0,1]. range [-1,1] approaches 0.00069f at 0.5
 
-/// 1.115408f Was found empirically as T.
-//// coeff for {x^5, x^4, x^3, x^2}
-
-//// Next, coefficients had to be shifted to account for limitations in floating point representation
-//// COMPUTED SCALARS: (-2.230816f,5.57704f, -0.461632f, -4.884592f );
-///  x^4, x^3 coefficients were adjusted
-/// todo: reorder this for improved perf
+/// 1/4 of a cosine curve
+/// Max absolute error is < 0.00002
+/// Both 0 and 1 should return exact values (1, and 0, respectively)
 #[inline(always)]
 pub unsafe fn _ico_approx_cos01(vec: __m128) -> __m128 {
 
@@ -239,8 +225,8 @@ pub unsafe fn _ico_approx_cos01(vec: __m128) -> __m128 {
     result = _mm_mul_ps(result, vec);
     result = _mm_fmadd_ps(vec,  result,  _ico_one_ps());
     return result;
-
 }
+
 #[inline(always)]
 unsafe fn _ico_do_cos_ps(scaled: __m128) -> __m128 {
 

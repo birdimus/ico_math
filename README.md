@@ -37,8 +37,7 @@ Casts upward (from Vector2 to Vector4) always zero-initialize the additional cha
 - Encoded load / store operations (16 uint, etc).
 - Additional matrix methods and types.
 - Methods for shifts which take const arguments (without const generics).
-- More unit test coverage (specifically bool, int, and matrix).
-- Set of Euler conversions (and test coverage).
+- More unit test coverage (specifically bool, and matrix).
 - More documentation.
 - Perfomance tests.
 - Basic physics.
