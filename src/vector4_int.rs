@@ -180,6 +180,8 @@ impl Vector4Int {
             };
         }
     }
+
+    /// Negate the values in v1 if the value in v2 is negative.  Zero the value in v1 if the value in v2 is zero.
     #[inline(always)]
     pub fn sign(self, v2: Vector4Int) -> Vector4Int {
         unsafe {
