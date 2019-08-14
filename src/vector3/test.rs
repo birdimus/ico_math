@@ -9,11 +9,9 @@
 mod test {
     use crate::float_vector::FloatVector;
     use crate::raw::RawVector_f32;
-    use crate::sse_extensions::*;
     use crate::vector3::Vector3;
     use crate::vector3_bool::Vector3Bool;
     use crate::vector4::Vector4;
-    use core::arch::x86_64::*;
     #[test]
     fn new() {
         let a = Vector3::new(1.0, 2.0, 3.0);
