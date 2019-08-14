@@ -14,6 +14,9 @@ pub const SIGN_BIT: f32 = -0.0;
 // pub const EPSILON_AT_ONE: f32 = 0.00000012;
 pub const INV_TWO_PI: f32 = 0.159154943091895335768883763372514362034459645740456448747;
 pub const INV_PI: f32 = 1.0 / core::f32::consts::PI;
+pub const INV_TWO_PI_64: f64 = 0.5 / core::f64::consts::PI;
+
+
 pub const TWO_PI: f32 = 6.283185307179586476925286766559005768394338798750211641949;
 pub const HALF_PI: f32 = 1.57079632679;
 pub const PI: f32 = 3.14159265359;
@@ -227,11 +230,12 @@ pub unsafe fn _ico_approx_cos01(vec: __m128) -> __m128 {
 
 #[inline(always)]
 unsafe fn _ico_do_cos_ps(scaled: __m128) -> __m128 {
-    let sign_offset = _mm_add_ps(scaled, _mm_set1_ps(0.5));
-    let ping_pong = _ico_abs_ps(_mm_sub_ps(_mm_floor_ps(sign_offset), scaled));
+    //reduce range first. - doesn't actually seem to make a difference in precision - probably limited by the mul with inv pi.
+    let ranged = _mm_sub_ps(scaled,_mm_floor_ps(scaled) );
+    let ping_pong = _ico_abs_ps(_mm_sub_ps(ranged, _mm_set1_ps(0.5)));
 
     //this contains the sign
-    let sign_driver = _mm_sub_ps(_mm_set1_ps(0.25), ping_pong);
+    let sign_driver = _mm_sub_ps(ping_pong, _mm_set1_ps(0.25));
     //convert the sign ping pong to a 0-1 driver.
     let driver = _mm_fnmadd_ps(_ico_abs_ps(sign_driver), _mm_set1_ps(4.0), _mm_set1_ps(1.0));
 
@@ -249,6 +253,8 @@ pub unsafe fn _ico_cos_deg_ps(vec: __m128) -> __m128 {
 }
 #[inline(always)]
 pub unsafe fn _ico_sin_ps(vec: __m128) -> __m128 {
+    //TODO: we could range reduce first, before shifting - but I don't think it matters much
+    // SIN range reduction would look like: abs(0.5 - abs(floor(vec) - vec + 0.25)) - 0.25
     let scaled = _mm_fmsub_ps(vec, _mm_set1_ps(INV_TWO_PI), _mm_set1_ps(0.25));
     return _ico_do_cos_ps(scaled);
 }

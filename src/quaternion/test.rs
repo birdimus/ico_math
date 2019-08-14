@@ -167,10 +167,23 @@ mod test {
     #[test]
     fn slerp() {
         let a = Vector3::new(0.0, 1.0, 0.0);
-        let b = 90.0f32.to_radians();
+        let b = 170.0f32.to_radians();
 
         let to = Quaternion::angle_axis(b, a);
         let from = Quaternion::identity();
+
+        //slerp can handle the big rotations.
+        for i in 0..1000 {
+            let lerp_val = (i - 500) as f32 / 200.0f32;
+            let result = Quaternion::slerp(from, to, lerp_val);
+            let ideal = Quaternion::angle_axis(b * lerp_val, a);
+            let proximity = Quaternion::dot(result, ideal);
+            assert!(
+                proximity.value() > 0.999 && proximity.value() < 1.001,
+                "{} ",
+                proximity.value()
+            );
+        }
 
         {
             let result = Quaternion::slerp(from, to, 0.5f32);

@@ -795,19 +795,19 @@ mod test {
     #[test]
     fn cos() {
         for i in 0..1000 {
-            let x = i - 200;
-            let y = i - 400;
-            let z = i - 600;
-            let a = Vector3::new(x as f32 * 0.1, y as f32 * 0.01, z as f32 * 0.001);
+            let x = i as f32 * 0.1;
+            let y = (i - 400) as f32 * 0.01;
+            let z = (i - 600) as f32 * 0.01;
+            let a = Vector3::new(x,y,z);
             let cos = Vector3::cos(a);
 
-            let x_r = f32::cos(x as f32 * 0.1);
-            let y_r = f32::cos(y as f32 * 0.01);
-            let z_r = f32::cos(z as f32 * 0.001);
+            let x_r = f32::cos(x);
+            let y_r = f32::cos(y);
+            let z_r = f32::cos(z);
 
-            assert!((cos.x().value() - x_r).abs() < 0.00002);
-            assert!((cos.y().value() - y_r).abs() < 0.00002);
-            assert!((cos.z().value() - z_r).abs() < 0.00002);
+            assert!((cos.x().value() - x_r).abs() < 0.00002, "{} {}",x, (cos.x().value() - x_r).abs());
+            assert!((cos.y().value() - y_r).abs() < 0.00002, "{} {}",y, (cos.y().value() - y_r).abs());
+            assert!((cos.z().value() - z_r).abs() < 0.00002, "{} {}",z, (cos.z().value() - z_r).abs());
         }
         {
             let tmp = Vector3::new(0.0, 0.5 * core::f32::consts::PI, core::f32::consts::PI);
@@ -818,6 +818,8 @@ mod test {
             assert_eq!(a.z(), -1.0);
         }
     }
+
+    //TODO: compute error bounds on tan
     #[test]
     fn tan() {
         for i in 0..1000 {
@@ -831,14 +833,20 @@ mod test {
             let z_r = f32::tan(x * 0.01);
 
             assert!(
-                (tan.x().value() - x_r).abs() <= x_r.abs() * 0.002,
+                (tan.x().value() - x_r).abs() <= (0.01 + x_r.abs()) * 0.002,
                 "{} {} {}",
                 i,
                 tan.x().value(),
                 x_r
             );
-            assert!((tan.y().value() - y_r).abs() <= y_r.abs() * 0.002, "{} ", i);
-            assert!((tan.z().value() - z_r).abs() <= z_r.abs() * 0.002, "{} ", i);
+            assert!((tan.y().value() - y_r).abs() <= (0.01 + y_r.abs()) * 0.002,"{} {} {}",
+                i,
+                tan.y().value(),
+                y_r);
+            assert!((tan.z().value() - z_r).abs() <= (0.01 + z_r.abs()) * 0.002,"{} {} {}",
+                i,
+                tan.z().value(),
+                z_r);
         }
         {
             let a = Vector3::tan(Vector3::new(
