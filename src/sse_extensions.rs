@@ -242,11 +242,9 @@ pub unsafe fn _ico_approx_cos01(vec: __m128) -> __m128 {
 //     return _ico_copysign_ps(_ico_approx_cos01(driver), sign_driver);
 // }
 
-
 #[inline(always)]
 unsafe fn _ico_do_cos_pd(scaled: __m256d) -> __m128 {
-
-    let ranged = _mm256_cvtpd_ps(_mm256_sub_pd(scaled,_mm256_floor_pd(scaled) ));
+    let ranged = _mm256_cvtpd_ps(_mm256_sub_pd(scaled, _mm256_floor_pd(scaled)));
     let ping_pong = _ico_abs_ps(_mm_sub_ps(ranged, _mm_set1_ps(0.5)));
 
     //this contains the sign
@@ -260,37 +258,37 @@ unsafe fn _ico_do_cos_pd(scaled: __m256d) -> __m128 {
 /// Converts to double precision for range reduction, or else we are limited by the precision in PI
 #[inline(always)]
 pub unsafe fn _ico_cos_ps(vec: __m128) -> __m128 {
-    let dbl = _mm256_cvtps_pd(vec); 
-    let scaled = _mm256_mul_pd(dbl, _mm256_set1_pd (INV_TWO_PI_64));
+    let dbl = _mm256_cvtps_pd(vec);
+    let scaled = _mm256_mul_pd(dbl, _mm256_set1_pd(INV_TWO_PI_64));
     return _ico_do_cos_pd(scaled);
 }
 #[inline(always)]
 pub unsafe fn _ico_cos_deg_ps(vec: __m128) -> __m128 {
-    let dbl = _mm256_cvtps_pd(vec); 
-    let scaled = _mm256_mul_pd(dbl, _mm256_set1_pd (INV_360_64));
+    let dbl = _mm256_cvtps_pd(vec);
+    let scaled = _mm256_mul_pd(dbl, _mm256_set1_pd(INV_360_64));
     return _ico_do_cos_pd(scaled);
 }
 #[inline(always)]
 pub unsafe fn _ico_sin_ps(vec: __m128) -> __m128 {
     //TODO: we could range reduce first, before shifting - but I don't think it matters much
     // SIN range reduction would look like: abs(0.5 - abs(floor(vec) - vec + 0.25)) - 0.25
-    let dbl = _mm256_cvtps_pd(vec); 
-    let scaled = _mm256_fmsub_pd(dbl, _mm256_set1_pd (INV_TWO_PI_64), _mm256_set1_pd(0.25));
+    let dbl = _mm256_cvtps_pd(vec);
+    let scaled = _mm256_fmsub_pd(dbl, _mm256_set1_pd(INV_TWO_PI_64), _mm256_set1_pd(0.25));
     // let scaled = _mm_fmsub_ps(vec, _mm_set1_ps(INV_TWO_PI), _mm_set1_ps(0.25));
     return _ico_do_cos_pd(scaled);
 }
 #[inline(always)]
 pub unsafe fn _ico_sin_deg_ps(vec: __m128) -> __m128 {
-    let dbl = _mm256_cvtps_pd(vec); 
-    let scaled = _mm256_fmsub_pd(dbl, _mm256_set1_pd (INV_360_64), _mm256_set1_pd(0.25));
+    let dbl = _mm256_cvtps_pd(vec);
+    let scaled = _mm256_fmsub_pd(dbl, _mm256_set1_pd(INV_360_64), _mm256_set1_pd(0.25));
     // let scaled = _mm_fmsub_ps(vec, _mm_set1_ps(INV_TWO_PI), _mm_set1_ps(0.25));
     return _ico_do_cos_pd(scaled);
 }
 
 #[inline(always)]
 pub unsafe fn _ico_tan_ps(vec: __m128) -> __m128 {
-    let dbl = _mm256_cvtps_pd(vec); 
-    let scaled = _mm256_mul_pd(dbl, _mm256_set1_pd (INV_TWO_PI_64));
+    let dbl = _mm256_cvtps_pd(vec);
+    let scaled = _mm256_mul_pd(dbl, _mm256_set1_pd(INV_TWO_PI_64));
     let cos = _ico_do_cos_pd(scaled);
     let sin = _ico_do_cos_pd(_mm256_sub_pd(scaled, _mm256_set1_pd(0.25)));
 

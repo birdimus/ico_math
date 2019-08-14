@@ -798,16 +798,31 @@ mod test {
             let x = i as f32 * 1000.0;
             let y = (i - 400) as f32 * 0.01;
             let z = (i - 600) as f32 * 0.01;
-            let a = Vector3::new(x,y,z);
+            let a = Vector3::new(x, y, z);
             let cos = Vector3::cos(a);
 
             let x_r = f32::cos(x);
             let y_r = f32::cos(y);
             let z_r = f32::cos(z);
 
-            assert!((cos.x().value() - x_r).abs() < 0.000016, "{} {}",x, (cos.x().value() - x_r).abs());
-            assert!((cos.y().value() - y_r).abs() < 0.000016, "{} {}",y, (cos.y().value() - y_r).abs());
-            assert!((cos.z().value() - z_r).abs() < 0.000016, "{} {}",z, (cos.z().value() - z_r).abs());
+            assert!(
+                (cos.x().value() - x_r).abs() < 0.000016,
+                "{} {}",
+                x,
+                (cos.x().value() - x_r).abs()
+            );
+            assert!(
+                (cos.y().value() - y_r).abs() < 0.000016,
+                "{} {}",
+                y,
+                (cos.y().value() - y_r).abs()
+            );
+            assert!(
+                (cos.z().value() - z_r).abs() < 0.000016,
+                "{} {}",
+                z,
+                (cos.z().value() - z_r).abs()
+            );
         }
         {
             let tmp = Vector3::new(0.0, 0.5 * core::f32::consts::PI, core::f32::consts::PI);
@@ -839,14 +854,20 @@ mod test {
                 tan.x().value(),
                 x_r
             );
-            assert!((tan.y().value() - y_r).abs() <= (0.01 + y_r.abs()) * 0.0016,"{} {} {}",
+            assert!(
+                (tan.y().value() - y_r).abs() <= (0.01 + y_r.abs()) * 0.0016,
+                "{} {} {}",
                 i,
                 tan.y().value(),
-                y_r);
-            assert!((tan.z().value() - z_r).abs() <= (0.01 + z_r.abs()) * 0.0016,"{} {} {}",
+                y_r
+            );
+            assert!(
+                (tan.z().value() - z_r).abs() <= (0.01 + z_r.abs()) * 0.0016,
+                "{} {} {}",
                 i,
                 tan.z().value(),
-                z_r);
+                z_r
+            );
         }
         {
             let a = Vector3::tan(Vector3::new(
