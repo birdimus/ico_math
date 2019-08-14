@@ -533,7 +533,14 @@ impl Vector4 {
             }
         }
     }
-
+    #[inline(always)]
+    pub fn atan2(self, x: Vector4) -> Vector4 {
+        unsafe {
+            Vector4 {
+                data: _ico_atan2_ps(self.data, x.data),
+            }
+        }
+    }
     /// Compute the component-wise max.
     #[inline(always)]
     pub fn max(self, v2: Vector4) -> Vector4 {

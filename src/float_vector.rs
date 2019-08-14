@@ -413,7 +413,14 @@ impl FloatVector {
             }
         }
     }
-
+    #[inline(always)]
+    pub fn atan2(self, x: FloatVector) -> FloatVector {
+        unsafe {
+            FloatVector {
+                data: _ico_atan2_ps(self.data, x.data),
+            }
+        }
+    }
     /// Compute the component-wise max.
     #[inline(always)]
     pub fn max(self, v2: FloatVector) -> FloatVector {

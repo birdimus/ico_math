@@ -765,20 +765,20 @@ mod test {
     }
     #[test]
     fn sin() {
-        for i in 0..100000 {
-            let x = i - 200;
-            let y = i - 400;
-            let z = i - 600;
-            let a = Vector3::new(x as f32 * 0.1, y as f32 * 0.01, z as f32 * 0.001);
+        for i in 0..1000000 {
+            let x = i as f32 * 1000.0;
+            let y = (i - 400) as f32 * 0.01;
+            let z = (i - 600) as f32 * 0.01;
+            let a = Vector3::new(x, y, z);
             let sin = Vector3::sin(a);
 
-            let x_r = f32::sin(x as f32 * 0.1);
-            let y_r = f32::sin(y as f32 * 0.01);
-            let z_r = f32::sin(z as f32 * 0.001);
+            let x_r = f32::sin(x);
+            let y_r = f32::sin(y);
+            let z_r = f32::sin(z);
 
-            assert!((sin.x().value() - x_r).abs() < 0.00002);
-            assert!((sin.y().value() - y_r).abs() < 0.00002);
-            assert!((sin.z().value() - z_r).abs() < 0.00002);
+            assert!((sin.x().value() - x_r).abs() < 0.000016);
+            assert!((sin.y().value() - y_r).abs() < 0.000016);
+            assert!((sin.z().value() - z_r).abs() < 0.000016);
         }
         {
             let a = Vector3::sin(Vector3::new(
@@ -794,8 +794,8 @@ mod test {
     }
     #[test]
     fn cos() {
-        for i in 0..100000 {
-            let x = i as f32 * 0.1;
+        for i in 0..1000000 {
+            let x = i as f32 * 1000.0;
             let y = (i - 400) as f32 * 0.01;
             let z = (i - 600) as f32 * 0.01;
             let a = Vector3::new(x,y,z);
@@ -805,9 +805,9 @@ mod test {
             let y_r = f32::cos(y);
             let z_r = f32::cos(z);
 
-            assert!((cos.x().value() - x_r).abs() < 0.00002, "{} {}",x, (cos.x().value() - x_r).abs());
-            assert!((cos.y().value() - y_r).abs() < 0.00002, "{} {}",y, (cos.y().value() - y_r).abs());
-            assert!((cos.z().value() - z_r).abs() < 0.00002, "{} {}",z, (cos.z().value() - z_r).abs());
+            assert!((cos.x().value() - x_r).abs() < 0.000016, "{} {}",x, (cos.x().value() - x_r).abs());
+            assert!((cos.y().value() - y_r).abs() < 0.000016, "{} {}",y, (cos.y().value() - y_r).abs());
+            assert!((cos.z().value() - z_r).abs() < 0.000016, "{} {}",z, (cos.z().value() - z_r).abs());
         }
         {
             let tmp = Vector3::new(0.0, 0.5 * core::f32::consts::PI, core::f32::consts::PI);
@@ -833,17 +833,17 @@ mod test {
             let z_r = f32::tan(x * 0.01);
 
             assert!(
-                (tan.x().value() - x_r).abs() <= (0.01 + x_r.abs()) * 0.002,
+                (tan.x().value() - x_r).abs() <= (0.01 + x_r.abs()) * 0.0016,
                 "{} {} {}",
                 i,
                 tan.x().value(),
                 x_r
             );
-            assert!((tan.y().value() - y_r).abs() <= (0.01 + y_r.abs()) * 0.002,"{} {} {}",
+            assert!((tan.y().value() - y_r).abs() <= (0.01 + y_r.abs()) * 0.0016,"{} {} {}",
                 i,
                 tan.y().value(),
                 y_r);
-            assert!((tan.z().value() - z_r).abs() <= (0.01 + z_r.abs()) * 0.002,"{} {} {}",
+            assert!((tan.z().value() - z_r).abs() <= (0.01 + z_r.abs()) * 0.0016,"{} {} {}",
                 i,
                 tan.z().value(),
                 z_r);
