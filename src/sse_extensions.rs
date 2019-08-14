@@ -13,10 +13,11 @@ pub const RELATIVE_COMPARISON_EPSILON: f32 = ABSOLUTE_COMPARISON_EPSILON * 4.0; 
 pub const SIGN_BIT: f32 = -0.0;
 // pub const EPSILON_AT_ONE: f32 = 0.00000012;
 pub const INV_TWO_PI: f32 = 0.159154943091895335768883763372514362034459645740456448747;
+pub const INV_PI: f32 = 1.0/core::f32::consts::PI;
 pub const TWO_PI: f32 = 6.283185307179586476925286766559005768394338798750211641949;
 pub const HALF_PI: f32 = 1.57079632679;
 pub const PI: f32 = 3.14159265359;
-
+pub const INV_360: f32 =1.0/360.0;
 /// A replacement for the _MM_SHUFFLE macro.
 #[inline(always)]
 pub const fn _ico_shuffle(z: i32, y: i32, x: i32, w: i32) -> i32 {
@@ -227,85 +228,111 @@ pub unsafe fn _ico_ping_pong(vec: __m128) -> __m128 {
 //// Next, coefficients had to be shifted to account for limitations in floating point representation
 //// COMPUTED SCALARS: (-2.230816f,5.57704f, -0.461632f, -4.884592f );
 ///  x^4, x^3 coefficients were adjusted
+/// todo: reorder this for improved perf
 #[inline(always)]
 pub unsafe fn _ico_approx_cos01(vec: __m128) -> __m128 {
-    let scalars = _mm_set_ps(-2.230816, 5.5770397, -0.4616319, -4.884592);
-    //let scalars = _mm_castsi128_ps(_mm_set_epi32( 0xc00ec5b0, 0x40b2771c, 0xbeec5b04, 0xc09c4e94));
 
-    let vec2 = _mm_mul_ps(vec, vec);
-    let mut result = _mm_fmadd_ps(vec2, _xxxx(scalars), _ico_one_ps());
+    let scalars = _mm_set_ps(-0.05104357, 0.300697,-0.01847417, -1.23117923841858);//-1.231179
+    let mut result = _mm_fmadd_ps(vec,  _wwww(scalars), _zzzz(scalars));
+    result = _mm_fmadd_ps(vec,  result, _yyyy(scalars));
+    result = _mm_fmadd_ps(vec,  result, _xxxx(scalars));
+    result = _mm_mul_ps(result, vec);
+    result = _mm_fmadd_ps(vec,  result,  _ico_one_ps());
+    return result;
 
-    let vec3 = _mm_mul_ps(vec2, vec);
-    result = _mm_fmadd_ps(vec3, _yyyy(scalars), result);
-
-    let vec4 = _mm_mul_ps(vec3, vec);
-    result = _mm_fmadd_ps(vec4, _zzzz(scalars), result);
-
-    let vec5 = _mm_mul_ps(vec4, vec);
-    result = _mm_fmadd_ps(vec5, _wwww(scalars), result);
-
-    // As a final step, clamp to between -1 and 1 for safety.
-    let one = _ico_one_ps();
-    let mask = _mm_cmpgt_ps(_ico_abs_ps(result), one);
-    let clamped = _ico_copysign_ps(one, result);
-    return _ico_select_ps(result, clamped, mask);
 }
+#[inline(always)]
+unsafe fn _ico_do_cos_ps(scaled: __m128) -> __m128 {
 
+    let sign_offset = _mm_add_ps(scaled, _mm_set1_ps(0.5));
+    let ping_pong = _ico_abs_ps(_mm_sub_ps(_mm_floor_ps(sign_offset), scaled));
+
+    //this contains the sign
+    let sign_driver = _mm_sub_ps(_mm_set1_ps(0.25), ping_pong);
+    //convert the sign ping pong to a 0-1 driver.
+    let driver = _mm_fnmadd_ps(_ico_abs_ps(sign_driver), _mm_set1_ps(4.0),_mm_set1_ps(1.0));
+
+    return _ico_copysign_ps(_ico_approx_cos01(driver), sign_driver);
+
+}
 #[inline(always)]
 pub unsafe fn _ico_cos_ps(vec: __m128) -> __m128 {
-    //let scaled = _mm_div_ps(vec, _mm_set1_ps(TWO_PI));
+
     let scaled = _mm_mul_ps(vec, _mm_set1_ps(INV_TWO_PI));
-    let looped = _ico_ping_pong(scaled);
-    return _ico_approx_cos01(looped);
+    return _ico_do_cos_ps(scaled);
 }
 #[inline(always)]
 pub unsafe fn _ico_cos_deg_ps(vec: __m128) -> __m128 {
-    let scaled = _mm_div_ps(vec, _mm_set1_ps(360.0));
-    let looped = _ico_ping_pong(scaled);
-    return _ico_approx_cos01(looped);
+    let scaled = _mm_mul_ps(vec, _mm_set1_ps(INV_360));
+    return _ico_do_cos_ps(scaled);
 }
 #[inline(always)]
 pub unsafe fn _ico_sin_ps(vec: __m128) -> __m128 {
-    //let scaled = _mm_div_ps(vec, _mm_set1_ps(TWO_PI));
-    let scaled = _mm_mul_ps(vec, _mm_set1_ps(INV_TWO_PI));
-
-    let shifted = _mm_add_ps(scaled, _ico_half_ps());
-    let internal = _mm_sub_ps(scaled, _mm_floor_ps(shifted));
-    let sin_shift = _mm_sub_ps(internal, _mm_set1_ps(0.25));
-
-    let looped = _ico_ping_pong(sin_shift);
-    return _ico_approx_cos01(looped);
+    let scaled = _mm_fmsub_ps(vec, _mm_set1_ps(INV_TWO_PI), _mm_set1_ps(0.25));
+    return _ico_do_cos_ps(scaled);
 }
-
+#[inline(always)]
+pub unsafe fn _ico_sin_deg_ps(vec: __m128) -> __m128 {
+    let scaled = _mm_fmsub_ps(vec, _mm_set1_ps(INV_360), _mm_set1_ps(0.25));
+    return _ico_do_cos_ps(scaled);
+}
 //TODO: this is untested
 #[inline(always)]
 pub unsafe fn _ico_tan_ps(vec: __m128) -> __m128 {
-    //let scaled = _mm_div_ps(vec, _mm_set1_ps(TWO_PI));
     let scaled = _mm_mul_ps(vec, _mm_set1_ps(INV_TWO_PI));
-
-    let shifted = _mm_add_ps(scaled, _ico_half_ps());
-    let internal = _mm_sub_ps(scaled, _mm_floor_ps(shifted));
-    let sin_shift = _mm_sub_ps(internal, _mm_set1_ps(0.25));
-
-    let looped_sin = _ico_ping_pong(sin_shift);
-    let looped_cos = _ico_ping_pong(scaled);
-    let sin = _ico_approx_cos01(looped_sin);
-    let cos = _ico_approx_cos01(looped_cos);
+    let cos = _ico_do_cos_ps(scaled);
+    let sin = _ico_do_cos_ps(_mm_sub_ps(scaled, _mm_set1_ps(0.25)));
     return _mm_div_ps(sin, cos);
 }
 
-
+/// Approximation Valid between -1 and 1
+/// 7th order approximation
 #[inline(always)]
-pub unsafe fn _ico_sin_deg_ps(vec: __m128) -> __m128 {
-    let scaled = _mm_div_ps(vec, _mm_set1_ps(360.0));
+pub unsafe fn _ico_atan01_ps(value: __m128, offset: __m128) -> __m128 {
+    let scalars = _mm_set_ps(-0.03864493, 0.1459276, -0.3210924, 0.9992079);
 
-    let shifted = _mm_add_ps(scaled, _ico_half_ps());
-    let internal = _mm_sub_ps(scaled, _mm_floor_ps(shifted));
-    let sin_shift = _mm_sub_ps(internal, _mm_set1_ps(0.25));
+    //Ax7 + bx5 + cx3 +dx
+    //x( x2( x2 (Ax2 + b) + c) +d)
+    let x_sqr = _mm_mul_ps(value, value);
+    let mut result = _mm_fmadd_ps(x_sqr, _wwww(scalars),  _zzzz(scalars));
+    result = _mm_fmadd_ps(x_sqr, result,  _yyyy(scalars));
+    result = _mm_fmadd_ps(x_sqr, result,  _xxxx(scalars));
+    return _mm_fmadd_ps(value, result,  offset);
+}   
 
-    let looped = _ico_ping_pong(sin_shift);
-    return _ico_approx_cos01(looped);
-}
+
+// loosely based on https://www.dsprelated.com/showarticle/1052.php
+#[inline(always)]
+pub unsafe fn _ico_atan2_ps(y: __m128, x: __m128) -> __m128 {
+    let abs_x = _ico_abs_ps(x);
+    let abs_y = _ico_abs_ps(y);
+    let x_div_y = _mm_div_ps(x,y);
+    let y_div_x = _mm_div_ps(y,x);
+
+    //if x >= y 
+    let x_greater_y = _mm_cmpge_ps(abs_x,abs_y);
+
+    let x_negative = _mm_cmplt_ps(x,_mm_setzero_ps());
+    let y_negative = _mm_cmplt_ps(y,_mm_setzero_ps());
+
+    //5 cases
+    // if x is positive, 0, otherwise either positive or negative pi offset
+    let case_01_offset = _mm_and_ps(x_negative, _ico_select_ps(_mm_set1_ps(core::f32::consts::PI), 
+        _mm_set1_ps(-core::f32::consts::PI), y_negative));
+    // Use property atan(y/x) = PI/2 - atan(x/y) if |y/x| > 1.
+    let case_23_offset = _ico_select_ps(_mm_set1_ps(-0.5 * core::f32::consts::PI), 
+        _mm_set1_ps(0.5 * core::f32::consts::PI), y_negative);
+
+    let offset = _ico_select_ps(case_23_offset, case_01_offset, x_greater_y);
+    let atan_val = _ico_select_ps(x_div_y, y_div_x, x_greater_y);
+    let sign_flip = _mm_andnot_ps(x_greater_y,  _ico_signbit_ps());
+    
+    let atan = _mm_xor_ps(sign_flip, _ico_atan01_ps(atan_val, offset));
+
+    return atan;
+}   
+
+
 
 
 

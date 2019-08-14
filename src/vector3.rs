@@ -580,7 +580,7 @@ impl Vector3 {
             }
         }
     }
-    
+
     /// Compute the approximate tan of each component
     #[inline(always)]
     pub fn tan(self) -> Vector3 {
@@ -610,7 +610,14 @@ impl Vector3 {
             }
         }
     }
-
+    #[inline(always)]
+    pub fn atan2(self ,x : Vector3 ) -> Vector3 {
+        unsafe {
+            Vector3 {
+                data: _ico_atan2_ps(self.data, x.data),
+            }
+        }
+    }
     /// Compute the component-wise max.
     #[inline(always)]
     pub fn max(self, v2: Vector3) -> Vector3 {

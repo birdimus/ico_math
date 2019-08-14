@@ -12,6 +12,8 @@ mod test {
     use crate::vector3::Vector3;
     use crate::vector3_bool::Vector3Bool;
     use crate::vector4::Vector4;
+    use core::arch::x86_64::*;
+    use crate::sse_extensions::*;
     #[test]
     fn new() {
         let a = Vector3::new(1.0, 2.0, 3.0);
@@ -765,6 +767,23 @@ mod test {
     }
     #[test]
     fn sin() {
+
+        for i in 0..1000{
+            let x = i-200;
+            let y = i-400;
+            let z = i-600;
+            let a = Vector3::new(x as f32 * 0.1 , y as f32 * 0.01, z as f32 * 0.001);
+            let sin = Vector3::sin(a);
+
+
+            let x_r = f32::sin(x as f32 * 0.1);
+            let y_r = f32::sin(y as f32 * 0.01);
+            let z_r = f32::sin(z as f32 * 0.001);
+
+            assert!( (sin.x().value() - x_r).abs() < 0.00002 ) ;
+            assert!( (sin.y().value() - y_r).abs() < 0.00002 );
+            assert!( (sin.z().value() - z_r).abs() < 0.00002 );
+        }
         {
             let a = Vector3::sin(Vector3::new(
                 0.0,
@@ -776,69 +795,59 @@ mod test {
             assert_eq!(a.y(), 1.0);
             assert_eq!(a.z(), 0.0);
         }
-        {
-            let a = Vector3::sin(Vector3::new(
-                0.25 * core::f32::consts::PI,
-                -0.25 * core::f32::consts::PI,
-                -core::f32::consts::PI,
-            ));
 
-            assert_eq!(a.x(), 0.70710678118);
-            assert_eq!(a.y(), -0.70710678118);
-            assert_eq!(a.z(), 0.0);
-        }
-
-        {
-            let a = Vector3::sin(Vector3::new(
-                100000.25 * core::f32::consts::PI,
-                -100000.25 * core::f32::consts::PI,
-                -99999.0 * core::f32::consts::PI,
-            ));
-
-            assert_eq!(a.x(), 0.70710678118);
-            assert_eq!(a.y(), -0.70710678118);
-            assert_eq!(a.z(), 0.0);
-        }
     }
     #[test]
     fn cos() {
+
+
+        for i in 0..1000{
+            let x = i-200;
+            let y = i-400;
+            let z = i-600;
+            let a = Vector3::new(x as f32 * 0.1 , y as f32 * 0.01, z as f32 * 0.001);
+            let cos = Vector3::cos(a);
+
+
+            let x_r = f32::cos(x as f32 * 0.1);
+            let y_r = f32::cos(y as f32 * 0.01);
+            let z_r = f32::cos(z as f32 * 0.001);
+
+            assert!( (cos.x().value() - x_r).abs() < 0.00002 ) ;
+            assert!( (cos.y().value() - y_r).abs() < 0.00002 );
+            assert!( (cos.z().value() - z_r).abs() < 0.00002 );
+        }
         {
-            let a = Vector3::cos(Vector3::new(
+            let tmp = Vector3::new(
                 0.0,
                 0.5 * core::f32::consts::PI,
                 core::f32::consts::PI,
-            ));
+            );
+            let a = Vector3::cos(tmp);
 
             assert_eq!(a.x(), 1.0);
             assert_eq!(a.y(), 0.0);
             assert_eq!(a.z(), -1.0);
         }
-        {
-            let a = Vector3::cos(Vector3::new(
-                0.25 * core::f32::consts::PI,
-                -0.25 * core::f32::consts::PI,
-                -core::f32::consts::PI,
-            ));
 
-            assert_eq!(a.x(), 0.70710678118);
-            assert_eq!(a.y(), 0.70710678118);
-            assert_eq!(a.z(), -1.0);
-        }
-
-        {
-            let a = Vector3::cos(Vector3::new(
-                100000.25 * core::f32::consts::PI,
-                -100000.25 * core::f32::consts::PI,
-                -99999.0 * core::f32::consts::PI,
-            ));
-
-            assert_eq!(a.x(), 0.70710678118);
-            assert_eq!(a.y(), 0.70710678118);
-            assert_eq!(a.z(), -1.0);
-        }
     }
     #[test]
     fn tan() {
+        for i in 0..1000{
+            let x = ((i-500) as f32 / 500.0)*0.49 *core::f32::consts::PI ;
+
+            let a = Vector3::new(x  , x*0.1, x*0.01);
+            let tan = Vector3::tan(a);
+
+
+            let x_r = f32::tan(x);
+            let y_r = f32::tan(x*0.1);
+            let z_r = f32::tan(x*0.01);
+
+            assert!( (tan.x().value() - x_r).abs() <= x_r.abs()*0.002, "{} {} {}",i ,tan.x().value(), x_r) ;
+            assert!( (tan.y().value() - y_r).abs() <= y_r.abs()*0.002,"{} ",i  );
+            assert!( (tan.z().value() - z_r).abs() <= z_r.abs()*0.002,"{} ",i  );
+        }
         {
             let a = Vector3::tan(Vector3::new(
                 0.0,
@@ -903,6 +912,29 @@ mod test {
         }
         
     }
+
+    #[test]
+    fn atan() {
+        for i in 0..1000{
+            let x = i-200;
+            let y = i-400;
+            let z = i-600;
+            let a = Vector3::new(x as f32 * 0.1 , y as f32 * 0.01, z as f32 * 0.001);
+            let b = Vector3::new(z as f32 * 0.1 , x as f32 * 0.01, y as f32 * 0.001);
+            let atan = Vector3::atan2(a, b);
+
+
+            let x_r = f32::atan2(x as f32 * 0.1, z as f32 * 0.1);
+            let y_r = f32::atan2(y as f32 * 0.01, x as f32 * 0.01);
+            let z_r = f32::atan2(z as f32 * 0.001, y as f32 * 0.001);
+
+            assert!( (atan.x().value() - x_r).abs() < 0.001 ) ;
+            assert!( (atan.y().value() - y_r).abs() < 0.001 );
+            assert!( (atan.z().value() - z_r).abs() < 0.001 );
+        }
+        
+    }
+
     #[test]
     fn max() {
         {
