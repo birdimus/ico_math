@@ -288,13 +288,17 @@ impl Quaternion {
     /// Only should be used if the Quaternion is known to be non-zero.
     #[inline(always)]
     pub fn renormalize(self) -> Quaternion {
+
+        let scale = self.sqr_magnitude();
+        let scale_factor = scale.neg_mul_add(FloatVector::new(0.5), FloatVector::new(1.5));
+        return Quaternion::from(Vector4::from(self) * scale_factor);
         // unsafe{
 
         // let inv_len = _mm_rsqrt_ps (self.sqr_magnitude().data);
         // return Quaternion{data:_mm_mul_ps(inv_len, self.data)};
         // }
-        let len = FloatVector::sqrt(Quaternion::dot(self, self));
-        return Quaternion::from(Vector4::from(self) / len);
+        // let len = FloatVector::sqrt(Quaternion::dot(self, self));
+        // return Quaternion::from(Vector4::from(self) / len);
     }
 
     /// A safe normalize.  If the quaternion is 0, returns Identity.
